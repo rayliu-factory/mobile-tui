@@ -21,7 +21,7 @@ All v1 requirements are hypotheses until shipped and validated.
 ### Serialization (SERDE)
 
 - [ ] **SERDE-01**: The spec file is a single Markdown file with YAML frontmatter; the file on disk is the single source of truth (no hidden cache that can diverge)
-- [ ] **SERDE-02**: Parsing uses `gray-matter` with its `engines.yaml` wired to `eemeli/yaml`'s Document AST parser — `js-yaml` is explicitly banned
+- [x] **SERDE-02**: Parsing uses `gray-matter` with its `engines.yaml` wired to `eemeli/yaml`'s Document AST parser — `js-yaml` is explicitly banned (gray-matter + yaml deps installed in Plan 02-01; architectural-invariant audit `tests/no-js-yaml.test.ts` asserts ban at dep + import level. engines.yaml wiring lands in Plan 02-02.)
 - [ ] **SERDE-03**: Serializing uses diff-and-apply against the retained `YAML.Document` AST (`setIn`/`deleteIn`), never `YAML.stringify(spec)`, so comments, key order, blank lines, and anchors survive a no-op save byte-identical
 - [ ] **SERDE-04**: The Markdown body between frontmatter and EOF is treated as opaque text spliced on HTML-comment anchors (`<!-- screen:ID -->` / `<!-- /screen:ID -->`); prose between anchors round-trips verbatim
 - [ ] **SERDE-05**: Round-trip test suite covers at least 20 golden fixtures, including hand-edited-with-comments, reordered keys, unknown fields, nested comments, and empty files; CI fails on any byte-level drift
@@ -131,7 +131,7 @@ All v1 requirements are hypotheses until shipped and validated.
 | SPEC-09 | Phase 2 | Pending |
 | SPEC-10 | Phase 1 | Complete |
 | SERDE-01 | Phase 2 | Pending |
-| SERDE-02 | Phase 2 | Pending |
+| SERDE-02 | Phase 2 | Complete (Plan 02-01) |
 | SERDE-03 | Phase 2 | Pending |
 | SERDE-04 | Phase 2 | Pending |
 | SERDE-05 | Phase 2 | Pending |

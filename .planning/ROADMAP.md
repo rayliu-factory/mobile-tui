@@ -90,9 +90,9 @@ Phase 1 (Model L1/L2)
   4. `validateSpec()` returning any `severity: "error"` diagnostic blocks the write-through save; warnings do not.
   5. Triggering a save mid-debounce followed by a `session_shutdown` event flushes atomically (visible as `.SPEC.md.tmp` → `rename`) with no partial writes.
 
-**Plans**: 5 plans
+**Plans**: 5 plans (1/5 complete)
 
-- [ ] 02-01-PLAN.md — Wave 0 substrate: install yaml + gray-matter deps, ban js-yaml, scaffold src/serialize/ stubs, migrate Phase-1 tests to parseSpecFile stub
+- [x] 02-01-PLAN.md — Wave 0 substrate: install yaml + gray-matter deps, ban js-yaml, scaffold src/serialize/ stubs, migrate Phase-1 tests to parseSpecFile stub
 - [ ] 02-02-PLAN.md — Wave 1 L1 primitives: splitFrontmatter (gray-matter + eemeli/yaml engine) + body-bytes extractor + partitionTopLevel (AST-native unknown preservation with proto-pollution defense)
 - [ ] 02-03-PLAN.md — Wave 2 transform primitives: sigil.ts (SIGIL_REGEX + INTERACTABLE_KINDS + WeakMap origin tracking) + schema-inject.ts (idempotent schema: mobile-tui/1 injection + blank line)
 - [ ] 02-04-PLAN.md — Wave 3 write path: atomic.ts (.tmp + rename primitive with simulated-crash coverage) + write.ts (save-gate + CST diff-apply + SERDE-07 auto-quote)

@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
-last_updated: "2026-04-17T19:24:56.430Z"
+status: Ready to execute
+last_updated: "2026-04-17T21:14:50.022Z"
 progress:
   total_phases: 9
   completed_phases: 1
-  total_plans: 8
-  completed_plans: 8
-  percent: 100
+  total_plans: 13
+  completed_plans: 9
+  percent: 69
 ---
 
 # mobile-tui — STATE
@@ -25,17 +25,17 @@ Project memory. Updated at every phase transition and plan completion.
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
+Phase: 02 (serialization-round-trip) — EXECUTING
+Plan: 2 of 5
 **Milestone**: v1
-**Phase**: 1 — Spec Model & Invariants
-**Plan**: All 8 Phase-1 plans complete. Next: `/gsd-verify-work` on Phase 1, then Phase 2 (serialization / round-trip).
-**Status**: Wave 5b COMPLETE (`01-08-PLAN.md` shipped fixtures + hand-translations + fidelity gate). Phase 1 CLOSED pending verification. Four fixtures (habit-tracker + todo + social-feed canonical — all 3×2×5 D-14 shape; + malformed carrying all 5 Stage-B cross-ref codes in one `validateSpec` call). Two hand-translated target files (`fixtures/targets/habit-tracker.{swift,kt}`) — fidelity gate D-16 closed. Four integration test files (`tests/fixtures.test.ts`, `tests/malformed.test.ts`, `tests/catalog-coverage.test.ts`, `tests/fidelity.test.ts`) adding 26 assertions. Snapshot `tests/__snapshots__/malformed.test.ts.snap` locked as cross-ref regression anchor. Catalog coverage: 18/18 COMPONENT_KINDS exercised. `npx tsc --noEmit` + `npx vitest run` (297/297 across 19 files) + `npx vitest run --coverage` (96.61% stmts / 100% fns / 100% lines) + `npx biome check src/ tests/` (40 files) all clean. VALIDATION.md flipped to `status: complete`, `wave_0_complete: true`, all 27 Per-Task rows ✅, all 7 Wave-0 items ticked, all 6 Sign-Off gates signed. Phase 1 success criteria #1 (zero-diagnostic canonical fixtures), #2 (never-throws malformed), #3 (closed 18-kind catalog), #5 (two-target fidelity) ALL MET. #4 (migration round-trip) met by Plan 07. Phase 2 can start.
+**Phase**: 2 — Serialization / Round-Trip
+**Plan**: Plan 02-01 (Wave-0 substrate) COMPLETE. Next: Plan 02-02 (gray-matter + eemeli/yaml real parser).
+**Status**: Wave 0 substrate CLOSED. yaml@^2.8.3 + gray-matter@^4.0.3 installed; src/serialize/ scaffolded with 12 files (10 leaf modules + 1 barrel + 1 co-located test); AstHandle opaque type carries load-bearing `closingDelimiterTerminator: "\n"|"\r\n"|""` + `hasFrontmatter: boolean` BLOCKER-fix fields; SERDE_CODES registry registers all 6 Phase-2 diagnostic codes (SPEC_ORPHAN_TEMP_FILE, SPEC_SIGIL_PARTIAL_DROPPED, SPEC_UNKNOWN_TOP_LEVEL_KEY, SERDE_YAML11_GOTCHA, SERDE_BYTE_DRIFT_DETECTED, SERDE_MISSING_DELIMITER); parseSpecFile Wave-0 stub reads `.spec.json` sibling so 4 Phase-1 tests (fixtures/malformed/catalog-coverage/fidelity) migrated off `tests/helpers/parse-fixture.ts` (now deleted) onto stable public contract; `.gitattributes` pins `*.spec.md` to LF (Buffer.equals round-trip guard); `.gitignore` excludes `tests/tmp/` round-trip sandbox; tests/no-js-yaml.test.ts architectural-invariant audit (3 assertions) bans js-yaml at dep + import level. Full gate GREEN: `npx vitest run` 309/309 across 21 files (was 297/19 baseline; +3 no-js-yaml + 9 diagnostics registry); `npx tsc --noEmit` 0 errors; `npx biome check .` 0 errors. `.spec.json` siblings RETAINED (Plan 02-05 deletes after real parser proves green against all 20 fixtures). gray-matter transitively pulls js-yaml@3.14.2 — accepted per threat T-02-SupplyChain-Transitive; Plan 02-02 wires gray-matter to eemeli/yaml via engines option so runtime never touches it.
 
-**Progress**: Phase 0/9 complete. Plans 8/8 in Phase 1.
+**Progress**: Phase 1/9 complete (Phase 1 all 8 plans shipped). Plans 1/5 in Phase 2.
 
 ```
-[██████████] 100% — 8/8 Phase-1 plans complete
+[██░░░░░░░░] 20% — 1/5 Phase-2 plans complete
 ```
 
 ## Performance Metrics
@@ -45,12 +45,13 @@ Plan: Not started
 | v1 requirements | 58 |
 | Requirements mapped | 58 (100%) |
 | Phases planned | 9 |
-| Plans complete | 8 |
+| Plans complete | 9 |
 | Fixtures committed | 4 (3 canonical + 1 malformed) |
 | Round-trip fixtures | 3 / 20 (target; Phase 2 will extend) |
 | Reference wireframes | 0 / 20 (target for Phase 3 dogfood gate) |
 | Phase 01-spec-model-invariants P07 | 1m 58s | 2 tasks | 4 files |
 | Phase 01-spec-model-invariants P08 | 8m 22s | 7 tasks | 16 files |
+| Phase 02-serialization-round-trip P01 | 8m 35s | 2 tasks | 21 files |
 
 ### Plan Timing
 
@@ -64,6 +65,7 @@ Plan: Not started
 | 01-06 (validateSpec two-stage) | 9m 17s | 3 (6 TDD commits) | 8 |
 | 01-07 (migration runner scaffold) | 1m 58s | 2 | 4 |
 | 01-08 (fixtures + hand-translations + fidelity gate) | 8m 22s | 7 | 16 |
+| 02-01 (serialize scaffold + parseSpecFile stub) | 8m 35s | 2 (5 TDD commits) | 21 |
 
 ## Accumulated Context
 
@@ -125,6 +127,14 @@ Plan: Not started
 - **[01-08] ONE Stage-A-valid Stage-B-invalid malformed fixture + programmatic Stage-A clones** — simpler than two malformed fixtures; keeps the fixture file a single-purpose cross-ref regression anchor. Stage-A codes (SPEC_UNKNOWN_COMPONENT + variant omission) tested via targeted JSON.parse(JSON.stringify(habit)) mutations in `tests/malformed.test.ts`.
 - **[01-08] Catalog-coverage test excludes variant kinds from rogue-kind check** — walker sees both component kind and variant kind (content/empty/loading/error); COMPONENT_KINDS only enumerates components. Explicit `VARIANT_KINDS` filter set keeps the rogue-kind assertion from false-positiving.
 - **[01-08] Auto-approved Task 6 human-verify checkpoint (D-16 fidelity gate)** — per --auto chain. Automated half (`tests/fidelity.test.ts` 3/3 green) confirms every Screen.id + testID appears in both `.swift` and `.kt`; structural mapping documented in header-comment mapping tables of both target files.
+- **[02-01] parseSpecFile Wave-0 stub reads `.spec.json` sibling INTERNALLY** — inverted dependency: the public contract (`{spec, astHandle, diagnostics, body}`) ships stable in Plan 02-01, but the implementation body is a temporary `.spec.json` reader. Plan 02-05 swaps the body for the real gray-matter + eemeli/yaml pipeline AND deletes the siblings in one focused commit. Alternative (delete siblings + ship real parser in one plan) would require a mega-commit touching 10+ files; the staging lets Phase-1 tests migrate off `parse-fixture.ts` TODAY.
+- **[02-01] AstHandle carries `closingDelimiterTerminator: "\n"|"\r\n"|""` + `hasFrontmatter: boolean` from day 1** — BLOCKER fixes #1 + #2 from the plan revision. `closingDelimiterTerminator` is load-bearing for Buffer.equals round-trip (SERDE-05): the write-path must re-emit the EXACT newline that terminated the closing `---` delimiter in origBytes. `hasFrontmatter` is the sole signal for SERDE_MISSING_DELIMITER (distinct from gray-matter's `isEmpty` — `isEmpty=true` means the map BETWEEN delimiters was empty, a valid fixture shape). Registering both at creation prevents a forward-compat rupture when Plan 02-04 needs them.
+- **[02-01] `src/serialize/index.ts` uses EXPLICIT-NAMED exports (NOT `export *`)** — matches `src/model/index.ts` precedent. Adding a new public name is a deliberate edit to the barrel rather than an implicit surface-area broadening through wildcard re-export. Implementation details (partitionTopLevel, normalizeSigils, splitFrontmatter, etc.) intentionally NOT re-exported — co-located tests import directly from leaf modules.
+- **[02-01] `tests/no-js-yaml.test.ts` self-path exclusion** — the audit test's describe/it titles + header comments contain the literal string `from 'js-yaml'` as explanatory text. Without a `selfPath = resolve("tests/no-js-yaml.test.ts")` filter on the walk output, the grep loop false-positives on its own content. [Rule 1 - Bug] fix during Task 1 RED phase.
+- **[02-01] gray-matter@4.0.3 transitively pulls js-yaml@3.14.2 — ACCEPTED** per threat T-02-SupplyChain-Transitive (plan frontmatter `disposition: accept`). Phase 02-02 wires gray-matter to eemeli/yaml via the `engines` option (CLAUDE.md + RESEARCH §Example 1), so the runtime never reaches the transitive js-yaml. Direct-dependency audit (`tests/no-js-yaml.test.ts`) only walks our own `package.json` dep fields — the transitive presence does NOT fail the audit. Re-check at every `npm install` remains a standing action.
+- **[02-01] `.spec.json` fixture siblings RETAINED in Plan 02-01** — deletion moves to Plan 02-05 Task 4, AFTER the real parser proves green against all 20 fixtures. The Wave-0 stub in `src/serialize/parse.ts` depends on them; deleting them in this plan would require the real parser to already exist.
+- **[02-01] Wave-0 stub pattern established** — production module carries a temporary implementation body that satisfies the public contract via a fallback path (`.spec.json` read). Replaced by real implementation in a later plan without touching the callers. Reusable pattern for future phase-spanning scaffolding.
+- **[02-01] Auto-fixed biome format issues (2 × Rule-1)** — (a) `src/serialize/index.ts` import-order ("type X before value X" alphabetical), auto-applied via `biome check --write`; (b) `tests/fixtures.test.ts` — biome's printer wanted `it.each(CANONICAL)(...)` reflowed across multiple lines due to total width. Both mechanical tooling adjustments; no semantic changes.
 
 ### Open TODOs
 
@@ -150,9 +160,9 @@ None. Phase 1 can start immediately.
 
 ## Session Continuity
 
-**Last session**: 2026-04-17 — Wave 5b COMPLETE (01-08 fixtures + hand-translations + fidelity gate shipped). **Phase 1 COMPLETE pending `/gsd-verify-work`.**
-**Stopped at**: Completed 01-08-PLAN.md — four fixtures (habit-tracker + todo + social-feed canonical at D-14 3×2×5 shape; malformed carrying all 5 Stage-B cross-ref codes), two hand-translated target files (`fixtures/targets/habit-tracker.{swift,kt}`), four integration tests (fixtures, malformed, catalog-coverage, fidelity) adding 26 assertions. Snapshot `tests/__snapshots__/malformed.test.ts.snap` locked. Catalog coverage: 18/18 COMPONENT_KINDS exercised. VALIDATION.md flipped to `status: complete`, `wave_0_complete: true`, all 27 rows ✅. Phase 1 success criteria #1 (zero-diagnostic canonical fixtures), #2 (never-throws malformed), #3 (closed 18-kind catalog), #5 (two-target fidelity) ALL MET. #4 (migration round-trip) met by Plan 07. Cumulative 297/297 green across 19 test files; tsc + biome + coverage clean.
-**Next session**: Run `/gsd-verify-work` on Phase 1 to confirm all 5 success criteria are independently verifiable. Then start Phase 2 (serialization / round-trip) — gray-matter + eemeli/yaml parser reading `fixtures/*.spec.md`, diff-and-apply serializer, 20-fixture round-trip golden suite (SERDE-01..07), save-gate on validateSpec severity (SPEC-09).
+**Last session**: 2026-04-17 — Plan 02-01 (Wave-0 substrate) COMPLETE. Phase-1 regression intact (297/297 preserved through the readFixture → parseSpecFile migration).
+**Stopped at**: Completed 02-01-PLAN.md — yaml@^2.8.3 + gray-matter@^4.0.3 installed; src/serialize/ scaffolded with 12 files; AstHandle carries BLOCKER-fix fields (closingDelimiterTerminator + hasFrontmatter); SERDE_CODES registers 6 Phase-2 codes; parseSpecFile Wave-0 stub reads .spec.json sibling so 4 Phase-1 tests migrated off parse-fixture.ts (deleted); .gitattributes pins *.spec.md to LF; tests/no-js-yaml.test.ts architectural audit bans js-yaml at dep + import level. Full gate: `npx vitest run` 309/309 across 21 files; `npx tsc --noEmit` 0 errors; `npx biome check .` 0 errors. Snapshot tests/__snapshots__/malformed.test.ts.snap unchanged (stable through migration).
+**Next session**: Plan 02-02 (gray-matter + eemeli/yaml real parser). Wire gray-matter.engines.yaml to eemeli/yaml.parse/stringify per CLAUDE.md + RESEARCH §Example 1; produce AstHandle via findFrontmatterBounds (populates closingDelimiterTerminator + hasFrontmatter); swap parseSpecFile's .spec.json fallback body for the real pipeline. Target: round-trip Buffer.equals green against the 3 canonical + 1 malformed fixtures.
 
 **Artifacts on disk**:
 
@@ -170,23 +180,26 @@ None. Phase 1 can start immediately.
 - `.planning/phases/01-spec-model-invariants/01-06-SUMMARY.md` — Wave 4 validateSpec two-stage pipeline summary
 - `.planning/phases/01-spec-model-invariants/01-07-SUMMARY.md` — Wave 5a migration runner scaffold summary
 - `.planning/phases/01-spec-model-invariants/01-08-SUMMARY.md` — Wave 5b fixtures + hand-translations + fidelity gate summary (Phase 1 close)
+- `.planning/phases/02-serialization-round-trip/02-01-SUMMARY.md` — Phase 2 Wave-0 substrate (deps + scaffold + parseSpecFile stub)
 
-**Repo root (Phase 1 COMPLETE — all 8 plans shipped)**:
+**Repo root (Phase 1 COMPLETE + Phase 2 Plan 01 COMPLETE)**:
 
-- `package.json`, `package-lock.json`, `tsconfig.json`, `biome.json`, `vitest.config.ts`, `.gitignore`
+- `package.json`, `package-lock.json`, `tsconfig.json`, `biome.json`, `vitest.config.ts`, `.gitignore`, `.gitattributes` (Plan 02-01)
 - `src/index.ts` — public API barrel (full model + migrations + selected primitives re-export)
 - `src/primitives/` — `ids.ts`, `ids.test.ts`, `path.ts`, `path.test.ts`, `diagnostic.ts`, `diagnostic.test.ts`, `index.ts`
 - `src/model/` — complete: `version.ts`, `back-behavior.ts`+`.test.ts`, `action.ts`+`.test.ts`, `data.ts`+`.test.ts`, `variant.ts`+`.test.ts`, `component.ts` (18-kind recursive catalog)+`.test.ts`, `screen.ts`+`.test.ts`, `navigation.ts`+`.test.ts`, `spec.ts`+`.test.ts`, `zod-issue-adapter.ts`+`.test.ts`, `cross-reference.ts`+`.test.ts`, `invariants.ts`+`.test.ts` (validateSpec entry), `index.ts` (barrel)
 - `src/migrations/` — `v1_to_v2.ts` (empty-op anchor), `index.ts` (runMigrations chain runner), `index.test.ts` (7 assertions + T-01-03 gate)
-- `fixtures/` — 8 files: `habit-tracker.spec.{md,json}`, `todo.spec.{md,json}`, `social-feed.spec.{md,json}`, `malformed.spec.{md,json}`
+- **`src/serialize/` (Plan 02-01)** — 12 files: `index.ts` (explicit-named barrel), `parse.ts` (parseSpecFile Wave-0 .spec.json stub), `write.ts` (signature stub), `ast-handle.ts` (AstHandle w/ closingDelimiterTerminator + hasFrontmatter), `diagnostics.ts` (SERDE_CODES + re-exports), `diagnostics.test.ts` (9 assertions), `body.ts` / `sigil.ts` / `unknown.ts` / `schema-inject.ts` / `frontmatter.ts` / `atomic.ts` (empty stubs for Plans 02-02 through 02-04)
+- `fixtures/` — 8 files: `habit-tracker.spec.{md,json}`, `todo.spec.{md,json}`, `social-feed.spec.{md,json}`, `malformed.spec.{md,json}` (the `.spec.json` siblings remain as Wave-0 stub input; Plan 02-05 deletes them)
 - `fixtures/targets/` — 2 files: `habit-tracker.swift` (SwiftUI translation), `habit-tracker.kt` (Jetpack Compose translation)
-- `tests/helpers/parse-fixture.ts` — Phase-1-only fixture reader (`.spec.json`/`.spec.ts` sibling resolver)
-- `tests/fixtures.test.ts` — canonical-fixture integration test (6 assertions)
-- `tests/malformed.test.ts` — malformed fixture + Diagnostic[] snapshot test (15 assertions)
-- `tests/catalog-coverage.test.ts` — SPEC-01 closed-catalog coverage test (2 assertions)
-- `tests/fidelity.test.ts` — D-16 two-target fidelity gate automated half (3 assertions)
-- `tests/__snapshots__/malformed.test.ts.snap` — sorted full-Diagnostic[] regression snapshot
+- `tests/fixtures.test.ts` — canonical-fixture integration test (6 assertions) — migrated to parseSpecFile in Plan 02-01
+- `tests/malformed.test.ts` — malformed fixture + Diagnostic[] snapshot test (15 assertions) — migrated to parseSpecFile
+- `tests/catalog-coverage.test.ts` — SPEC-01 closed-catalog coverage test (2 assertions) — migrated to parseSpecFile
+- `tests/fidelity.test.ts` — D-16 two-target fidelity gate automated half (3 assertions) — migrated to parseSpecFile
+- `tests/no-js-yaml.test.ts` — SERDE-02 architectural-invariant audit (3 assertions: package.json + deps + source grep)
+- `tests/__snapshots__/malformed.test.ts.snap` — sorted full-Diagnostic[] regression snapshot (stable through migration)
+- ~~`tests/helpers/parse-fixture.ts`~~ — deleted in Plan 02-01 (superseded by parseSpecFile Wave-0 stub)
 
 ---
 
-*Last updated: 2026-04-17 after 01-05-PLAN.md execution.*
+*Last updated: 2026-04-17 after 02-01-PLAN.md execution.*
