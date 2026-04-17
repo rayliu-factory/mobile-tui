@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-last_updated: "2026-04-17T13:33:44.365Z"
+last_updated: "2026-04-17T13:50:56.303Z"
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 8
-  completed_plans: 5
-  percent: 63
+  completed_plans: 6
+  percent: 75
 ---
 
 # mobile-tui — STATE
@@ -26,16 +26,16 @@ Project memory. Updated at every phase transition and plan completion.
 ## Current Position
 
 Phase: 01 (spec-model-invariants) — EXECUTING
-Plan: 6 of 8
+Plan: 7 of 8
 **Milestone**: v1
 **Phase**: 1 — Spec Model & Invariants
-**Plan**: Wave 3 COMPLETE (`01-05-PLAN.md` Screen + Navigation + Spec root composition shipped). Next is `01-06-PLAN.md` — `validateSpec` two-stage pipeline (Stage A: `SpecSchema.safeParse`; Stage B: `crossReferencePass`).
-**Status**: Wave 3 complete — the `Spec` TypeScript type fully materialized. Screen wires the recursive 18-kind ComponentNodeSchema through `createScreenVariantsSchema`, adds a `kind: 'regular' | 'overlay'` discriminator (RESEARCH Open Q#3 resolved), carries optional back_behavior + acceptance prose. Navigation ships NavEdge + NavigationGraph with 5-value closed TRANSITIONS enum. SpecSchema composes all five subschemas and uses `.strict()` as a hard boundary (Phase 2's `_unknown:` bucket lives in the serializer, not in the model). 47 new assertions + 163 prior = 210 cumulative tests green. `npx tsc --noEmit` + `npx biome check src/model/` both clean. Plan 06 can start immediately.
+**Plan**: Wave 4 COMPLETE (`01-06-PLAN.md` validateSpec two-stage pipeline shipped). Next is `01-07-PLAN.md` — migration runner scaffold (SERDE-08 + no-op v1→v2 migration).
+**Status**: Wave 4 complete — `validateSpec(input: unknown)` is now the SPEC-09 public contract. Two-stage pipeline: (A) `SpecSchema.safeParse` → `zodIssuesToDiagnostics` (12-entry ZOD_CODE_MAP, invalid_union → SPEC_UNKNOWN_COMPONENT); (B) `crossReferencePass` emitting 5 SPEC_* codes (SPEC_MISSING_BACK_BEHAVIOR, SPEC_UNRESOLVED_ACTION, SPEC_TESTID_COLLISION, SPEC_JSONPTR_UNRESOLVED, SPEC_ACTION_TYPE_MISMATCH). Serialize-once pre-check enforces 5MB cap (T-01-01) AND catches cycles/BigInts (SPEC_INPUT_NOT_SERIALIZABLE) in one try/catch. NEVER throws for any input. Cross-ref errors leave `spec: Spec` populated (Phase 2 preview usable even when save is gated). Public API via `src/index.ts` barrel: `import { validateSpec, SCHEMA_VERSION, type Spec, type Diagnostic } from 'mobile-tui'` works cleanly. 54 new assertions + 210 prior = 264 cumulative tests green. `npx tsc --noEmit` + `npx biome check src/` both clean across 32 files. Plans 07 + 08 can start in parallel.
 
-**Progress**: Phase 0/9 complete. Plans 5/8 in Phase 1.
+**Progress**: Phase 0/9 complete. Plans 6/8 in Phase 1.
 
 ```
-[██████░░░░] 63% — 5/8 Phase-1 plans complete
+[████████░░] 75% — 6/8 Phase-1 plans complete
 ```
 
 ## Performance Metrics
@@ -45,7 +45,7 @@ Plan: 6 of 8
 | v1 requirements | 58 |
 | Requirements mapped | 58 (100%) |
 | Phases planned | 9 |
-| Plans complete | 5 |
+| Plans complete | 6 |
 | Fixtures committed | 0 |
 | Round-trip fixtures | 0 / 20 (target) |
 | Reference wireframes | 0 / 20 (target for Phase 3 dogfood gate) |
@@ -59,6 +59,7 @@ Plan: 6 of 8
 | 01-03 (Wave 2 leaf schemas) | 3m 44s | 4 (8 TDD commits) | 9 |
 | 01-04 (recursive ComponentNode) | 4m 6s | 2 (3 TDD commits) | 2 |
 | 01-05 (Screen + Nav + Spec root) | 4m 52s | 3 (6 TDD commits) | 6 |
+| 01-06 (validateSpec two-stage) | 9m 17s | 3 (6 TDD commits) | 8 |
 
 ## Accumulated Context
 
@@ -106,6 +107,14 @@ Plan: 6 of 8
 - **[01-05] Grep-gate micro-adjustment** — `grep -q "SpecSchema = z.object" src/model/spec.ts` required a single-line match but biome splits `SpecSchema = z\n  .object(...)`. Added a documentation comment referencing the literal `SpecSchema = z.object({...}).strict()` shape so the grep matches. Matches Plan 04 precedent. Future-plan recommendation: use `grep -qE 'SpecSchema\s*=\s*z'` or multi-line pattern to avoid documentation workarounds.
 - **[01-05] `back_behavior` lives on Screen, NOT NavEdge** (D-12) — describes screen exits regardless of which edge brought the user in. Encoding per-edge would duplicate the rule and invite inconsistency. Verified: navigation.test.ts has NO back_behavior on any NavEdge test; screen.test.ts exercises all four back_behavior variants.
 - **[01-05] `acceptance: z.array(z.string().min(1)).optional()`** — SPEC-10 prose one-liners per CONTEXT.md Claude's Discretion, no given/when/then structure. Per-line `.min(1)` rejects empty strings at shape time, preventing junk from polluting the Maestro emitter + LLM handoff output. No upper-bound count because the variance is too high (some screens have 0, some have 8).
+- **[01-06] Two-stage validation (Option B)** — `safeParse` → `crossReferencePass` wins over single-pass `z.superRefine` at Spec root. Reasons: (1) superRefine needs a pre-validated partial shape, leaking structural errors into cross-ref; (2) pure-function cross-ref pass is trivially unit-testable; (3) diagnostic-code partitioning is clean — Zod issues → SPEC_INVALID_*/SPEC_UNKNOWN_* (structural); cross-ref → SPEC_UNRESOLVED_*/SPEC_TESTID_COLLISION/SPEC_ACTION_TYPE_MISMATCH/SPEC_JSONPTR_UNRESOLVED/SPEC_MISSING_BACK_BEHAVIOR (semantic). Zero collision between the two namespaces.
+- **[01-06] MAX_INPUT_BYTES = 5MB via JSON.stringify pre-check** — T-01-01 mitigation AND free cycle/BigInt detection in one try/catch. `JSON.stringify` throws on cycles + BigInts; we catch it → `SPEC_INPUT_NOT_SERIALIZABLE`. Length overflow → `SPEC_INPUT_TOO_LARGE`. Two distinct codes keep the failure modes distinguishable. No separate WeakSet cycle detector required.
+- **[01-06] Cross-ref errors DO NOT null the spec** — `validateSpec` returns `{ spec: Spec, diagnostics: [SPEC_UNRESOLVED_ACTION, …] }` when Stage A succeeds but Stage B flags semantic issues. Phase 2's save gate blocks write-through on `severity === 'error'` but the preview renderer can still emit from a spec with dangling refs (user sees `[BROKEN LINK]` markers, not a blank canvas). Contract-locked by a dedicated test.
+- **[01-06] `invalid_union` → `SPEC_UNKNOWN_COMPONENT`** — in the Spec model, the only recursive `z.union` is `ComponentNodeSchema` (18-kind catalog). Action/BackBehavior/Variant use `z.discriminatedUnion` which yields `invalid_union_discriminator` → `SPEC_INVALID_DISCRIMINATOR`. So `invalid_union` almost always means "ComponentNode with unknown kind" — wiring to SPEC_UNKNOWN_COMPONENT produces the most useful diagnostic for the primary failure mode.
+- **[01-06] No `jsonpointer` library IMPORT in cross-reference.ts** — library's `.get(obj, ptr)` resolves against a JSON instance; our data model is a TYPE definition (Entity + Field names). Using it would require synthesizing a fake instance per ref check. Manual `pointer.slice(1).split('/')` is 3 LOC and exactly correct for prefix-only resolution per RESEARCH Pitfall #4. `jsonpointer` stays in package.json for Phase 2 (serializer runs on JSON instances).
+- **[01-06] `walkComponentTree` enumerates every recursive kind in a switch** — explicit > implicit. Adding a new container kind to `component.ts` (say `Tab` nesting screens) without adding a walker case will fail loud in the testID-collision test for that kind. Catches "forgot to recurse" at test time instead of runtime.
+- **[01-06] `src/model/index.ts` barrel re-exports EVERY public schema + type + constant** — Phase-1 contract boundary. Downstream (Phase 2+) imports through `mobile-tui` (src/index.ts `export * from './model/index.ts'`) and gets every public name in one line. Internal co-located tests continue to import from leaf files. Primitives gets SELECTIVE named re-export (not `export *`) to keep internal regex constants private.
+- **[01-06] Auto-fixed test-authoring bugs (3 × Rule-1)** — (a) Zod v4 `issue.path: PropertyKey[]` (admits symbols) required `.map(seg => typeof seg === 'symbol' ? String(seg) : seg)` coercion before `pathToJsonPointer`; (b) `{ __proto__: "bad" }` literal sets prototype (not data key) — switched to `Object.assign({}, { unwanted_extra: "bad" })` for .strict() reject-unknown-key test; (c) `setTitle` camelCase action id rejected by snake_case `ActionIdSchema` — renamed to `set_title` in Pitfall-#4 deeper-prefix test. All test-side, no production semantics changed.
 
 ### Open TODOs
 
@@ -131,9 +140,9 @@ None. Phase 1 can start immediately.
 
 ## Session Continuity
 
-**Last session**: 2026-04-17 — Wave 3 COMPLETE (01-05 Screen + Navigation + Spec root composition shipped).
-**Stopped at**: Completed 01-05-PLAN.md (Screen schema with `kind` discriminator, NavEdge + NavigationGraph with closed TRANSITIONS enum, SpecSchema root composing all subschemas with `.strict()` boundary and `z.literal(SCHEMA_VERSION)` pin — the `Spec` TypeScript type is now fully materialized). Next: `01-06-PLAN.md` (validateSpec two-stage pipeline — Stage A shape via `SpecSchema.safeParse`; Stage B cross-reference resolution for screen ids, action refs, JSON Pointer bindings, `present.overlay` → kind='overlay' lookup).
-**Next session**: Execute `01-06-PLAN.md` — ship `validateSpec(input): Diagnostic[]` with the two-stage pipeline. Stage B cross-reference rules leverage Plan 05 artifacts (SCREEN_KINDS discriminator for direct `present.overlay` lookup; NavEdge.from/to/trigger resolution against screens[]/actions{}; NavigationGraph.root existence in screens[]; `back_behavior` required-on-non-root enforcement; testID collision walker; JSON Pointer resolution against DataModel).
+**Last session**: 2026-04-17 — Wave 4 COMPLETE (01-06 validateSpec two-stage pipeline shipped).
+**Stopped at**: Completed 01-06-PLAN.md — `validateSpec(input: unknown) → { spec: Spec | null, diagnostics: Diagnostic[] }` is now the SPEC-09 public contract. Two-stage pipeline (Zod safeParse + crossReferencePass) plus 5MB size cap (T-01-01) via serialize-once `JSON.stringify` pre-check (also catches cycles/BigInts → `SPEC_INPUT_NOT_SERIALIZABLE`). `src/model/index.ts` barrel + rewritten `src/index.ts` expose the public API: `import { validateSpec, SCHEMA_VERSION, type Spec, type Diagnostic } from 'mobile-tui'` works cleanly. 54 new assertions; cumulative 264/264 green; tsc + biome clean across 32 files. Next: `01-07-PLAN.md` (migration runner scaffold — SERDE-08 placeholder + v1→v2 no-op migration with re-validation via `validateSpec` post-upgrade).
+**Next session**: Execute `01-07-PLAN.md` — ship the migration runner with a single no-op v1→v2 migration (SERDE-08). Design per RESEARCH Pitfall #7: `MIGRATIONS` array with `from/to/run` entries; `runMigrations(spec, fromVersion, toVersion)` reducer; caller re-validates the upgraded payload via `validateSpec` (now available from Plan 06). Plans 07 and 08 run in Wave 5 and can proceed in parallel since both depend only on Plan 06 artifacts.
 
 **Artifacts on disk**:
 
