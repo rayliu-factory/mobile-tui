@@ -2,19 +2,23 @@
 // SPEC-01 catalog coverage proof: every entry in COMPONENT_KINDS appears in
 // at least one canonical fixture. If this test fails, a fixture needs to be
 // extended to include the missing kind (see D-14 for shape bounds).
+//
+// MIGRATED (Plan 02-01): parseSpecFile from src/serialize/index.ts
+// replaces readFixture. The walker now receives the validated Spec object
+// directly (not the raw parsed JSON) — same shape either way.
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { COMPONENT_KINDS, type ComponentKind } from "../src/model/component.ts";
-import { readFixture } from "./helpers/parse-fixture.ts";
+import { parseSpecFile } from "../src/serialize/index.ts";
 
 const CANONICAL = ["habit-tracker", "todo", "social-feed"] as const;
 
 // Collect every `kind` value from every nested component in a fixture.
 async function collectKindsFromFixture(name: string): Promise<Set<string>> {
-  const spec = (await readFixture(`fixtures/${name}.spec.md`)) as {
-    screens: Array<{
-      variants: Record<string, { tree?: unknown[] } | null>;
-    }>;
-  };
+  const { spec } = await parseSpecFile(resolve(`fixtures/${name}.spec.md`));
+  if (!spec) {
+    throw new Error(`catalog coverage: canonical fixture ${name} failed validateSpec`);
+  }
   const kinds = new Set<string>();
 
   function walk(node: unknown): void {

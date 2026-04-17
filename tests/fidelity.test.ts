@@ -4,17 +4,16 @@
 // in both fixtures/targets/habit-tracker.swift and .kt. The human half of
 // the gate (VALIDATION.md §Manual-Only Verifications) judges translation
 // ambiguity — see Plan 01-08 Task 6.
+//
+// MIGRATED (Plan 02-01): parseSpecFile from src/serialize/index.ts
+// replaces readFixture. Walker consumes the validated Spec object directly.
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { readFixture } from "./helpers/parse-fixture.ts";
+import type { Spec } from "../src/model/index.ts";
+import { parseSpecFile } from "../src/serialize/index.ts";
 
-function collectTestIDsAndScreenIds(spec: {
-  screens: Array<{
-    id: string;
-    variants: Record<string, { tree?: unknown[] } | null>;
-  }>;
-}): Set<string> {
+function collectTestIDsAndScreenIds(spec: Spec): Set<string> {
   const ids = new Set<string>();
   for (const screen of spec.screens) {
     ids.add(screen.id);
@@ -41,12 +40,8 @@ function collectTestIDsAndScreenIds(spec: {
 
 describe("two-target fidelity gate — AUTOMATED HALF (success criterion #5)", () => {
   it("every Screen.id + testID from habit-tracker.spec.md appears in habit-tracker.swift", async () => {
-    const spec = (await readFixture("fixtures/habit-tracker.spec.md")) as {
-      screens: Array<{
-        id: string;
-        variants: Record<string, { tree?: unknown[] } | null>;
-      }>;
-    };
+    const { spec } = await parseSpecFile(resolve("fixtures/habit-tracker.spec.md"));
+    if (!spec) throw new Error("fidelity: habit-tracker fixture failed validateSpec");
     const ids = collectTestIDsAndScreenIds(spec);
     const swift = readFileSync(resolve("fixtures/targets/habit-tracker.swift"), "utf8");
     const missing = [...ids].filter((id) => !swift.includes(id));
@@ -57,12 +52,8 @@ describe("two-target fidelity gate — AUTOMATED HALF (success criterion #5)", (
   });
 
   it("every Screen.id + testID appears in habit-tracker.kt", async () => {
-    const spec = (await readFixture("fixtures/habit-tracker.spec.md")) as {
-      screens: Array<{
-        id: string;
-        variants: Record<string, { tree?: unknown[] } | null>;
-      }>;
-    };
+    const { spec } = await parseSpecFile(resolve("fixtures/habit-tracker.spec.md"));
+    if (!spec) throw new Error("fidelity: habit-tracker fixture failed validateSpec");
     const ids = collectTestIDsAndScreenIds(spec);
     const kt = readFileSync(resolve("fixtures/targets/habit-tracker.kt"), "utf8");
     const missing = [...ids].filter((id) => !kt.includes(id));

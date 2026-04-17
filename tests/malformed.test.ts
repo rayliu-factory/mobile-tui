@@ -3,9 +3,16 @@
 // diagnostic code in one validateSpec() call, plus programmatic mutations
 // that trigger Stage-A (Zod structural) codes. Snapshot-guards the full
 // diagnostic array for regression protection.
+//
+// MIGRATED (Plan 02-01): parseSpecFile from src/serialize/index.ts
+// replaces readFixture. Stage-A clone mutations now run validateSpec
+// directly on the already-validated Spec object returned by
+// parseSpecFile (we use `spec!` since the malformed fixture is
+// Stage-A-valid and parseSpecFile returns a non-null Spec).
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { validateSpec } from "../src/index.ts";
-import { readFixture } from "./helpers/parse-fixture.ts";
+import { parseSpecFile } from "../src/serialize/index.ts";
 
 describe("malformed fixture — cross-ref diagnostics (Stage B)", () => {
   const CROSSREF_CODES = [
@@ -17,19 +24,16 @@ describe("malformed fixture — cross-ref diagnostics (Stage B)", () => {
   ] as const;
 
   it.each(CROSSREF_CODES)("emits %s", async (code) => {
-    const spec = await readFixture("fixtures/malformed.spec.md");
-    const { diagnostics } = validateSpec(spec);
+    const { diagnostics } = await parseSpecFile(resolve("fixtures/malformed.spec.md"));
     expect(diagnostics.some((d) => d.code === code)).toBe(true);
   });
 
   it("never throws on the malformed fixture", async () => {
-    const spec = await readFixture("fixtures/malformed.spec.md");
-    expect(() => validateSpec(spec)).not.toThrow();
+    await expect(parseSpecFile(resolve("fixtures/malformed.spec.md"))).resolves.toBeDefined();
   });
 
   it("snapshots the full Diagnostic[] for regression protection", async () => {
-    const spec = await readFixture("fixtures/malformed.spec.md");
-    const { diagnostics } = validateSpec(spec);
+    const { diagnostics } = await parseSpecFile(resolve("fixtures/malformed.spec.md"));
     // Sort for stability across insertion-order changes in the cross-ref walker.
     const sorted = [...diagnostics].sort((a, b) =>
       a.code !== b.code ? a.code.localeCompare(b.code) : a.path.localeCompare(b.path),
@@ -38,8 +42,7 @@ describe("malformed fixture — cross-ref diagnostics (Stage B)", () => {
   });
 
   it("every diagnostic path is RFC-6901-shaped", async () => {
-    const spec = await readFixture("fixtures/malformed.spec.md");
-    const { diagnostics } = validateSpec(spec);
+    const { diagnostics } = await parseSpecFile(resolve("fixtures/malformed.spec.md"));
     for (const d of diagnostics) {
       expect(d.path === "" || d.path.startsWith("/")).toBe(true);
     }
@@ -48,10 +51,12 @@ describe("malformed fixture — cross-ref diagnostics (Stage B)", () => {
 
 describe("Stage-A diagnostics — triggered by programmatic mutation", () => {
   // These can't coexist with Stage B errors in one fixture because Stage A
-  // failure short-circuits Stage B. Test them via targeted clones.
+  // failure short-circuits Stage B. Test them via targeted clones of a
+  // Stage-A-valid fixture (habit-tracker) then re-validate.
 
   it("emits SPEC_UNKNOWN_COMPONENT when tree has an unknown kind", async () => {
-    const spec = (await readFixture("fixtures/habit-tracker.spec.md")) as Record<string, unknown>;
+    const { spec } = await parseSpecFile(resolve("fixtures/habit-tracker.spec.md"));
+    expect(spec).not.toBeNull();
     const clone = JSON.parse(JSON.stringify(spec)) as {
       screens: Array<{ variants: { content: { tree: unknown } } }>;
     };
@@ -63,14 +68,14 @@ describe("Stage-A diagnostics — triggered by programmatic mutation", () => {
   });
 
   it("emits a structural error (SPEC_VARIANT_OMITTED equivalent) when ScreenVariants omits a key", async () => {
-    const spec = (await readFixture("fixtures/habit-tracker.spec.md")) as Record<string, unknown>;
+    const { spec } = await parseSpecFile(resolve("fixtures/habit-tracker.spec.md"));
+    expect(spec).not.toBeNull();
     const clone = JSON.parse(JSON.stringify(spec)) as {
       screens: Array<{ variants: Record<string, unknown> }>;
     };
     const firstScreen = clone.screens[0];
     if (!firstScreen) throw new Error("fixture missing screens[0]");
-    firstScreen.variants.loading = undefined;
-    // Simulate key omission by stripping the undefined property.
+    // Simulate key omission by stripping the loading variant.
     const variantsWithoutLoading: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(firstScreen.variants)) {
       if (k !== "loading") variantsWithoutLoading[k] = v;
