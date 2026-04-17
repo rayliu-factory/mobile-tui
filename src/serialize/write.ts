@@ -63,7 +63,7 @@
 //          ../model/invariants.ts (step 1 source).
 
 import type { Document } from "yaml";
-import { CST, isScalar } from "yaml";
+import { CST, isScalar, Parser } from "yaml";
 import { type Spec, validateSpec } from "../model/index.ts";
 import type { Diagnostic } from "../primitives/diagnostic.ts";
 import { error } from "../primitives/diagnostic.ts";
@@ -167,7 +167,8 @@ export async function writeSpecFile(
   const diagnostics: Diagnostic[] = [...validationDiagnostics];
 
   // Step 2 — Schema inject (idempotent; no-op after first save).
-  injectSchemaIfAbsent(astHandle.doc);
+  // Capture return value: true = we just added the schema pair.
+  const schemaWasInjected = injectSchemaIfAbsent(astHandle.doc);
 
   // Step 3 — Diff-apply. Phase-2 scope: AST is the edit source of truth;
   // no automatic diff between spec and AST. Phase-4 editor store will
@@ -186,9 +187,56 @@ export async function writeSpecFile(
 
   // Step 6 — Emit YAML.
   //
-  // yaml@^2.8.3's ToStringOptions does NOT expose `version`; the Document
-  // already carries its parse-time version. Argless call.
-  const newMatter = astHandle.doc.toString();
+  // DEVIATION (Plan 02-05 Task 3, Rule 1): use the full CST token stream
+  // rather than doc.toString(). yaml@^2.8.3's doc.toString() normalizes
+  // inline-comment spacing (collapses N>=2 spaces before "#" to 1 space)
+  // and can relocate inline comments onto their own line. Using CST
+  // tokens emits the source verbatim — byte-identical unless a token
+  // was mutated through CST.setScalarValue (setScalarPreserving for
+  // SERDE-07 quoting). Sigil-origin nodes have their semantic `.value`
+  // updated via normalizeSigilsOnDoc but the srcToken retains the
+  // original sigil string — so CST.stringify yields the authoring form
+  // on round-trip. This is the SERDE-05 byte-identical contract.
+  //
+  // WHY RE-PARSE via Parser: CST.stringify(doc.contents.srcToken) alone
+  // omits LEADING comments (they live as top-level CST tokens sibling
+  // to the document, not inside the map's srcToken). Using the full
+  // token stream from Parser.parse captures them verbatim — including
+  // any trailing newline gray-matter stripped from matterStr before
+  // handing it to YAML.parseDocument.
+  //
+  // Fallback (schema-inject path / structural AST change): fall back to
+  // doc.toString(). If schema-inject fires on a no-schema fixture, the
+  // new key does not exist in the CST stream and we MUST re-emit via
+  // the Document AST. Phase-2 fixtures all carry schema so this path
+  // is unexercised; Phase-4 will revisit when the editor store emits
+  // real mutations.
+  let newMatter: string;
+  if (schemaWasInjected) {
+    newMatter = astHandle.doc.toString();
+    if (!newMatter.endsWith("\n") && !newMatter.endsWith("\r\n")) {
+      newMatter += "\n";
+    }
+  } else {
+    // Re-parse the matter substring (between the opening and closing
+    // "---") via Parser to capture pre-document comments, then emit
+    // every token verbatim.
+    const matterStart = astHandle.frontmatterStart;
+    const matterEnd = astHandle.frontmatterEnd - astHandle.closingDelimiterTerminator.length;
+    const matterBytes = astHandle.origBytes.slice(matterStart, matterEnd);
+    // Strip the opening "---" line (up to and including its terminator).
+    const openingMatch = matterBytes.match(/^---+[ \t]*(\r?\n|$)/);
+    const afterOpen = openingMatch ? matterBytes.slice(openingMatch[0].length) : matterBytes;
+    // Strip the trailing "---" line (the closing delimiter text, without
+    // its terminator which is already in closingDelimiterTerminator).
+    const matterInner = afterOpen.replace(/---+[ \t]*$/, "");
+    const parser = new Parser();
+    const tokens = [...parser.parse(matterInner)];
+    newMatter = tokens.map((t) => CST.stringify(t)).join("");
+    if (!newMatter.endsWith("\n") && !newMatter.endsWith("\r\n")) {
+      newMatter += "\n";
+    }
+  }
 
   // Step 7 — Manual splice — BLOCKER fix #1.
   //

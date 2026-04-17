@@ -22,14 +22,17 @@
 //      with parsed.isEmpty (empty map between delimiters is a VALID
 //      fixture; only the complete-absence-of-delimiters case is an
 //      error).
-//   6. partitionTopLevel → { knownSubset, unknownKeys }
+//   6. normalizeSigilsOnDoc(doc, sigilOrigins) — mutates AST to triple
+//      form + records origin in WeakMap. MUST run BEFORE partitionTopLevel
+//      so the knownSubset snapshot captures the triple-form label/action/
+//      testID fields (sigil labels on interactables fail Phase-1's
+//      printable-ASCII + SIGIL validators otherwise).
+//   7. partitionTopLevel → { knownSubset, unknownKeys }
 //      - For each unknown present in the imported ADVERSARIAL_KEYS set
 //        (see unknown.ts for the authoritative names), emit
 //        SPEC_UNKNOWN_TOP_LEVEL_KEY error (defense-in-depth Layer 2 on
 //        top of Object.create(null) in partitionTopLevel; Layer 3 is
 //        writeSpecFile's AST pre-gate).
-//   7. normalizeSigilsOnDoc(doc, sigilOrigins) — mutates AST to triple
-//      form + records origin in WeakMap
 //   8. YAML-1.1 gotcha lint pass: scan scalars with value matching
 //      /^(yes|no|on|off|y|n|true|false)$/i that are PLAIN (unquoted) →
 //      emit SERDE_YAML11_GOTCHA info (non-blocking)
@@ -123,7 +126,13 @@ export async function parseSpecFile(path: string): Promise<ParseResult> {
     return { spec: null, astHandle: null, diagnostics, body: "" };
   }
 
-  // Step 6 — Partition + adversarial-key flag.
+  // Step 6 — Sigil normalization. Runs BEFORE partition so knownSubset
+  //   captures the triple-form label/action/testID fields; raw sigil
+  //   labels fail Phase-1's printable-ASCII + SIGIL validators.
+  const sigilOrigins = createSigilOriginsMap();
+  normalizeSigilsOnDoc(parsed.doc, sigilOrigins);
+
+  // Step 7 — Partition + adversarial-key flag.
   const partition = partitionTopLevel(parsed.doc);
   for (const key of partition.unknownKeys) {
     if (ADVERSARIAL_KEYS.has(key)) {
@@ -136,10 +145,6 @@ export async function parseSpecFile(path: string): Promise<ParseResult> {
       );
     }
   }
-
-  // Step 7 — Sigil normalization.
-  const sigilOrigins = createSigilOriginsMap();
-  normalizeSigilsOnDoc(parsed.doc, sigilOrigins);
 
   // Step 8 — YAML-1.1 gotcha lint (info, non-blocking).
   diagnostics.push(...yaml11GotchaLint(parsed.doc));
