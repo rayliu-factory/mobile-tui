@@ -27,7 +27,7 @@ All v1 requirements are hypotheses until shipped and validated.
 - [ ] **SERDE-05**: Round-trip test suite covers at least 20 golden fixtures, including hand-edited-with-comments, reordered keys, unknown fields, nested comments, and empty files; CI fails on any byte-level drift
 - [ ] **SERDE-06**: Writes are atomic (write to `.SPEC.md.tmp` → `rename` over target) and debounced ~500ms; `session_shutdown` forces an immediate flush
 - [ ] **SERDE-07**: YAML 1.2 is pinned in the parser options; emission escapes values that YAML 1.1 would have misinterpreted (`yes`/`no`/`on`/`off`/`1.0`)
-- [ ] **SERDE-08**: A schema-migration runner lives at `migrations/v{n}_to_v{n+1}.ts` from commit 1, even if the list of migrations is empty at v1
+- [x] **SERDE-08**: A schema-migration runner lives at `migrations/v{n}_to_v{n+1}.ts` from commit 1, even if the list of migrations is empty at v1
 
 ### Wireframe renderer (WIREFRAME)
 
@@ -137,7 +137,7 @@ All v1 requirements are hypotheses until shipped and validated.
 | SERDE-05 | Phase 2 | Pending |
 | SERDE-06 | Phase 2 | Pending |
 | SERDE-07 | Phase 2 | Pending |
-| SERDE-08 | Phase 1 | Pending |
+| SERDE-08 | Phase 1 | Complete |
 | WIREFRAME-01 | Phase 3 | Pending |
 | WIREFRAME-02 | Phase 3 | Pending |
 | WIREFRAME-03 | Phase 3 | Pending |
