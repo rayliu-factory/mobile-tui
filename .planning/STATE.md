@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-last_updated: "2026-04-17T21:27:50.000Z"
+last_updated: "2026-04-17T21:40:10.000Z"
 progress:
   total_phases: 9
   completed_phases: 1
   total_plans: 13
-  completed_plans: 10
-  percent: 77
+  completed_plans: 11
+  percent: 85
 ---
 
 # mobile-tui — STATE
@@ -26,16 +26,16 @@ Project memory. Updated at every phase transition and plan completion.
 ## Current Position
 
 Phase: 02 (serialization-round-trip) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 **Milestone**: v1
 **Phase**: 2 — Serialization / Round-Trip
-**Plan**: Plan 02-02 (Wave 1 L1 primitives) COMPLETE. Next: Plan 02-03 (sigil normalizer + schema-inject).
-**Status**: Wave 1 L1 primitives CLOSED. src/serialize/body.ts ships `findFrontmatterBounds(origBytes)` returning `{ start, end, closingTerminator: "\n"|"\r\n"|"" }` via a single regex pass `/^---+[ \t]*$/m` followed by explicit byte-level terminator inspection, plus `extractBodyBytes(origBytes)` returning `origBytes.slice(bounds.end)` verbatim (Pitfall 7 — body NEVER derives from file.content). src/serialize/frontmatter.ts ships `splitFrontmatter(raw): ParsedFrontmatter` wiring gray-matter to eemeli/yaml via `engines.yaml.parse = YAML.parseDocument(str, { version: "1.2", keepSourceTokens: true })`; `engines.yaml.stringify` throws defensively (write path uses manual splice). ParsedFrontmatter carries `doc: Document`, `bodyBytes`, `origBytes`, `isEmpty` (gray-matter's map-between-delimiters-empty signal), `hasFrontmatter: boolean` (BLOCKER fix #2 — true iff findFrontmatterBounds !== null; AUTHORITATIVE signal for SERDE_MISSING_DELIMITER, distinct from isEmpty), `closingDelimiterTerminator` (BLOCKER fix #1), `lineEndingStyle`, `frontmatterStart/End`. src/serialize/unknown.ts ships `KNOWN_TOP_LEVEL_KEYS = ["schema","screens","actions","data","navigation"] as const` mirroring SpecSchema root (D-27), `ADVERSARIAL_KEYS = Set(["__proto__","constructor","prototype"])` exported for Plan 02-04 writeSpecFile save-gate re-check (BLOCKER fix #3), and `partitionTopLevel(doc)` iterating `doc.contents.items` once with `knownSubset` built via `Object.create(null)` (T-02-ProtoPollution Layer 1 defense); adversarial + foreign keys classified as unknown; non-map document early-returns empty partition; AST never mutated. 31 new unit tests across 3 co-located files all green (10 body + 14 frontmatter + 7 unknown). Full gate GREEN: `npx vitest run` 340/340 across 24 files (was 309 baseline; +31 Plan 02-02); `npx tsc --noEmit` 0 errors; `npx biome check .` 0 errors. Phase-1 regression intact.
+**Plan**: Plan 02-03 (Wave 2 transforms — sigil + schema-inject) COMPLETE. Next: Plan 02-04 (Wave 3 write path).
+**Status**: Wave 2 transform primitives CLOSED. src/serialize/sigil.ts ships `SIGIL_REGEX = /^\[(.+?) →([a-z][a-z0-9_]*) test:([a-z][a-z0-9_]*)\]$/` (anchored, non-backtracking — T-01-01 ReDoS-safe on 100KB input per dedicated regression), `INTERACTABLE_KINDS: ReadonlySet<string>` = 5-element set {Button, TextField, Toggle, SegmentedControl, ListItem} mirroring src/model/component.ts InteractableBase consumers (TabBar excluded per 01-04 inline-extended decision), pure `parseSigil(str): SigilTriple | null`, fresh-WeakMap factory `createSigilOriginsMap()`, and `normalizeSigilsOnDoc(doc, wm)` walking `doc[screens]` via isMap/isSeq/isScalar type guards — on sigil match: splits label scalar → triple, adds/updates action + testID pairs on the YAMLMap, records `'sigil'` origin; else records `'triple'`; non-interactables skipped (no WeakMap entry). src/serialize/schema-inject.ts ships idempotent `injectSchemaIfAbsent(doc): boolean` — returns false on doc.has('schema') early-return; mutation path creates schema pair via `doc.createPair('schema', SCHEMA_VERSION)` (literal NEVER inlined — imported from `../model/index.ts`), unshifts at items[0] position (D-28), sets `items[1].key.spaceBefore = true` to force blank line between schema and original first key (Pitfall 6 anchor). Empty/non-map doc handled via `doc.createNode({schema: SV}, {flow: false})`. 34 new unit tests across 2 co-located files all green (26 sigil + 8 schema-inject). Full gate GREEN: `npx vitest run` 374/374 across 26 files (was 340 baseline; +34 Plan 02-03); `npx tsc --noEmit` 0 errors; `npx biome check .` 0 errors. Phase-1 + Wave-0 + Wave-1 regression intact. Quirk noted for Plan 02-04: `doc.toString()` in yaml@^2.8.3 does NOT accept `{ version: '1.2' }` (`ToStringOptions` excludes `version`); parse-time version is sticky on the Document — emit-time call is argless or formatting-opts only.
 
-**Progress**: Phase 1/9 complete (Phase 1 all 8 plans shipped). Plans 2/5 in Phase 2.
+**Progress**: Phase 1/9 complete (Phase 1 all 8 plans shipped). Plans 3/5 in Phase 2.
 
 ```
-[████░░░░░░] 40% — 2/5 Phase-2 plans complete
+[██████░░░░] 60% — 3/5 Phase-2 plans complete
 ```
 
 ## Performance Metrics
@@ -53,6 +53,7 @@ Plan: 3 of 5
 | Phase 01-spec-model-invariants P08 | 8m 22s | 7 tasks | 16 files |
 | Phase 02-serialization-round-trip P01 | 8m 35s | 2 tasks | 21 files |
 | Phase 02-serialization-round-trip P02 | 7m 24s | 2 tasks | 6 files |
+| Phase 02-serialization-round-trip P03 | 3m 14s | 2 tasks | 4 files |
 
 ### Plan Timing
 
@@ -68,6 +69,7 @@ Plan: 3 of 5
 | 01-08 (fixtures + hand-translations + fidelity gate) | 8m 22s | 7 | 16 |
 | 02-01 (serialize scaffold + parseSpecFile stub) | 8m 35s | 2 (5 TDD commits) | 21 |
 | 02-02 (Wave 1 L1 primitives: body + frontmatter + unknown) | 7m 24s | 2 (4 TDD commits) | 6 |
+| 02-03 (Wave 2 transforms: sigil + schema-inject) | 3m 14s | 2 (4 TDD commits) | 4 |
 
 ## Accumulated Context
 
@@ -146,6 +148,14 @@ Plan: 3 of 5
 - **[02-02] `pair.value.toJSON()` projection in partitionTopLevel** — known-key values are projected to plain JS via `.toJSON()` before landing in `knownSubset`. Transient copy for validateSpec consumption; the Document AST itself is untouched, so write-path re-emission preserves comments and formatting intact. Unknown-key pair positions stay in `doc.contents.items` verbatim — no ADD, no COPY, no DELETE (D-26 invariant).
 - **[02-02] Test assertion pattern `if (bounds === null) throw new Error(...)` replaces non-null assertion** — Biome's `noNonNullAssertion` rule rejects `bounds!.start`. Early-throw narrows TypeScript's control-flow analysis and produces identical fail-fast behavior with a clearer error message. Same pattern applied to `match[1]` capture access in the habit-tracker partition test.
 - **[02-02] Auto-fixed biome format issues (3 × Rule-1)** — (a) initial test files used tab indentation against Biome's 2-space config; rewritten in-place before RED commit landed. (b) `src/serialize/frontmatter.ts` import-order wanted `import type { Document }` before `import YAML from "yaml"` (type-first on same source). (c) `src/serialize/unknown.ts` — Biome collapsed the 5-element `KNOWN_TOP_LEVEL_KEYS` array to a single line (fits under line-width 100). All three are mechanical; no semantic changes; readonly tuple `as const` preserved.
+- **[02-03] SIGIL_REGEX inlines SNAKE_CASE class** — `(.+?) →([a-z][a-z0-9_]*) test:([a-z][a-z0-9_]*)` keeps the regex a single literal constant rather than composing via ids.ts. Accept-case tests against canonical snake_case values (`save`, `open_detail`, `add_habit`, `habit_row`) cover the parity. Matches Plan 01-02 SNAKE_CASE + ActionIdSchema split discipline: regex constants stay simple; branded types layer on top in the model layer only.
+- **[02-03] `createSigilOriginsMap()` returns a fresh WeakMap per call, not a module-level singleton** — one handle per parsed Document so concurrent parseSpecFile calls don't share origin state. Consumer pattern: `const wm = createSigilOriginsMap(); normalizeSigilsOnDoc(doc, wm); astHandle.sigilOrigins = wm;`.
+- **[02-03] `normalizeSigilsOnDoc` walks ONLY the `screens` subtree** — actions + data + navigation are schema-defined maps with no component nodes, so widening the walk adds traversal cost with zero behavioral gain. If a future kind carries components outside screens, extending the walker is a one-line `items.find(pair => ...)` addition per new top-level key.
+- **[02-03] Interactable with missing / non-scalar label → `'triple'` origin (still recorded)** — walker always records an origin for every interactable node, so Plan 02-04's emit path never encounters a "no-entry" surface for D-24's partial-sigil-drop logic. Simplifies the emit-time decision to `wm.get(node)` without a null-check fallback branch.
+- **[02-03] `doc.has('schema')` idempotency guard** — O(1) lookup on YAMLMap internals; semantically cleaner than a manual `items.find(pair => pair.key.value === 'schema')` scan. Matches migrations/v1_to_v2.ts's same-in-same-out pattern (SERDE-08 anchor) — first call mutates + returns true; subsequent calls no-op + return false.
+- **[02-03] Pitfall 6 confirmed: spaceBefore lives on `items[1].key`, not `items[0].key`** — after `items.unshift(schemaPair)`, the ORIGINAL first key is now at index 1. Setting spaceBefore on its key-node forces a blank line BEFORE it in the emit, producing `schema: mobile-tui/1\n\n{rest}`. Setting on items[0] would add a blank line BEFORE schema (wrong side). Verified by the `^schema: mobile-tui\/1\n\nscreens:` emit assertion.
+- **[02-03] QUIRK for Plan 02-04: `doc.toString()` in yaml@^2.8.3 does NOT accept `{ version: '1.2' }`** — `ToStringOptions` excludes `version`. Parse-time version (`parseDocument(str, {version: '1.2', ...})`) is sticky on the Document; emit-time call is argless or formatting-opts-only (`indent`, `defaultKeyType`, etc.). Discovered during sigil.test.ts triple-origin byte-identical test (TS2353 error); fixed in-file to `doc.toString()`. Plan 02-04 write.ts's `doc.toString()` calls must stay argless for this reason.
+- **[02-03] Acceptance-criteria grep-gate pattern mismatches (cosmetic only)** — (a) `grep -cE 'Button.*TextField.*Toggle.*SegmentedControl.*ListItem'` returned 0 because Biome split the 5-element set across lines; semantic assertion via `[...INTERACTABLE_KINDS].sort()` test still passes. (b) `! grep -n "TabBar"` fails because TabBar appears in explanatory comments; set literal excludes it. Same class of issue as Plan 01-04's "NOT z.discriminatedUnion" comment. Future-plan recommendation: use `grep -qE '"Button"[^"]*"TextField"[^"]*"Toggle"'` or set-level intersection pattern, not line-anchored alternation.
 
 ### Open TODOs
 
@@ -171,9 +181,9 @@ None. Phase 1 can start immediately.
 
 ## Session Continuity
 
-**Last session**: 2026-04-18 — Plan 02-02 (Wave 1 L1 primitives) COMPLETE. Phase-1 regression intact (309 → 340 total; zero deletions of prior tests).
-**Stopped at**: Completed 02-02-PLAN.md — body.ts ships findFrontmatterBounds + extractBodyBytes (BLOCKER fix #1 closingTerminator captured via `[ \t]*` regex that excludes newlines, plus byte-level terminator inspection); frontmatter.ts ships splitFrontmatter wiring gray-matter → eemeli/yaml with defensive-throw stringify; ParsedFrontmatter carries closingDelimiterTerminator + hasFrontmatter (BLOCKER fixes #1 + #2 propagated); unknown.ts ships KNOWN_TOP_LEVEL_KEYS (5 SpecSchema root keys) + ADVERSARIAL_KEYS ({__proto__, constructor, prototype} exported for Plan 02-04 save-gate re-check — BLOCKER fix #3) + partitionTopLevel with Object.create(null) knownSubset (T-02-ProtoPollution Layer 1 defense). 31 new unit tests across 3 co-located files; full gate `npx vitest run` 340/340 across 24 files; `npx tsc --noEmit` 0 errors; `npx biome check .` 0 errors. Commits: 3fabe2d (T1 RED) → 7672e3f (T1 GREEN) → 42251e5 (T2 RED) → d924abe (T2 GREEN).
-**Next session**: Plan 02-03 (sigil normalizer + schema-inject). Implements src/serialize/sigil.ts (SIGIL_REGEX + INTERACTABLE_KINDS set + WeakMap origin tracking for D-22/D-23) and src/serialize/schema-inject.ts (idempotent `schema: mobile-tui/1` injection at top of frontmatter + blank line convention per D-28). Consumes ParsedFrontmatter.doc from Plan 02-02 splitFrontmatter. Gate: continue to hold 340/340 and introduce tests that cover sigil parse/emit origin invariance and first-save schema injection.
+**Last session**: 2026-04-18 — Plan 02-03 (Wave 2 transforms — sigil + schema-inject) COMPLETE. Phase-1 + Wave-0 + Wave-1 regression intact (340 → 374 total; zero deletions of prior tests).
+**Stopped at**: Completed 02-03-PLAN.md — sigil.ts ships SIGIL_REGEX (anchored + non-backtracking; 100KB T-01-01 regression verified <100ms) + INTERACTABLE_KINDS 5-element set (Button/TextField/Toggle/SegmentedControl/ListItem; TabBar excluded per 01-04) + pure parseSigil(str) + createSigilOriginsMap() fresh-WeakMap factory + normalizeSigilsOnDoc(doc, wm) walking doc[screens] via isMap/isSeq/isScalar type guards (sigil → split + 'sigil' origin; triple → 'triple' origin no mutation; non-interactable → skip, no WeakMap entry); schema-inject.ts ships idempotent injectSchemaIfAbsent(doc): boolean — doc.has('schema') O(1) early-return on present; mutation path via doc.createPair + items.unshift + items[1].key.spaceBefore = true (D-28 blank line, Pitfall 6 anchor); empty/non-map doc handled via doc.createNode({schema: SV}, {flow: false}); SCHEMA_VERSION imported from ../model/index.ts — literal "mobile-tui/1" never inlined (grep gate = 0). 34 new unit tests across 2 co-located files; full gate `npx vitest run` 374/374 across 26 files; `npx tsc --noEmit` 0 errors; `npx biome check .` 0 errors. Commits: 638f73b (T1 RED) → 4e3f79f (T1 GREEN) → 97cb7f1 (T2 RED) → 60e1a5b (T2 GREEN).
+**Next session**: Plan 02-04 (Wave 3 write path). Implements src/serialize/atomic.ts (.tmp + rename primitive with simulated-crash coverage) + src/serialize/write.ts (save-gate on validateSpec severity === 'error' → {written: false, diagnostics} without touching disk per D-31; CST diff-apply over astHandle.doc; sigil re-emit consulting astHandle.sigilOrigins WeakMap from this plan; SERDE-07 auto-quote pass on YAML-1.1-gotcha scalars; manual body-bytes splice per D-18; ADVERSARIAL_KEYS re-check BEFORE save per BLOCKER fix #3). Consumes astHandle (02-01) + splitFrontmatter/partitionTopLevel (02-02) + injectSchemaIfAbsent + WeakMap origins (02-03). Gate: continue to hold 374/374 baseline and introduce tests that cover byte-identical round-trip on the Phase-1 canonical fixtures (habit-tracker + todo + social-feed) + simulated-crash atomicity. IMPORTANT QUIRK CARRYOVER for Plan 02-04: `doc.toString()` in yaml@^2.8.3 does NOT accept `{version: '1.2'}` — `ToStringOptions` excludes `version`. Parse-time version is sticky on the Document; emit-time call must be argless or formatting-opts-only.
 
 **Artifacts on disk**:
 
@@ -193,6 +203,7 @@ None. Phase 1 can start immediately.
 - `.planning/phases/01-spec-model-invariants/01-08-SUMMARY.md` — Wave 5b fixtures + hand-translations + fidelity gate summary (Phase 1 close)
 - `.planning/phases/02-serialization-round-trip/02-01-SUMMARY.md` — Phase 2 Wave-0 substrate (deps + scaffold + parseSpecFile stub)
 - `.planning/phases/02-serialization-round-trip/02-02-SUMMARY.md` — Phase 2 Wave-1 L1 primitives (body + frontmatter + unknown)
+- `.planning/phases/02-serialization-round-trip/02-03-SUMMARY.md` — Phase 2 Wave-2 transforms (sigil normalizer + schema injection)
 
 **Repo root (Phase 1 COMPLETE + Phase 2 Plans 01 + 02 COMPLETE)**:
 
@@ -201,7 +212,7 @@ None. Phase 1 can start immediately.
 - `src/primitives/` — `ids.ts`, `ids.test.ts`, `path.ts`, `path.test.ts`, `diagnostic.ts`, `diagnostic.test.ts`, `index.ts`
 - `src/model/` — complete: `version.ts`, `back-behavior.ts`+`.test.ts`, `action.ts`+`.test.ts`, `data.ts`+`.test.ts`, `variant.ts`+`.test.ts`, `component.ts` (18-kind recursive catalog)+`.test.ts`, `screen.ts`+`.test.ts`, `navigation.ts`+`.test.ts`, `spec.ts`+`.test.ts`, `zod-issue-adapter.ts`+`.test.ts`, `cross-reference.ts`+`.test.ts`, `invariants.ts`+`.test.ts` (validateSpec entry), `index.ts` (barrel)
 - `src/migrations/` — `v1_to_v2.ts` (empty-op anchor), `index.ts` (runMigrations chain runner), `index.test.ts` (7 assertions + T-01-03 gate)
-- **`src/serialize/` (Plans 02-01 + 02-02)** — 15 files: `index.ts` (explicit-named barrel), `parse.ts` (parseSpecFile Wave-0 .spec.json stub), `write.ts` (signature stub), `ast-handle.ts` (AstHandle w/ closingDelimiterTerminator + hasFrontmatter), `diagnostics.ts` (SERDE_CODES + re-exports), `diagnostics.test.ts` (9 assertions), `body.ts` (findFrontmatterBounds + extractBodyBytes — Plan 02-02), `body.test.ts` (10 assertions — Plan 02-02), `frontmatter.ts` (splitFrontmatter + detectLineEndingStyle — Plan 02-02), `frontmatter.test.ts` (14 assertions — Plan 02-02), `unknown.ts` (KNOWN_TOP_LEVEL_KEYS + ADVERSARIAL_KEYS + partitionTopLevel — Plan 02-02), `unknown.test.ts` (7 assertions — Plan 02-02), `sigil.ts` / `schema-inject.ts` / `atomic.ts` (empty stubs for Plans 02-03 through 02-04)
+- **`src/serialize/` (Plans 02-01 + 02-02 + 02-03)** — 17 files: `index.ts` (explicit-named barrel), `parse.ts` (parseSpecFile Wave-0 .spec.json stub), `write.ts` (signature stub), `ast-handle.ts` (AstHandle w/ closingDelimiterTerminator + hasFrontmatter), `diagnostics.ts` (SERDE_CODES + re-exports), `diagnostics.test.ts` (9 assertions), `body.ts` (findFrontmatterBounds + extractBodyBytes — Plan 02-02), `body.test.ts` (10 assertions — Plan 02-02), `frontmatter.ts` (splitFrontmatter + detectLineEndingStyle — Plan 02-02), `frontmatter.test.ts` (14 assertions — Plan 02-02), `unknown.ts` (KNOWN_TOP_LEVEL_KEYS + ADVERSARIAL_KEYS + partitionTopLevel — Plan 02-02), `unknown.test.ts` (7 assertions — Plan 02-02), `sigil.ts` (SIGIL_REGEX + INTERACTABLE_KINDS + parseSigil + createSigilOriginsMap + normalizeSigilsOnDoc — Plan 02-03), `sigil.test.ts` (26 assertions — Plan 02-03), `schema-inject.ts` (injectSchemaIfAbsent — Plan 02-03), `schema-inject.test.ts` (8 assertions — Plan 02-03), `atomic.ts` (empty stub for Plan 02-04)
 - `fixtures/` — 8 files: `habit-tracker.spec.{md,json}`, `todo.spec.{md,json}`, `social-feed.spec.{md,json}`, `malformed.spec.{md,json}` (the `.spec.json` siblings remain as Wave-0 stub input; Plan 02-05 deletes them)
 - `fixtures/targets/` — 2 files: `habit-tracker.swift` (SwiftUI translation), `habit-tracker.kt` (Jetpack Compose translation)
 - `tests/fixtures.test.ts` — canonical-fixture integration test (6 assertions) — migrated to parseSpecFile in Plan 02-01
@@ -214,4 +225,4 @@ None. Phase 1 can start immediately.
 
 ---
 
-*Last updated: 2026-04-18 after 02-02-PLAN.md execution.*
+*Last updated: 2026-04-18 after 02-03-PLAN.md execution.*
