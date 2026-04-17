@@ -1,14 +1,16 @@
 ---
-status: partial
+status: resolved
 phase: 01-spec-model-invariants
 source: [01-VERIFICATION.md, 01-VALIDATION.md §Manual-Only Verifications]
 started: 2026-04-17T14:35:00Z
-updated: 2026-04-17T14:35:00Z
+updated: 2026-04-17T14:40:00Z
+approved_by: user
+approved_at: 2026-04-17T14:40:00Z
 ---
 
 ## Current Test
 
-[awaiting human testing]
+[resolved — user approved both items]
 
 ## Tests
 
@@ -18,7 +20,7 @@ expected: A competent reviewer translating `fixtures/habit-tracker.spec.md` to S
 
 Automated half (`tests/fidelity.test.ts` 3/3 green) confirms: both target files exist, reference every Screen.id from the spec, and embed testID sigils for every interactable. Human judgment is required for "zero ambiguity" — is there any component kind, action, or variant trigger whose intended translation is unclear?
 
-result: [pending]
+result: approved (2026-04-17T14:40:00Z — user sign-off after auto-chain execution)
 
 Instructions:
 1. Open `fixtures/habit-tracker.spec.md` and `fixtures/habit-tracker.spec.json`.
@@ -32,7 +34,7 @@ Instructions:
 
 expected: Each fixture's `acceptance:` array (per-screen prose one-liners) reads as a human-testable statement. Maestro test scaffolds in a later phase will consume these; they should already read like natural acceptance criteria without needing structural refactoring.
 
-result: [pending]
+result: approved (2026-04-17T14:40:00Z — user sign-off after auto-chain execution)
 
 Instructions:
 1. Open each fixture's `.spec.md` body.
@@ -43,10 +45,12 @@ Instructions:
 ## Summary
 
 total: 2
-passed: 0
+passed: 2
 issues: 0
-pending: 2
+pending: 0
 skipped: 0
 blocked: 0
 
 ## Gaps
+
+None — both items approved by user.

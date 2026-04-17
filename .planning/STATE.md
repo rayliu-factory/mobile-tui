@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase complete — ready for verification
-last_updated: "2026-04-17T14:14:07.275Z"
+status: Ready to plan
+last_updated: "2026-04-17T19:24:56.430Z"
 progress:
   total_phases: 9
   completed_phases: 1
@@ -25,8 +25,8 @@ Project memory. Updated at every phase transition and plan completion.
 
 ## Current Position
 
-Phase: 01 (spec-model-invariants) — COMPLETE (ready for verification)
-Plan: 8 of 8 (COMPLETE)
+Phase: 2
+Plan: Not started
 **Milestone**: v1
 **Phase**: 1 — Spec Model & Invariants
 **Plan**: All 8 Phase-1 plans complete. Next: `/gsd-verify-work` on Phase 1, then Phase 2 (serialization / round-trip).
