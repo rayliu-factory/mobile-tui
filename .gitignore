@@ -1,1 +1,6 @@
-.planning/
+node_modules/
+dist/
+coverage/
+.DS_Store
+*.log
+.planning/.mobile-tui/
