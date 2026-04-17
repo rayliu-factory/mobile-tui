@@ -1,0 +1,48 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`malformed fixture — cross-ref diagnostics (Stage B) > snapshots the full Diagnostic[] for regression protection 1`] = `
+[
+  {
+    "code": "SPEC_ACTION_TYPE_MISMATCH",
+    "message": "present.overlay "home" must be a screen with kind: "overlay" (got "regular")",
+    "path": "/actions/present_regular/overlay",
+    "severity": "error",
+  },
+  {
+    "code": "SPEC_JSONPTR_UNRESOLVED",
+    "message": "mutate.target "/GhostEntity/field" does not resolve under data model (/Entity/field prefix required)",
+    "path": "/actions/mutate_ghost/target",
+    "severity": "error",
+  },
+  {
+    "code": "SPEC_MISSING_BACK_BEHAVIOR",
+    "message": "non-root screen "broken_detail" must declare back_behavior",
+    "path": "/screens/1/back_behavior",
+    "severity": "error",
+  },
+  {
+    "code": "SPEC_TESTID_COLLISION",
+    "message": "testID "shared_id" already declared at /screens/0/variants/content/tree/0/children/0/testID",
+    "path": "/screens/0/variants/content/tree/0/children/1/child/testID",
+    "severity": "error",
+  },
+  {
+    "code": "SPEC_UNRESOLVED_ACTION",
+    "message": "navigate.screen "ghost_screen" not declared in screens",
+    "path": "/actions/go_nowhere/screen",
+    "severity": "error",
+  },
+  {
+    "code": "SPEC_UNRESOLVED_ACTION",
+    "message": "submit.entity "GhostEntity" not declared in data.entities",
+    "path": "/actions/submit_nothing/entity",
+    "severity": "error",
+  },
+  {
+    "code": "SPEC_UNRESOLVED_ACTION",
+    "message": "action "ghost_action" referenced but not declared in actions registry",
+    "path": "/screens/0/variants/content/tree/0/children/0/action",
+    "severity": "error",
+  },
+]
+`;
