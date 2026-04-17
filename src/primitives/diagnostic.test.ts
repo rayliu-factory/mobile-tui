@@ -1,13 +1,7 @@
 // Tests for Diagnostic shape, severity enum, and factory helpers.
 // Shape per CONTEXT.md "Diagnostic codes": { code, severity, path, message }.
 import { describe, expect, it } from "vitest";
-import {
-  DiagnosticSchema,
-  DiagnosticSeveritySchema,
-  error,
-  info,
-  warning,
-} from "./diagnostic.ts";
+import { DiagnosticSchema, DiagnosticSeveritySchema, error, info, warning } from "./diagnostic.ts";
 import type { JsonPointer } from "./path.ts";
 
 const pathBrand = (s: string) => s as JsonPointer;
