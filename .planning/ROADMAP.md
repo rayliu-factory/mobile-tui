@@ -73,7 +73,7 @@ Phase 1 (Model L1/L2)
 - [x] 01-05-PLAN.md — Screen, Navigation, Spec root composition; wires ScreenVariantsSchema to real ComponentNodeSchema
 - [x] 01-06-PLAN.md — validateSpec() two-stage pipeline: Zod safeParse adapter + crossReferencePass + public src/index.ts barrel
 - [x] 01-07-PLAN.md — Migration scaffold: v1_to_v2 empty-op migrate + runMigrations chain runner + round-trip test
-- [ ] 01-08-PLAN.md — Fixtures: 3 canonical (habit-tracker, todo, social-feed) + 1 malformed + SwiftUI/Compose hand-translations for D-16 fidelity gate
+- [x] 01-08-PLAN.md — Fixtures: 3 canonical (habit-tracker, todo, social-feed) + 1 malformed + SwiftUI/Compose hand-translations for D-16 fidelity gate
 
 ### Phase 2: Serialization & Round-Trip
 

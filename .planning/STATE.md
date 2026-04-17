@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-last_updated: "2026-04-17T13:59:50.200Z"
+status: Phase complete — ready for verification
+last_updated: "2026-04-17T14:14:07.275Z"
 progress:
   total_phases: 9
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 8
-  completed_plans: 7
-  percent: 88
+  completed_plans: 8
+  percent: 100
 ---
 
 # mobile-tui — STATE
@@ -25,17 +25,17 @@ Project memory. Updated at every phase transition and plan completion.
 
 ## Current Position
 
-Phase: 01 (spec-model-invariants) — EXECUTING
-Plan: 8 of 8
+Phase: 01 (spec-model-invariants) — COMPLETE (ready for verification)
+Plan: 8 of 8 (COMPLETE)
 **Milestone**: v1
 **Phase**: 1 — Spec Model & Invariants
-**Plan**: Wave 4 COMPLETE (`01-06-PLAN.md` validateSpec two-stage pipeline shipped). Next is `01-07-PLAN.md` — migration runner scaffold (SERDE-08 + no-op v1→v2 migration).
-**Status**: Wave 4 complete — `validateSpec(input: unknown)` is now the SPEC-09 public contract. Two-stage pipeline: (A) `SpecSchema.safeParse` → `zodIssuesToDiagnostics` (12-entry ZOD_CODE_MAP, invalid_union → SPEC_UNKNOWN_COMPONENT); (B) `crossReferencePass` emitting 5 SPEC_* codes (SPEC_MISSING_BACK_BEHAVIOR, SPEC_UNRESOLVED_ACTION, SPEC_TESTID_COLLISION, SPEC_JSONPTR_UNRESOLVED, SPEC_ACTION_TYPE_MISMATCH). Serialize-once pre-check enforces 5MB cap (T-01-01) AND catches cycles/BigInts (SPEC_INPUT_NOT_SERIALIZABLE) in one try/catch. NEVER throws for any input. Cross-ref errors leave `spec: Spec` populated (Phase 2 preview usable even when save is gated). Public API via `src/index.ts` barrel: `import { validateSpec, SCHEMA_VERSION, type Spec, type Diagnostic } from 'mobile-tui'` works cleanly. 54 new assertions + 210 prior = 264 cumulative tests green. `npx tsc --noEmit` + `npx biome check src/` both clean across 32 files. Plans 07 + 08 can start in parallel.
+**Plan**: All 8 Phase-1 plans complete. Next: `/gsd-verify-work` on Phase 1, then Phase 2 (serialization / round-trip).
+**Status**: Wave 5b COMPLETE (`01-08-PLAN.md` shipped fixtures + hand-translations + fidelity gate). Phase 1 CLOSED pending verification. Four fixtures (habit-tracker + todo + social-feed canonical — all 3×2×5 D-14 shape; + malformed carrying all 5 Stage-B cross-ref codes in one `validateSpec` call). Two hand-translated target files (`fixtures/targets/habit-tracker.{swift,kt}`) — fidelity gate D-16 closed. Four integration test files (`tests/fixtures.test.ts`, `tests/malformed.test.ts`, `tests/catalog-coverage.test.ts`, `tests/fidelity.test.ts`) adding 26 assertions. Snapshot `tests/__snapshots__/malformed.test.ts.snap` locked as cross-ref regression anchor. Catalog coverage: 18/18 COMPONENT_KINDS exercised. `npx tsc --noEmit` + `npx vitest run` (297/297 across 19 files) + `npx vitest run --coverage` (96.61% stmts / 100% fns / 100% lines) + `npx biome check src/ tests/` (40 files) all clean. VALIDATION.md flipped to `status: complete`, `wave_0_complete: true`, all 27 Per-Task rows ✅, all 7 Wave-0 items ticked, all 6 Sign-Off gates signed. Phase 1 success criteria #1 (zero-diagnostic canonical fixtures), #2 (never-throws malformed), #3 (closed 18-kind catalog), #5 (two-target fidelity) ALL MET. #4 (migration round-trip) met by Plan 07. Phase 2 can start.
 
-**Progress**: Phase 0/9 complete. Plans 6/8 in Phase 1.
+**Progress**: Phase 0/9 complete. Plans 8/8 in Phase 1.
 
 ```
-[████████░░] 75% — 6/8 Phase-1 plans complete
+[██████████] 100% — 8/8 Phase-1 plans complete
 ```
 
 ## Performance Metrics
@@ -45,11 +45,12 @@ Plan: 8 of 8
 | v1 requirements | 58 |
 | Requirements mapped | 58 (100%) |
 | Phases planned | 9 |
-| Plans complete | 6 |
-| Fixtures committed | 0 |
-| Round-trip fixtures | 0 / 20 (target) |
+| Plans complete | 8 |
+| Fixtures committed | 4 (3 canonical + 1 malformed) |
+| Round-trip fixtures | 3 / 20 (target; Phase 2 will extend) |
 | Reference wireframes | 0 / 20 (target for Phase 3 dogfood gate) |
 | Phase 01-spec-model-invariants P07 | 1m 58s | 2 tasks | 4 files |
+| Phase 01-spec-model-invariants P08 | 8m 22s | 7 tasks | 16 files |
 
 ### Plan Timing
 
@@ -61,6 +62,8 @@ Plan: 8 of 8
 | 01-04 (recursive ComponentNode) | 4m 6s | 2 (3 TDD commits) | 2 |
 | 01-05 (Screen + Nav + Spec root) | 4m 52s | 3 (6 TDD commits) | 6 |
 | 01-06 (validateSpec two-stage) | 9m 17s | 3 (6 TDD commits) | 8 |
+| 01-07 (migration runner scaffold) | 1m 58s | 2 | 4 |
+| 01-08 (fixtures + hand-translations + fidelity gate) | 8m 22s | 7 | 16 |
 
 ## Accumulated Context
 
@@ -116,6 +119,12 @@ Plan: 8 of 8
 - **[01-06] `walkComponentTree` enumerates every recursive kind in a switch** — explicit > implicit. Adding a new container kind to `component.ts` (say `Tab` nesting screens) without adding a walker case will fail loud in the testID-collision test for that kind. Catches "forgot to recurse" at test time instead of runtime.
 - **[01-06] `src/model/index.ts` barrel re-exports EVERY public schema + type + constant** — Phase-1 contract boundary. Downstream (Phase 2+) imports through `mobile-tui` (src/index.ts `export * from './model/index.ts'`) and gets every public name in one line. Internal co-located tests continue to import from leaf files. Primitives gets SELECTIVE named re-export (not `export *`) to keep internal regex constants private.
 - **[01-06] Auto-fixed test-authoring bugs (3 × Rule-1)** — (a) Zod v4 `issue.path: PropertyKey[]` (admits symbols) required `.map(seg => typeof seg === 'symbol' ? String(seg) : seg)` coercion before `pathToJsonPointer`; (b) `{ __proto__: "bad" }` literal sets prototype (not data key) — switched to `Object.assign({}, { unwanted_extra: "bad" })` for .strict() reject-unknown-key test; (c) `setTitle` camelCase action id rejected by snake_case `ActionIdSchema` — renamed to `set_title` in Pitfall-#4 deeper-prefix test. All test-side, no production semantics changed.
+- **[01-07] Migration runner returns `unknown` per RESEARCH Pitfall #7** — over-typing the chain has negative ROI with one migrator; callers re-validate via `validateSpec()`. `MIGRATIONS = [{ from: '1', to: '2', run: v1_to_v2 }] as const`; empty-op `return input as unknown as SpecV2` body. T-01-03 regression gate via `validateSpec(runMigrations(spec, '1', '2')).diagnostics === []`.
+- **[01-08] Fixture convention: `.spec.md` + `.spec.json` sibling pair** — body header comment `<!-- Phase 1 fixture: triple-form YAML; sigil parser lands in Phase 2 -->` documents the Phase-1 triple-form convention. Phase 2 parser drops `.spec.json` siblings once parity is proven.
+- **[01-08] `when.collection` / `when.async` / `when.field_error` JsonPointer requires two tokens `/Entity/field`** — bare-entity pointers (`/Habit`) fail SPEC_JSONPTR_UNRESOLVED because cross-ref's resolveJsonPointerPrefix requires `parts.length >= 2`. All fixture empty-variants bind to `/EntityName/fieldName` (e.g. `/Habit/title`, `/Task/title`, `/Post/text`). [Rule 1 - Bug] fix during Task 1; Phase 2 may widen the resolver.
+- **[01-08] ONE Stage-A-valid Stage-B-invalid malformed fixture + programmatic Stage-A clones** — simpler than two malformed fixtures; keeps the fixture file a single-purpose cross-ref regression anchor. Stage-A codes (SPEC_UNKNOWN_COMPONENT + variant omission) tested via targeted JSON.parse(JSON.stringify(habit)) mutations in `tests/malformed.test.ts`.
+- **[01-08] Catalog-coverage test excludes variant kinds from rogue-kind check** — walker sees both component kind and variant kind (content/empty/loading/error); COMPONENT_KINDS only enumerates components. Explicit `VARIANT_KINDS` filter set keeps the rogue-kind assertion from false-positiving.
+- **[01-08] Auto-approved Task 6 human-verify checkpoint (D-16 fidelity gate)** — per --auto chain. Automated half (`tests/fidelity.test.ts` 3/3 green) confirms every Screen.id + testID appears in both `.swift` and `.kt`; structural mapping documented in header-comment mapping tables of both target files.
 
 ### Open TODOs
 
@@ -141,9 +150,9 @@ None. Phase 1 can start immediately.
 
 ## Session Continuity
 
-**Last session**: 2026-04-17 — Wave 4 COMPLETE (01-06 validateSpec two-stage pipeline shipped).
-**Stopped at**: Completed 01-06-PLAN.md — `validateSpec(input: unknown) → { spec: Spec | null, diagnostics: Diagnostic[] }` is now the SPEC-09 public contract. Two-stage pipeline (Zod safeParse + crossReferencePass) plus 5MB size cap (T-01-01) via serialize-once `JSON.stringify` pre-check (also catches cycles/BigInts → `SPEC_INPUT_NOT_SERIALIZABLE`). `src/model/index.ts` barrel + rewritten `src/index.ts` expose the public API: `import { validateSpec, SCHEMA_VERSION, type Spec, type Diagnostic } from 'mobile-tui'` works cleanly. 54 new assertions; cumulative 264/264 green; tsc + biome clean across 32 files. Next: `01-07-PLAN.md` (migration runner scaffold — SERDE-08 placeholder + v1→v2 no-op migration with re-validation via `validateSpec` post-upgrade).
-**Next session**: Execute `01-07-PLAN.md` — ship the migration runner with a single no-op v1→v2 migration (SERDE-08). Design per RESEARCH Pitfall #7: `MIGRATIONS` array with `from/to/run` entries; `runMigrations(spec, fromVersion, toVersion)` reducer; caller re-validates the upgraded payload via `validateSpec` (now available from Plan 06). Plans 07 and 08 run in Wave 5 and can proceed in parallel since both depend only on Plan 06 artifacts.
+**Last session**: 2026-04-17 — Wave 5b COMPLETE (01-08 fixtures + hand-translations + fidelity gate shipped). **Phase 1 COMPLETE pending `/gsd-verify-work`.**
+**Stopped at**: Completed 01-08-PLAN.md — four fixtures (habit-tracker + todo + social-feed canonical at D-14 3×2×5 shape; malformed carrying all 5 Stage-B cross-ref codes), two hand-translated target files (`fixtures/targets/habit-tracker.{swift,kt}`), four integration tests (fixtures, malformed, catalog-coverage, fidelity) adding 26 assertions. Snapshot `tests/__snapshots__/malformed.test.ts.snap` locked. Catalog coverage: 18/18 COMPONENT_KINDS exercised. VALIDATION.md flipped to `status: complete`, `wave_0_complete: true`, all 27 rows ✅. Phase 1 success criteria #1 (zero-diagnostic canonical fixtures), #2 (never-throws malformed), #3 (closed 18-kind catalog), #5 (two-target fidelity) ALL MET. #4 (migration round-trip) met by Plan 07. Cumulative 297/297 green across 19 test files; tsc + biome + coverage clean.
+**Next session**: Run `/gsd-verify-work` on Phase 1 to confirm all 5 success criteria are independently verifiable. Then start Phase 2 (serialization / round-trip) — gray-matter + eemeli/yaml parser reading `fixtures/*.spec.md`, diff-and-apply serializer, 20-fixture round-trip golden suite (SERDE-01..07), save-gate on validateSpec severity (SPEC-09).
 
 **Artifacts on disk**:
 
@@ -158,16 +167,25 @@ None. Phase 1 can start immediately.
 - `.planning/phases/01-spec-model-invariants/01-03-SUMMARY.md` — Wave 2 leaf model schemas summary
 - `.planning/phases/01-spec-model-invariants/01-04-SUMMARY.md` — Wave 2 recursive ComponentNode summary
 - `.planning/phases/01-spec-model-invariants/01-05-SUMMARY.md` — Wave 3 Screen + Navigation + Spec root composition summary
+- `.planning/phases/01-spec-model-invariants/01-06-SUMMARY.md` — Wave 4 validateSpec two-stage pipeline summary
+- `.planning/phases/01-spec-model-invariants/01-07-SUMMARY.md` — Wave 5a migration runner scaffold summary
+- `.planning/phases/01-spec-model-invariants/01-08-SUMMARY.md` — Wave 5b fixtures + hand-translations + fidelity gate summary (Phase 1 close)
 
-**Repo root (Wave 0 toolchain + Wave 1 primitives + Wave 2 model schemas + Wave 3 composition COMPLETE)**:
+**Repo root (Phase 1 COMPLETE — all 8 plans shipped)**:
 
 - `package.json`, `package-lock.json`, `tsconfig.json`, `biome.json`, `vitest.config.ts`, `.gitignore`
-- `src/index.ts` (empty re-export placeholder — populated by Plan 01-06)
-- `src/primitives/` — populated: `ids.ts`, `ids.test.ts`, `path.ts`, `path.test.ts`, `diagnostic.ts`, `diagnostic.test.ts`, `index.ts` (barrel)
-- `src/model/` — Wave 3 complete: `version.ts`, `back-behavior.ts`, `back-behavior.test.ts`, `action.ts`, `action.test.ts`, `data.ts`, `data.test.ts`, `variant.ts`, `variant.test.ts`, `component.ts` (18-kind recursive catalog), `component.test.ts`, `screen.ts`, `screen.test.ts`, `navigation.ts`, `navigation.test.ts`, `spec.ts` (root composition with `.strict()`), `spec.test.ts`
-- `src/migrations/` (still `.gitkeep` only; Plan 01-07 populates)
-- `fixtures/`, `fixtures/targets/` (`.gitkeep` only; Plan 01-08 populates)
-- `tests/helpers/parse-fixture.ts` — Phase-1-only fixture reader
+- `src/index.ts` — public API barrel (full model + migrations + selected primitives re-export)
+- `src/primitives/` — `ids.ts`, `ids.test.ts`, `path.ts`, `path.test.ts`, `diagnostic.ts`, `diagnostic.test.ts`, `index.ts`
+- `src/model/` — complete: `version.ts`, `back-behavior.ts`+`.test.ts`, `action.ts`+`.test.ts`, `data.ts`+`.test.ts`, `variant.ts`+`.test.ts`, `component.ts` (18-kind recursive catalog)+`.test.ts`, `screen.ts`+`.test.ts`, `navigation.ts`+`.test.ts`, `spec.ts`+`.test.ts`, `zod-issue-adapter.ts`+`.test.ts`, `cross-reference.ts`+`.test.ts`, `invariants.ts`+`.test.ts` (validateSpec entry), `index.ts` (barrel)
+- `src/migrations/` — `v1_to_v2.ts` (empty-op anchor), `index.ts` (runMigrations chain runner), `index.test.ts` (7 assertions + T-01-03 gate)
+- `fixtures/` — 8 files: `habit-tracker.spec.{md,json}`, `todo.spec.{md,json}`, `social-feed.spec.{md,json}`, `malformed.spec.{md,json}`
+- `fixtures/targets/` — 2 files: `habit-tracker.swift` (SwiftUI translation), `habit-tracker.kt` (Jetpack Compose translation)
+- `tests/helpers/parse-fixture.ts` — Phase-1-only fixture reader (`.spec.json`/`.spec.ts` sibling resolver)
+- `tests/fixtures.test.ts` — canonical-fixture integration test (6 assertions)
+- `tests/malformed.test.ts` — malformed fixture + Diagnostic[] snapshot test (15 assertions)
+- `tests/catalog-coverage.test.ts` — SPEC-01 closed-catalog coverage test (2 assertions)
+- `tests/fidelity.test.ts` — D-16 two-target fidelity gate automated half (3 assertions)
+- `tests/__snapshots__/malformed.test.ts.snap` — sorted full-Diagnostic[] regression snapshot
 
 ---
 
