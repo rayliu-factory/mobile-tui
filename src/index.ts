@@ -7,9 +7,10 @@
 // `./primitives/...` and `./model/...` directly; this file is the one-way
 // outward seam.
 
+// Migrations — SERDE-08.
+export { MIGRATIONS, runMigrations, type SpecVersion } from "./migrations/index.ts";
 // Model layer — Zod schemas, inferred types, `validateSpec()` entry point.
 export * from "./model/index.ts";
-
 // Primitives — Diagnostic + JsonPointer + ID branded types. Exported
 // selectively (not `export *`) because primitives/index.ts also re-exports
 // regex constants and internal schema helpers that are Phase-1 internals.
@@ -37,6 +38,3 @@ export {
   TestIDSchema,
   warning,
 } from "./primitives/index.ts";
-
-// Migrations — Plan 07 populates this:
-// export { runMigrations } from "./migrations/index.ts";
