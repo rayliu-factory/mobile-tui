@@ -69,7 +69,7 @@ Phase 1 (Model L1/L2)
 - [x] 01-01-PLAN.md — Toolchain scaffolding: package.json, tsconfig, biome, vitest, directory skeleton, fixture-parse helper
 - [x] 01-02-PLAN.md — L1 primitives: branded ID types (Screen/Action/Test/Entity), JsonPointer (RFC 6901), Diagnostic shape + factories
 - [x] 01-03-PLAN.md — Leaf model schemas: version, back-behavior, action (6-kind discriminated union), data model, variants factory
-- [ ] 01-04-PLAN.md — Recursive component tree: 18-kind closed catalog via z.union + z.lazy + z.ZodType<ComponentNode> annotation
+- [x] 01-04-PLAN.md — Recursive component tree: 18-kind closed catalog via z.union + z.lazy + z.ZodType<ComponentNode> annotation
 - [ ] 01-05-PLAN.md — Screen, Navigation, Spec root composition; wires ScreenVariantsSchema to real ComponentNodeSchema
 - [ ] 01-06-PLAN.md — validateSpec() two-stage pipeline: Zod safeParse adapter + crossReferencePass + public src/index.ts barrel
 - [ ] 01-07-PLAN.md — Migration scaffold: v1_to_v2 empty-op migrate + runMigrations chain runner + round-trip test
@@ -218,7 +218,7 @@ Phase 1 (Model L1/L2)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Spec Model & Invariants | 2/8 | In Progress | — |
+| 1. Spec Model & Invariants | 4/8 | In Progress | — |
 | 2. Serialization & Round-Trip | 0/? | Not started | — |
 | 3. Wireframe Renderer & Dogfood Gate | 0/? | Not started | — |
 | 4. Editor Store, Commands & Undo | 0/? | Not started | — |

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-last_updated: "2026-04-17T13:11:36.099Z"
+last_updated: "2026-04-17T13:22:06.038Z"
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 8
-  completed_plans: 3
-  percent: 38
+  completed_plans: 4
+  percent: 50
 ---
 
 # mobile-tui — STATE
@@ -26,16 +26,16 @@ Project memory. Updated at every phase transition and plan completion.
 ## Current Position
 
 Phase: 01 (spec-model-invariants) — EXECUTING
-Plan: 4 of 8
+Plan: 5 of 8
 **Milestone**: v1
 **Phase**: 1 — Spec Model & Invariants
-**Plan**: Wave 2 partial (`01-03-PLAN.md` complete). Next is `01-04-PLAN.md` — ComponentNodeSchema (the one recursive union in Phase 1, z.lazy + z.union).
-**Status**: Wave 2 leaf schemas shipped — version, back-behavior, action (6-kind discriminated union), data model, variants factory. 60 new model assertions + 63 primitive assertions = 123 cumulative unit tests green. `npx tsc --noEmit` + `npx biome check src/model/` both clean. `createScreenVariantsSchema(treeSchema)` factory is ready for Plan 04's ComponentNodeSchema to be threaded through by Plan 05.
+**Plan**: Wave 2 COMPLETE (`01-03-PLAN.md` + `01-04-PLAN.md` shipped). Next is `01-05-PLAN.md` — Screen/Navigation/Spec root composition threading `ComponentNodeSchema` through `createScreenVariantsSchema`.
+**Status**: Wave 2 fully complete — leaf schemas (version, back-behavior, action, data, variants factory) plus the recursive 18-kind ComponentNodeSchema. 40 new component-tree assertions + 123 prior = 163 cumulative unit tests green. `npx tsc --noEmit` + `npx biome check src/model/` both clean. `ComponentNodeSchema` is ready for Plan 05 to thread through `createScreenVariantsSchema` and compose the full Spec root.
 
-**Progress**: Phase 0/9 complete. Plans 3/8 in Phase 1.
+**Progress**: Phase 0/9 complete. Plans 4/8 in Phase 1.
 
 ```
-[████░░░░░░] 38% — 3/8 Phase-1 plans complete
+[█████░░░░░] 50% — 4/8 Phase-1 plans complete
 ```
 
 ## Performance Metrics
@@ -45,7 +45,7 @@ Plan: 4 of 8
 | v1 requirements | 58 |
 | Requirements mapped | 58 (100%) |
 | Phases planned | 9 |
-| Plans complete | 3 |
+| Plans complete | 4 |
 | Fixtures committed | 0 |
 | Round-trip fixtures | 0 / 20 (target) |
 | Reference wireframes | 0 / 20 (target for Phase 3 dogfood gate) |
@@ -57,6 +57,7 @@ Plan: 4 of 8
 | 01-01 (toolchain scaffolding) | 3m 23s | 3 | 13 |
 | 01-02 (L1 primitives) | 3m 54s | 3 (6 TDD commits) | 7 |
 | 01-03 (Wave 2 leaf schemas) | 3m 44s | 4 (8 TDD commits) | 9 |
+| 01-04 (recursive ComponentNode) | 4m 6s | 2 (3 TDD commits) | 2 |
 
 ## Accumulated Context
 
@@ -90,6 +91,12 @@ Plan: 4 of 8
 - **[01-03] Closed vocabularies exported as readonly tuples + `z.enum` wrapper** — `MUTATE_OPS`, `FIELD_TYPES`, `RELATIONSHIP_KINDS`. Tests parametrize via `it.each(TUPLE)` so enum extensions auto-extend test coverage without re-declaring the set.
 - **[01-03] `FieldSchema.refine` encodes the reference-requires-`of` rule at shape level** — rather than deferring to Plan 06's cross-ref pass. Keeps malformed specs from reaching cross-ref and produces a clearer error message at the exact dependency site.
 - **[01-03] `custom.name` constrained to snake_case via `z.string().regex(SNAKE_CASE, ...)`** — CONTEXT.md ID case conventions apply to all author-defined identifiers that cross the spec ↔ Maestro boundary. PascalCase custom action names would break downstream Maestro selector hygiene.
+- **[01-04] `ComponentNodeSchema` uses `z.lazy + z.union + explicit z.ZodType<ComponentNode>`** — the canonical recursive-tree pattern per RESEARCH §Pattern 1. The discriminated-union API is banned for recursive schemas in this codebase (Zod v4 runtime-init + TS-inference bugs, issues #4264/#5288). ComponentNode is the ONE recursive schema in Phase 1; all other unions (Action, BackBehavior, Variant) remain on the discriminated-union API per Plan 03. Verified by grep gate: `! grep -q "z.discriminatedUnion" src/model/component.ts`.
+- **[01-04] Forward `ComponentNode` TypeScript type union authoritative alongside the schema** — NOT derived via `z.infer`. The `z.ZodType<ComponentNode>` annotation is load-bearing: without it, TS inference on the recursive union collapses to `unknown` and every downstream type (Plan 05 `ScreenVariants.tree`) loses discrimination. Type/schema parity on the 18 kinds is enforced by the plan's grep gate on every kind literal. The `TypeScript inference sanity` test narrows `kind === "Text"` and accesses `.text` — compile-time proof.
+- **[01-04] ListItem encodes D-02 all-or-nothing sigil triple via `.refine` in a SINGLE discriminated branch** — not a two-branch `TappableListItem | ContainerListItem` split. The split would duplicate `kind: "ListItem"` across the union, break Zod parse-time error attribution, and inflate COMPONENT_KINDS from 18 to 19. The refine message names D-02 so diagnostics pinpoint the exact rule violated.
+- **[01-04] TabBar items INLINE-extend `InteractableBase` rather than accepting nested `ComponentNode`** — SwiftUI `TabView` and Jetpack Compose `NavigationBar` both treat tab items as leaf (label + icon + action). Nesting a Card inside a tab isn't representable natively. Bounds `.min(2).max(5)` match native tab-bar conventions. Constraint enforced at schema parse time, not deferred to Phase 7 Maestro/handoff.
+- **[01-04] 100-level recursion stress test encodes T-01-01 depth-mitigation evidence** — real specs cap at ~5-8 nesting levels (Screen → Column → Card → Column → Row → Button); Zod's stack-bounded evaluator handles 100 trivially. No runtime `maxDepth` guard added at schema parse time; Plan 06 crossReferencePass gets a guard only if a future real fixture ever approaches the limit.
+- **[01-04] Plan `verify` grep gate `! grep -q "z.discriminatedUnion"` matches on comments too** — initial component.ts mentioned the literal token in an implementation-note comment ("NOT z.discriminatedUnion"). Reworded to "NOT the discriminated-union API" to pass the gate without losing explanatory content. Lesson: plan grep gates should use `-E '\bz\.discriminatedUnion\s*\('` or similar to disambiguate identifier-use from comment-reference. Not tightened here — Plan 04 already passed.
 
 ### Open TODOs
 
@@ -115,9 +122,9 @@ None. Phase 1 can start immediately.
 
 ## Session Continuity
 
-**Last session**: 2026-04-17 — Wave 2 leaf schemas complete (01-03-PLAN.md executed).
-**Stopped at**: Completed 01-03-PLAN.md (version + back-behavior + action + data + variant). Next: `01-04-PLAN.md` (ComponentNodeSchema — the one recursive union in Phase 1).
-**Next session**: Execute `01-04-PLAN.md` — recursive `ComponentNodeSchema` using `z.lazy + z.union` with the 18-kind A2UI-shaped component catalog. Plan 05 will then thread ComponentNodeSchema into `createScreenVariantsSchema` for the full Spec root.
+**Last session**: 2026-04-17 — Wave 2 COMPLETE (01-03 leaf schemas + 01-04 recursive ComponentNode both shipped).
+**Stopped at**: Completed 01-04-PLAN.md (recursive ComponentNodeSchema, 18-kind closed catalog, z.lazy + z.union + z.ZodType<ComponentNode>). Next: `01-05-PLAN.md` (Screen / Navigation / Spec root composition — threads ComponentNodeSchema through createScreenVariantsSchema).
+**Next session**: Execute `01-05-PLAN.md` — compose Screen, Navigation, and the Spec root using Plan 03's leaf schemas and Plan 04's recursive ComponentNodeSchema. Upgrades ScreenVariants.tree from `unknown[]` placeholder to `ComponentNode[]`. After 01-05, Wave 3 begins with Plan 01-06 (validateSpec two-stage pipeline).
 
 **Artifacts on disk**:
 
@@ -130,17 +137,18 @@ None. Phase 1 can start immediately.
 - `.planning/phases/01-spec-model-invariants/01-01-SUMMARY.md` — Wave 0 toolchain summary
 - `.planning/phases/01-spec-model-invariants/01-02-SUMMARY.md` — Wave 1 L1 primitives summary
 - `.planning/phases/01-spec-model-invariants/01-03-SUMMARY.md` — Wave 2 leaf model schemas summary
+- `.planning/phases/01-spec-model-invariants/01-04-SUMMARY.md` — Wave 2 recursive ComponentNode summary
 
-**Repo root (Wave 0 toolchain + Wave 1 primitives + Wave 2 leaf schemas)**:
+**Repo root (Wave 0 toolchain + Wave 1 primitives + Wave 2 model schemas COMPLETE)**:
 
 - `package.json`, `package-lock.json`, `tsconfig.json`, `biome.json`, `vitest.config.ts`, `.gitignore`
 - `src/index.ts` (empty re-export placeholder — populated by Plan 01-06)
 - `src/primitives/` — populated: `ids.ts`, `ids.test.ts`, `path.ts`, `path.test.ts`, `diagnostic.ts`, `diagnostic.test.ts`, `index.ts` (barrel)
-- `src/model/` — populated by Plan 03: `version.ts`, `back-behavior.ts`, `back-behavior.test.ts`, `action.ts`, `action.test.ts`, `data.ts`, `data.test.ts`, `variant.ts`, `variant.test.ts` (legacy `.gitkeep` still present; removable once Plan 04-05 finish populating)
+- `src/model/` — Wave 2 complete: `version.ts`, `back-behavior.ts`, `back-behavior.test.ts`, `action.ts`, `action.test.ts`, `data.ts`, `data.test.ts`, `variant.ts`, `variant.test.ts`, `component.ts` (18-kind recursive catalog), `component.test.ts` (40 assertions)
 - `src/migrations/` (still `.gitkeep` only; Plan 01-07 populates)
 - `fixtures/`, `fixtures/targets/` (`.gitkeep` only; Plan 01-08 populates)
 - `tests/helpers/parse-fixture.ts` — Phase-1-only fixture reader
 
 ---
 
-*Last updated: 2026-04-17 after 01-03-PLAN.md execution.*
+*Last updated: 2026-04-17 after 01-04-PLAN.md execution.*
