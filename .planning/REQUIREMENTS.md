@@ -8,7 +8,7 @@ All v1 requirements are hypotheses until shipped and validated.
 ### Spec model (SPEC)
 
 - [x] **SPEC-01**: The spec is a framework-agnostic tree of A2UI-shaped components (Column, Row, Text, Button, TextField, List, ListItem, Card, Image, Icon, Divider, Toggle, SegmentedControl, TabBar, NavBar, Modal, Sheet, Spacer — closed vocabulary for v1)
-- [ ] **SPEC-02**: The spec captures Screens, each with an id, title, and a component tree
+- [x] **SPEC-02**: The spec captures Screens, each with an id, title, and a component tree
 - [x] **SPEC-03**: The spec captures a Navigation graph (edges between screens with trigger + transition) plus required `back_behavior` on every non-root screen
 - [x] **SPEC-04**: The spec captures Data models — Entities with named Fields, relationships, and typed bindings via JSON Pointers (RFC 6901)
 - [x] **SPEC-05**: Every screen captures State variants as first-class children: `content`, `empty`, `loading`, `error` (not variants of the happy path)
@@ -16,7 +16,7 @@ All v1 requirements are hypotheses until shipped and validated.
 - [x] **SPEC-07**: testID sigils are embedded in interactable components via the syntax `[Label →action test:id]`, and the validator fails generation if a sigil referenced by an emitter is missing
 - [ ] **SPEC-08**: The spec has a top-level `schema: mobile-tui/1` frontmatter field from the first serialized output; unknown frontmatter keys round-trip through an `_unknown:` bucket rather than being silently dropped
 - [ ] **SPEC-09**: `validateSpec()` returns a `Diagnostic[]` (code + severity + path + message) — it never throws on schema violations; write-through save is gated on `severity !== "error"`
-- [ ] **SPEC-10**: Every screen optionally carries acceptance criteria (prose lines) that the Maestro emitter and LLM-handoff scaffold both consume
+- [x] **SPEC-10**: Every screen optionally carries acceptance criteria (prose lines) that the Maestro emitter and LLM-handoff scaffold both consume
 
 ### Serialization (SERDE)
 
@@ -121,7 +121,7 @@ All v1 requirements are hypotheses until shipped and validated.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SPEC-01 | Phase 1 | Complete |
-| SPEC-02 | Phase 1 | Pending |
+| SPEC-02 | Phase 1 | Complete |
 | SPEC-03 | Phase 1 | Complete |
 | SPEC-04 | Phase 1 | Complete |
 | SPEC-05 | Phase 1 | Complete |
@@ -129,7 +129,7 @@ All v1 requirements are hypotheses until shipped and validated.
 | SPEC-07 | Phase 1 | Complete |
 | SPEC-08 | Phase 2 | Pending |
 | SPEC-09 | Phase 2 | Pending |
-| SPEC-10 | Phase 1 | Pending |
+| SPEC-10 | Phase 1 | Complete |
 | SERDE-01 | Phase 2 | Pending |
 | SERDE-02 | Phase 2 | Pending |
 | SERDE-03 | Phase 2 | Pending |

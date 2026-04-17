@@ -70,7 +70,7 @@ Phase 1 (Model L1/L2)
 - [x] 01-02-PLAN.md — L1 primitives: branded ID types (Screen/Action/Test/Entity), JsonPointer (RFC 6901), Diagnostic shape + factories
 - [x] 01-03-PLAN.md — Leaf model schemas: version, back-behavior, action (6-kind discriminated union), data model, variants factory
 - [x] 01-04-PLAN.md — Recursive component tree: 18-kind closed catalog via z.union + z.lazy + z.ZodType<ComponentNode> annotation
-- [ ] 01-05-PLAN.md — Screen, Navigation, Spec root composition; wires ScreenVariantsSchema to real ComponentNodeSchema
+- [x] 01-05-PLAN.md — Screen, Navigation, Spec root composition; wires ScreenVariantsSchema to real ComponentNodeSchema
 - [ ] 01-06-PLAN.md — validateSpec() two-stage pipeline: Zod safeParse adapter + crossReferencePass + public src/index.ts barrel
 - [ ] 01-07-PLAN.md — Migration scaffold: v1_to_v2 empty-op migrate + runMigrations chain runner + round-trip test
 - [ ] 01-08-PLAN.md — Fixtures: 3 canonical (habit-tracker, todo, social-feed) + 1 malformed + SwiftUI/Compose hand-translations for D-16 fidelity gate
