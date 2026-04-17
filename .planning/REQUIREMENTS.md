@@ -15,18 +15,18 @@ All v1 requirements are hypotheses until shipped and validated.
 - [x] **SPEC-06**: Interactions (button/link/gesture actions) are modeled as named references, not inline handlers, so the same action can be bound from multiple UI elements
 - [x] **SPEC-07**: testID sigils are embedded in interactable components via the syntax `[Label →action test:id]`, and the validator fails generation if a sigil referenced by an emitter is missing
 - [ ] **SPEC-08**: The spec has a top-level `schema: mobile-tui/1` frontmatter field from the first serialized output; unknown frontmatter keys round-trip through an `_unknown:` bucket rather than being silently dropped
-- [ ] **SPEC-09**: `validateSpec()` returns a `Diagnostic[]` (code + severity + path + message) — it never throws on schema violations; write-through save is gated on `severity !== "error"`
+- [x] **SPEC-09**: `validateSpec()` returns a `Diagnostic[]` (code + severity + path + message) — it never throws on schema violations; write-through save is gated on `severity !== "error"`
 - [x] **SPEC-10**: Every screen optionally carries acceptance criteria (prose lines) that the Maestro emitter and LLM-handoff scaffold both consume
 
 ### Serialization (SERDE)
 
 - [ ] **SERDE-01**: The spec file is a single Markdown file with YAML frontmatter; the file on disk is the single source of truth (no hidden cache that can diverge)
 - [x] **SERDE-02**: Parsing uses `gray-matter` with its `engines.yaml` wired to `eemeli/yaml`'s Document AST parser — `js-yaml` is explicitly banned (gray-matter + yaml deps installed in Plan 02-01; architectural-invariant audit `tests/no-js-yaml.test.ts` asserts ban at dep + import level. engines.yaml wiring lands in Plan 02-02.)
-- [ ] **SERDE-03**: Serializing uses diff-and-apply against the retained `YAML.Document` AST (`setIn`/`deleteIn`), never `YAML.stringify(spec)`, so comments, key order, blank lines, and anchors survive a no-op save byte-identical
+- [x] **SERDE-03**: Serializing uses diff-and-apply against the retained `YAML.Document` AST (`setIn`/`deleteIn`), never `YAML.stringify(spec)`, so comments, key order, blank lines, and anchors survive a no-op save byte-identical
 - [ ] **SERDE-04**: The Markdown body between frontmatter and EOF is treated as opaque text spliced on HTML-comment anchors (`<!-- screen:ID -->` / `<!-- /screen:ID -->`); prose between anchors round-trips verbatim
 - [ ] **SERDE-05**: Round-trip test suite covers at least 20 golden fixtures, including hand-edited-with-comments, reordered keys, unknown fields, nested comments, and empty files; CI fails on any byte-level drift
-- [ ] **SERDE-06**: Writes are atomic (write to `.SPEC.md.tmp` → `rename` over target) and debounced ~500ms; `session_shutdown` forces an immediate flush
-- [ ] **SERDE-07**: YAML 1.2 is pinned in the parser options; emission escapes values that YAML 1.1 would have misinterpreted (`yes`/`no`/`on`/`off`/`1.0`)
+- [x] **SERDE-06**: Writes are atomic (write to `.SPEC.md.tmp` → `rename` over target) and debounced ~500ms; `session_shutdown` forces an immediate flush — atomic primitive complete (Plan 02-04 `atomicWrite` + `detectOrphanTmp`); debounce + shutdown flush are Phase 4 wrapping
+- [x] **SERDE-07**: YAML 1.2 is pinned in the parser options; emission escapes values that YAML 1.1 would have misinterpreted (`yes`/`no`/`on`/`off`/`1.0`) — auto-quote enforced in Plan 02-04 `setScalarPreserving` for all 8 gotcha literals (yes/no/on/off/y/n/true/false, case-insensitive) forced to QUOTE_DOUBLE on scalar replacement
 - [x] **SERDE-08**: A schema-migration runner lives at `migrations/v{n}_to_v{n+1}.ts` from commit 1, even if the list of migrations is empty at v1
 
 ### Wireframe renderer (WIREFRAME)
@@ -128,15 +128,15 @@ All v1 requirements are hypotheses until shipped and validated.
 | SPEC-06 | Phase 1 | Complete |
 | SPEC-07 | Phase 1 | Complete |
 | SPEC-08 | Phase 2 | Pending |
-| SPEC-09 | Phase 2 | Pending |
+| SPEC-09 | Phase 2 | Complete (Plan 02-04) |
 | SPEC-10 | Phase 1 | Complete |
 | SERDE-01 | Phase 2 | Pending |
 | SERDE-02 | Phase 2 | Complete (Plan 02-01) |
-| SERDE-03 | Phase 2 | Pending |
+| SERDE-03 | Phase 2 | Complete (Plan 02-04) |
 | SERDE-04 | Phase 2 | Pending |
 | SERDE-05 | Phase 2 | Pending |
-| SERDE-06 | Phase 2 | Pending |
-| SERDE-07 | Phase 2 | Pending |
+| SERDE-06 | Phase 2 | Complete (Plan 02-04 atomic primitive; debounce Phase 4) |
+| SERDE-07 | Phase 2 | Complete (Plan 02-04) |
 | SERDE-08 | Phase 1 | Complete |
 | WIREFRAME-01 | Phase 3 | Pending |
 | WIREFRAME-02 | Phase 3 | Pending |
