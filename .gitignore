@@ -4,3 +4,6 @@ coverage/
 .DS_Store
 *.log
 .planning/.mobile-tui/
+# Phase 2 round-trip test sandbox — each round-trip test writes its
+# re-emitted fixture here, reads it back for Buffer.equals, then unlinks.
+tests/tmp/

@@ -1,0 +1,7 @@
+# Force LF line endings on all fixture .spec.md files so fixture bytes stay
+# stable across Windows contributors. Phase 2 round-trip tests compare
+# Buffer.equals on parsed-then-re-emitted bytes; CRLF drift would fail.
+*.spec.md text eol=lf
+# Phase-1 fixture siblings (deleted in Plan 02-05) and any future .spec.json
+# or .spec.ts files that appear in fixtures/ — lock to LF.
+fixtures/**/*.spec.md text eol=lf
