@@ -9,14 +9,13 @@ import { DiagnosticSchema, error, info, SERDE_CODES, warning } from "./diagnosti
 const DIAGNOSTIC_CODE = /^[A-Z][A-Z0-9_]*$/;
 
 describe("SERDE_CODES registry", () => {
-  it.each(Object.entries(SERDE_CODES))(
-    "%s code matches SCREAMING_SNAKE_CASE and value === key",
-    (key, value) => {
-      expect(key).toMatch(DIAGNOSTIC_CODE);
-      expect(value).toBe(key); // code constant value === name
-      expect(value).toMatch(DIAGNOSTIC_CODE);
-    },
-  );
+  it.each(
+    Object.entries(SERDE_CODES),
+  )("%s code matches SCREAMING_SNAKE_CASE and value === key", (key, value) => {
+    expect(key).toMatch(DIAGNOSTIC_CODE);
+    expect(value).toBe(key); // code constant value === name
+    expect(value).toMatch(DIAGNOSTIC_CODE);
+  });
 
   it("registers all 6 Phase-2 codes", () => {
     expect(Object.keys(SERDE_CODES).sort()).toEqual([
