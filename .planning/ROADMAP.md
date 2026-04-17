@@ -38,7 +38,7 @@ Phase 1 (Model L1/L2)
 ## Phases
 
 - [ ] **Phase 1: Spec Model & Invariants** — Lock the framework-agnostic Spec shape, Zod schemas, closed component catalog, and `validateSpec()` contract. Headless fixtures prove the model.
-- [ ] **Phase 2: Serialization & Round-Trip** — Byte-identical round-trip on no-op save via `eemeli/yaml` Document-AST diff-and-apply, HTML-comment-anchored markdown body, ~20 golden fixtures in CI.
+- [x] **Phase 2: Serialization & Round-Trip** — Byte-identical round-trip on no-op save via `eemeli/yaml` Document-AST diff-and-apply, HTML-comment-anchored markdown body, ~20 golden fixtures in CI.
 - [ ] **Phase 3: Wireframe Renderer & Dogfood Gate** — Pure-function renderer producing ~40-line ASCII wireframes per screen and state variant; 20 reference wireframes pasted into a real PR before TUI work begins.
 - [ ] **Phase 4: Editor Store, Commands & Undo** — Single reactive store with named undoable commands, 200-step history, write-through debounced autosave, live diagnostics, and a headless `cli-edit` harness.
 - [ ] **Phase 5: Canvas TUI Shell** — 3-pane keyboard-driven canvas with focus FSM, command palette, persistent help line, save indicator, and `ctx.ui.custom()`-scoped rendering.
@@ -90,13 +90,13 @@ Phase 1 (Model L1/L2)
   4. `validateSpec()` returning any `severity: "error"` diagnostic blocks the write-through save; warnings do not.
   5. Triggering a save mid-debounce followed by a `session_shutdown` event flushes atomically (visible as `.SPEC.md.tmp` → `rename`) with no partial writes.
 
-**Plans**: 5 plans (4/5 complete)
+**Plans**: 5 plans (5/5 complete — Phase 2 CLOSED)
 
 - [x] 02-01-PLAN.md — Wave 0 substrate: install yaml + gray-matter deps, ban js-yaml, scaffold src/serialize/ stubs, migrate Phase-1 tests to parseSpecFile stub
 - [x] 02-02-PLAN.md — Wave 1 L1 primitives: splitFrontmatter (gray-matter + eemeli/yaml engine) + body-bytes extractor + partitionTopLevel (AST-native unknown preservation with proto-pollution defense)
 - [x] 02-03-PLAN.md — Wave 2 transform primitives: sigil.ts (SIGIL_REGEX + INTERACTABLE_KINDS + WeakMap origin tracking) + schema-inject.ts (idempotent schema: mobile-tui/1 injection + blank line)
 - [x] 02-04-PLAN.md — Wave 3 write path: atomic.ts (.tmp + rename primitive with simulated-crash coverage — D-30/D-32) + write.ts (9-step pipeline: adversarial AST pre-gate → save-gate → schema inject → CST diff-apply → sigil re-emit → SERDE-07 auto-quote → doc.toString → closing-delimiter splice → atomic rename)
-- [ ] 02-05-PLAN.md — Wave 4 close: real parseSpecFile orchestrator + 20-fixture Buffer.equals round-trip + prototype-pollution security gate + retire .spec.json siblings
+- [x] 02-05-PLAN.md — Wave 4 close: real parseSpecFile orchestrator (Wave-0 .spec.json stub retired) + 20-fixture Buffer.equals round-trip matrix (3 triple + 3 sigil + 3 comments + 4 reorders + 2 unknown-keys + 2 YAML-1.1 + empty-body + comment-only-body + nested-block-scalar) + prototype-pollution 3-layer defense integration test + .spec.json sibling retirement. Full suite 425/425; coverage 95.06% stmts on src/serialize/.
 
 ### Phase 3: Wireframe Renderer & Dogfood Gate
 
@@ -224,8 +224,8 @@ Phase 1 (Model L1/L2)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Spec Model & Invariants | 4/8 | In Progress | — |
-| 2. Serialization & Round-Trip | 0/? | Not started | — |
+| 1. Spec Model & Invariants | 8/8 | Complete | 2026-04-17 |
+| 2. Serialization & Round-Trip | 5/5 | Complete | 2026-04-17 |
 | 3. Wireframe Renderer & Dogfood Gate | 0/? | Not started | — |
 | 4. Editor Store, Commands & Undo | 0/? | Not started | — |
 | 5. Canvas TUI Shell | 0/? | Not started | — |
