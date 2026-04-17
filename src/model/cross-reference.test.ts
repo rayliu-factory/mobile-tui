@@ -145,9 +145,7 @@ describe("SPEC_UNRESOLVED_ACTION — action intent cross-refs (D-13)", () => {
     };
     const diags = crossReferencePass(parse(spec));
     expect(
-      diags.some(
-        (d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.message.includes("ghost_action"),
-      ),
+      diags.some((d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.message.includes("ghost_action")),
     ).toBe(true);
   });
 });
@@ -201,9 +199,7 @@ describe("SPEC_TESTID_COLLISION — global uniqueness at ANY depth (Pitfall #3)"
               kind: "Card",
               child: {
                 kind: "Column",
-                children: [
-                  { kind: "Button", label: "B", action: "act", testID: "same_id" },
-                ],
+                children: [{ kind: "Button", label: "B", action: "act", testID: "same_id" }],
               },
             },
           ],
@@ -273,7 +269,7 @@ describe("SPEC_JSONPTR_UNRESOLVED — entity/field namespace (Pitfall #4)", () =
   it("mutate.target with deeper path past known prefix is OK (Pitfall #4 — prefix-only)", () => {
     const spec = buildSpec();
     const actions = spec.actions as Record<string, Record<string, unknown>>;
-    actions.setTitle = {
+    actions.set_title = {
       kind: "mutate",
       target: "/Habit/title/nested",
       op: "set",
@@ -295,9 +291,7 @@ describe("SPEC_JSONPTR_UNRESOLVED — entity/field namespace (Pitfall #4)", () =
     const diags = crossReferencePass(parse(spec));
     expect(
       diags.some(
-        (d) =>
-          d.code === "SPEC_JSONPTR_UNRESOLVED" &&
-          d.path.includes("/empty/when/collection"),
+        (d) => d.code === "SPEC_JSONPTR_UNRESOLVED" && d.path.includes("/empty/when/collection"),
       ),
     ).toBe(true);
   });
@@ -314,9 +308,7 @@ describe("SPEC_JSONPTR_UNRESOLVED — entity/field namespace (Pitfall #4)", () =
     const diags = crossReferencePass(parse(spec));
     expect(
       diags.some(
-        (d) =>
-          d.code === "SPEC_JSONPTR_UNRESOLVED" &&
-          d.path.includes("/loading/when/async"),
+        (d) => d.code === "SPEC_JSONPTR_UNRESOLVED" && d.path.includes("/loading/when/async"),
       ),
     ).toBe(true);
   });
@@ -341,9 +333,7 @@ describe("navigation cross-refs", () => {
     const diags = crossReferencePass(parse(spec));
     expect(
       diags.some(
-        (d) =>
-          d.code === "SPEC_UNRESOLVED_ACTION" &&
-          d.path === "/navigation/edges/0/from",
+        (d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.path === "/navigation/edges/0/from",
       ),
     ).toBe(true);
   });
@@ -358,9 +348,7 @@ describe("navigation cross-refs", () => {
     };
     const diags = crossReferencePass(parse(spec));
     expect(
-      diags.some(
-        (d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.path === "/navigation/edges/0/to",
-      ),
+      diags.some((d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.path === "/navigation/edges/0/to"),
     ).toBe(true);
   });
 
@@ -375,9 +363,7 @@ describe("navigation cross-refs", () => {
     const diags = crossReferencePass(parse(spec));
     expect(
       diags.some(
-        (d) =>
-          d.code === "SPEC_UNRESOLVED_ACTION" &&
-          d.path === "/navigation/edges/0/trigger",
+        (d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.path === "/navigation/edges/0/trigger",
       ),
     ).toBe(true);
   });
@@ -417,11 +403,9 @@ describe("walkComponentTree — recursion depth", () => {
     ];
     // biome-ignore lint/suspicious/noExplicitAny: walker types accept ComponentNode array
     walkComponentTree(tree as any, ["screens", 0, "variants", "content", "tree"], ctx);
-    expect(
-      diagnostics.some(
-        (d: { code: string }) => d.code === "SPEC_TESTID_COLLISION",
-      ),
-    ).toBe(true);
+    expect(diagnostics.some((d: { code: string }) => d.code === "SPEC_TESTID_COLLISION")).toBe(
+      true,
+    );
   });
 });
 
