@@ -133,7 +133,7 @@ describe("normalizeSigilsOnDoc — parse-direction normalization", () => {
     const wm = createSigilOriginsMap();
     normalizeSigilsOnDoc(doc, wm);
     // Byte-identical after normalization (triple form → no mutation).
-    expect(doc.toString({ version: "1.2" })).toBe(raw);
+    expect(doc.toString()).toBe(raw);
     const btn = doc.getIn(["screens", 0, "variants", "content", "tree", 0]);
     expect(wm.get(btn as object)).toBe("triple");
   });
