@@ -90,7 +90,11 @@ describe("zodIssuesToDiagnostics — severity + code mapping", () => {
 
   it("emits SPEC_UNKNOWN_FIELD for unrecognized keys under .strict()", () => {
     const schema = z.object({ x: z.string() }).strict();
-    const result = schema.safeParse({ x: "ok", __proto__: "bad" });
+    // NOTE: using a literal `{ __proto__: "bad" }` would set the object's
+    // prototype, not a data property. Use `Object.assign` to create an actual
+    // own key that .strict() will reject.
+    const input = Object.assign({}, { x: "ok", unwanted_extra: "bad" });
+    const result = schema.safeParse(input);
     expect(result.success).toBe(false);
     if (!result.success) {
       const diags = zodIssuesToDiagnostics(result.error.issues);
