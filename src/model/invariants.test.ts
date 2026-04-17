@@ -40,15 +40,20 @@ const minimalSpec = {
 };
 
 describe("validateSpec — never-throws contract (RESEARCH Pitfall #6)", () => {
-  it.each([null, undefined, 42, "string", true, [], {}])(
-    "handles hostile input %p → { spec: null, diagnostics: [≥1 error] }",
-    (input) => {
-      const result = validateSpec(input);
-      expect(result.spec).toBeNull();
-      expect(result.diagnostics.length).toBeGreaterThan(0);
-      expect(result.diagnostics[0]?.severity).toBe("error");
-    },
-  );
+  it.each([
+    null,
+    undefined,
+    42,
+    "string",
+    true,
+    [],
+    {},
+  ])("handles hostile input %p → { spec: null, diagnostics: [≥1 error] }", (input) => {
+    const result = validateSpec(input);
+    expect(result.spec).toBeNull();
+    expect(result.diagnostics.length).toBeGreaterThan(0);
+    expect(result.diagnostics[0]?.severity).toBe("error");
+  });
 
   it("never throws for cyclic input", () => {
     const cyclic: Record<string, unknown> = {};
