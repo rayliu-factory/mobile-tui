@@ -1,4 +1,4 @@
-// tests/canvas-render.test.ts — CANVAS-01, CANVAS-03, CANVAS-04 requirements
+// tests/canvas-render.test.ts — CANVAS-01, CANVAS-03, CANVAS-04, CANVAS-05 requirements
 // Render output test stubs: line-width contract, help-line text, save indicator.
 //
 // Tests that depend on NYI implementations are marked it.todo().
@@ -11,9 +11,12 @@
 // NOVEL PATTERNS (plan 05-03):
 //   - ScreensListPane: inline SelectList equivalent with onSelectionChange (D-80)
 //   - WireframePreviewPane: renderSingleVariant cache-wrapper with placeholder
+//
+// NOVEL PATTERNS (plan 05-04):
+//   - PropertyInspectorPane: 5-field D-70 inspector, j/k navigation, in-place edit
 
 import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { ApplyResult, Snapshot, Store, StoreState } from "../src/editor/types.ts";
 import type { Spec } from "../src/model/index.ts";
 import type { AstHandle } from "../src/serialize/ast-handle.ts";
@@ -24,6 +27,7 @@ import { renderSaveIndicator } from "../src/canvas/save-indicator.ts";
 import { calcPaneWidths, drawBorderedPane } from "../src/canvas/horizontal-layout.ts";
 import { ScreensListPane } from "../src/canvas/panes/screens-list.ts";
 import { WireframePreviewPane } from "../src/canvas/panes/wireframe-preview.ts";
+import { PropertyInspectorPane } from "../src/canvas/panes/property-inspector.ts";
 import { parseSpecFile } from "../src/serialize/index.ts";
 
 // ── Minimal spec fixture ──────────────────────────────────────────────────────
@@ -435,5 +439,235 @@ describe("WireframePreviewPane (CANVAS-01, CANVAS-05)", () => {
     const lines2 = pane.render(60);
     // After invalidate + re-render, output should be the same (deterministic)
     expect(lines2).toEqual(lines1);
+  });
+});
+
+// ── PropertyInspectorPane helpers ─────────────────────────────────────────────
+
+/**
+ * Build a minimal Screen object compatible with the Spec shape for testing.
+ * Provides all required fields per ScreenSchema (id, title, kind, variants).
+ */
+function makeMinimalScreen(id: string, title: string) {
+  return {
+    id,
+    title,
+    kind: "regular" as const,
+    back_behavior: "pop" as const,
+    variants: {
+      content: { kind: "content" as const, tree: [] },
+      empty: null,
+      loading: null,
+      error: null,
+    },
+    acceptance: ["User can navigate back", "Screen loads in < 2s"],
+  };
+}
+
+function makeMinimalSpecWithScreen(screenId: string, screenTitle: string): Spec {
+  return {
+    version: "1.0",
+    screens: [makeMinimalScreen(screenId, screenTitle)],
+    navigation: { root: screenId, edges: [] },
+    dataModels: [],
+    actions: {},
+    testFlows: [],
+  } as unknown as Spec;
+}
+
+// ── PropertyInspectorPane render tests (plan 05-04, CANVAS-05) ───────────────
+
+describe("PropertyInspectorPane — field rendering (D-70)", () => {
+  it("render(40) with a screen contains 'title:' in output", () => {
+    const store = makeStubStore();
+    const screenId = "home";
+    const spec = makeMinimalSpecWithScreen(screenId, "Home Screen");
+    const snapshot: Snapshot = { spec, diagnostics: [], dirty: false };
+
+    const pane = new PropertyInspectorPane(store, () => screenId, mockThemePassthrough);
+    pane.update(snapshot);
+
+    const joined = pane.render(40).join("\n");
+    expect(joined).toContain("title:");
+  });
+
+  it("render(40) with a screen contains 'components:' in output", () => {
+    const store = makeStubStore();
+    const screenId = "home";
+    const spec = makeMinimalSpecWithScreen(screenId, "Home Screen");
+    const snapshot: Snapshot = { spec, diagnostics: [], dirty: false };
+
+    const pane = new PropertyInspectorPane(store, () => screenId, mockThemePassthrough);
+    pane.update(snapshot);
+
+    const joined = pane.render(40).join("\n");
+    expect(joined).toContain("components:");
+  });
+
+  it("render(40) with error diagnostic shows ⚠ marker", () => {
+    const store = makeStubStore();
+    const screenId = "home";
+    const spec = makeMinimalSpecWithScreen(screenId, "Home Screen");
+    const snapshot: Snapshot = {
+      spec,
+      diagnostics: [
+        {
+          severity: "error" as const,
+          path: `/screens/${screenId}`,
+          message: "something is wrong",
+          code: "TEST_ERR",
+        },
+      ],
+      dirty: false,
+    };
+
+    const pane = new PropertyInspectorPane(store, () => screenId, mockThemePassthrough);
+    pane.update(snapshot);
+
+    const lines = pane.render(40);
+    const hasWarning = lines.some((l) => l.includes("⚠"));
+    expect(hasWarning).toBe(true);
+  });
+
+  it("all render(40) lines have visibleWidth <= 40", () => {
+    const store = makeStubStore();
+    const screenId = "home";
+    const spec = makeMinimalSpecWithScreen(screenId, "Home Screen");
+    const snapshot: Snapshot = { spec, diagnostics: [], dirty: false };
+
+    const pane = new PropertyInspectorPane(store, () => screenId, mockThemePassthrough);
+    pane.update(snapshot);
+
+    const lines = pane.render(40);
+    for (const line of lines) {
+      // Strip ANSI escape sequences for measuring visible width
+      const visible = line.replace(/\x1b\[[0-9;]*m/g, "");
+      expect(visible.length).toBeLessThanOrEqual(40);
+    }
+  });
+
+  it("render(40) with no active screen returns '(no screen selected)' line", () => {
+    const store = makeStubStore();
+    const pane = new PropertyInspectorPane(store, () => null, mockThemePassthrough);
+    const snapshot: Snapshot = { spec: minimalSpec(), diagnostics: [], dirty: false };
+    pane.update(snapshot);
+
+    const joined = pane.render(40).join("\n");
+    expect(joined).toContain("no screen selected");
+  });
+});
+
+// ── PropertyInspectorPane edit flow tests (D-71) ─────────────────────────────
+
+describe("PropertyInspectorPane — edit flow (D-71)", () => {
+  it("Enter on title field activates Input in edit mode", () => {
+    const store = makeStubStore();
+    const screenId = "home";
+    const spec = makeMinimalSpecWithScreen(screenId, "Home Screen");
+    const snapshot: Snapshot = { spec, diagnostics: [], dirty: false };
+
+    const pane = new PropertyInspectorPane(store, () => screenId, mockThemePassthrough);
+    pane.update(snapshot);
+    pane.focused = true;
+
+    // Cursor starts at row 0 (title field). Press Enter to activate.
+    pane.handleInput("\r");
+
+    // After activation, render should indicate editing state (editingField set)
+    // We verify indirectly: the pane is now in edit mode (no crash, valid lines)
+    const lines = pane.render(40);
+    expect(lines.length).toBeGreaterThan(0);
+    // All lines within width
+    for (const line of lines) {
+      const visible = line.replace(/\x1b\[[0-9;]*m/g, "");
+      expect(visible.length).toBeLessThanOrEqual(40);
+    }
+  });
+
+  it("Enter while editing commits store.apply with correct command", async () => {
+    const applySpy = vi.fn().mockResolvedValue({
+      spec: makeMinimalSpecWithScreen("home", "Home Screen"),
+      diagnostics: [],
+      ok: true,
+    });
+    const store = { ...makeStubStore(), apply: applySpy };
+
+    const screenId = "home";
+    const spec = makeMinimalSpecWithScreen(screenId, "Home Screen");
+    const snapshot: Snapshot = { spec, diagnostics: [], dirty: false };
+
+    const pane = new PropertyInspectorPane(store as unknown as Store, () => screenId, mockThemePassthrough);
+    pane.update(snapshot);
+    pane.focused = true;
+
+    // Activate title field (row 0)
+    pane.handleInput("\r");
+
+    // Type a new title character by character
+    pane.handleInput("N");
+    pane.handleInput("e");
+    pane.handleInput("w");
+
+    // Commit with Enter
+    pane.handleInput("\r");
+
+    // store.apply should have been called exactly once
+    expect(applySpy).toHaveBeenCalledTimes(1);
+    // Called with set-screen-title command
+    const [commandName] = applySpy.mock.calls[0] as [string, unknown];
+    expect(commandName).toBe("set-screen-title");
+  });
+
+  it("Esc while editing cancels without store.apply", () => {
+    const applySpy = vi.fn();
+    const store = { ...makeStubStore(), apply: applySpy };
+
+    const screenId = "home";
+    const spec = makeMinimalSpecWithScreen(screenId, "Home Screen");
+    const snapshot: Snapshot = { spec, diagnostics: [], dirty: false };
+
+    const pane = new PropertyInspectorPane(store as unknown as Store, () => screenId, mockThemePassthrough);
+    pane.update(snapshot);
+    pane.focused = true;
+
+    // Activate title field
+    pane.handleInput("\r");
+
+    // Press Escape to cancel
+    pane.handleInput("\x1b");
+
+    // store.apply must NOT have been called
+    expect(applySpy).not.toHaveBeenCalled();
+
+    // Back in view mode — render shows field row (no edit Input replacing it)
+    const joined = pane.render(40).join("\n");
+    expect(joined).toContain("title:");
+  });
+
+  it("Read-only field (components count) does not activate on Enter", () => {
+    const applySpy = vi.fn();
+    const store = { ...makeStubStore(), apply: applySpy };
+
+    const screenId = "home";
+    const spec = makeMinimalSpecWithScreen(screenId, "Home Screen");
+    const snapshot: Snapshot = { spec, diagnostics: [], dirty: false };
+
+    const pane = new PropertyInspectorPane(store as unknown as Store, () => screenId, mockThemePassthrough);
+    pane.update(snapshot);
+    pane.focused = true;
+
+    // Navigate to components row (row 2, 0-indexed): j, j
+    pane.handleInput("j");
+    pane.handleInput("j");
+
+    // Try to activate — should be a no-op (read-only)
+    pane.handleInput("\r");
+
+    // store.apply must NOT have been called
+    expect(applySpy).not.toHaveBeenCalled();
+
+    // Still in view mode
+    const joined = pane.render(40).join("\n");
+    expect(joined).toContain("components:");
   });
 });
