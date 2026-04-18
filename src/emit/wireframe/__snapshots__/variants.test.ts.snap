@@ -1,0 +1,28 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`render — 4-variant stacking (D-39) > stacks content, empty, loading, error blocks separated by blank lines 1`] = `
+"+-- screen: home  variant: content ------------------------+
+|   My Habits [[ + ]]                                      |
+| -------------------------------------------------------- |
+| +------------------------------------------------------+ |
+| | +--------------------------------------------------+ | |
+| | | Habit Title             [ ] Done                 | | |
+| | +--------------------------------------------------+ | |
+| +------------------------------------------------------+ |
+|    (list bound to /Habit)                                |
++----------------------------------------------------------+
+
+acceptance:                                                 
+- User sees a list of habits with their daily-complete state
+- Tapping a habit toggles its completion                    
+- Tapping a habit row opens the detail modal                
+
++-- screen: ...  variant: empty  when collection /Hab... --+
+| No habits yet -- tap + to add one                        |
++----------------------------------------------------------+
+
++-- screen: home  variant: loading  (N/A) -----------------+
+
++-- screen: home  variant: error  (N/A) -------------------+
+"
+`;
