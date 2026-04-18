@@ -194,8 +194,16 @@ Plans:
   4. From any step, pressing the documented skip-to-canvas key flips into canvas with the current spec loaded — no save prompt, no reset, identical keybindings and help-line conventions.
   5. A fixture-driven test confirms the wizard and canvas share the same keybinding table and command palette entries (one registry, two presentations).
 
-**Plans**: TBD
+**Plans**: 6 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 06-01-PLAN.md — Schema extension: SpecSchema + wizard fields + DataModelSchema .min(0) + 7 wizard commands + seed spec factory
+- [ ] 06-02-PLAN.md — Test scaffold: 7 wizard test files (all skipped), Wave 0 test contract
+- [ ] 06-03-PLAN.md — Pure utilities: renderStepIndicator + renderWizardHelpLine + STEP_DEFINITIONS + firstUnansweredStep + StepAction type
+- [ ] 06-04-PLAN.md — FormPane + ScreensStep + DataStep: step form orchestrator and stateful list components
+- [ ] 06-05-PLAN.md — SpecPreviewPane (YAML display pane) + calcWizardPaneWidths (50/50 horizontal split)
+- [ ] 06-06-PLAN.md — WizardRoot assembly + scripts/wizard.ts CLI entry + graduation + 4 test files unskipped
 
 ### Phase 7: Maestro Emitter
 
@@ -257,7 +265,7 @@ Plans:
 | 3. Wireframe Renderer & Dogfood Gate | 9/9 | Complete | 2026-04-18 |
 | 4. Editor Store, Commands & Undo | 7/7 | Complete | 2026-04-18 |
 | 5. Canvas TUI Shell | 0/6 | Planned | — |
-| 6. Wizard & Graduation | 0/? | Not started | — |
+| 6. Wizard & Graduation | 0/6 | Planned | — |
 | 7. Maestro Emitter | 0/? | Not started | — |
 | 8. LLM Handoff Commands | 0/? | Not started | — |
 | 9. pi.dev Integration & Packaging | 0/? | Not started | — |
