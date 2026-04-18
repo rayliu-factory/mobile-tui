@@ -34,11 +34,7 @@ describe("setVariantWhen command (D-54, D-62)", () => {
       when: { collection: "/Habit/done" as JsonPointer },
     };
 
-    const { spec: after1, inverseArgs } = setVariantWhen.apply(
-      before.spec,
-      before.astHandle,
-      args,
-    );
+    const { spec: after1, inverseArgs } = setVariantWhen.apply(before.spec, before.astHandle, args);
 
     const updatedEmpty = after1.screens[0]?.variants.empty;
     expect(updatedEmpty?.when).toEqual({ collection: "/Habit/done" });
@@ -64,11 +60,7 @@ describe("setVariantWhen command (D-54, D-62)", () => {
       when: { async: "/Habit/done" as JsonPointer },
     };
 
-    const { spec: after1, inverseArgs } = setVariantWhen.apply(
-      before.spec,
-      before.astHandle,
-      args,
-    );
+    const { spec: after1, inverseArgs } = setVariantWhen.apply(before.spec, before.astHandle, args);
 
     const updatedLoading = after1.screens[1]?.variants.loading;
     expect(updatedLoading?.when).toEqual({ async: "/Habit/done" });
@@ -94,11 +86,7 @@ describe("setVariantWhen command (D-54, D-62)", () => {
       when: { field_error: "/Habit/done" as JsonPointer },
     };
 
-    const { spec: after1, inverseArgs } = setVariantWhen.apply(
-      before.spec,
-      before.astHandle,
-      args,
-    );
+    const { spec: after1, inverseArgs } = setVariantWhen.apply(before.spec, before.astHandle, args);
 
     const updatedError = after1.screens[1]?.variants.error;
     expect(updatedError?.when).toEqual({ field_error: "/Habit/done" });

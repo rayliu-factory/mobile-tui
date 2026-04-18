@@ -15,9 +15,9 @@
 // THREAT T-04-13 (path traversal): parentPath must resolve inside variant.tree.
 import { z } from "zod";
 import type { Spec } from "../../model/index.ts";
-import type { AstHandle } from "../../serialize/ast-handle.ts";
-import { JsonPointerSchema } from "../../primitives/path.ts";
 import { ScreenIdSchema } from "../../primitives/ids.ts";
+import { JsonPointerSchema } from "../../primitives/path.ts";
+import type { AstHandle } from "../../serialize/ast-handle.ts";
 import type { Command } from "../types.ts";
 
 export const reorderComponentArgs = z.object({
@@ -61,7 +61,10 @@ export const reorderComponent: Command<typeof reorderComponentArgs> = {
       return { spec, inverseArgs: null };
     }
 
-    const variants = screen.variants as Record<string, { kind: string; tree: unknown[]; when?: unknown } | null>;
+    const variants = screen.variants as Record<
+      string,
+      { kind: string; tree: unknown[]; when?: unknown } | null
+    >;
     const variant = variants[variantKind];
     if (!variant || !Array.isArray(variant.tree)) return { spec, inverseArgs: null };
 
@@ -125,18 +128,14 @@ export const reorderComponent: Command<typeof reorderComponentArgs> = {
       variantKind,
       parentPath,
       fromIndex: effectiveToIndex, // where it landed after insert
-      toIndex: fromIndex,           // original position to restore to
+      toIndex: fromIndex, // original position to restore to
       treeAstPath,
     };
 
     return { spec: newSpec, inverseArgs };
   },
 
-  invert(
-    spec: Spec,
-    astHandle: AstHandle,
-    inverseArgs: unknown,
-  ): { spec: Spec } {
+  invert(spec: Spec, astHandle: AstHandle, inverseArgs: unknown): { spec: Spec } {
     const inv = inverseArgs as ReorderComponentInverseArgs;
     if (!inv || typeof inv.screenIndex !== "number") return { spec };
 
@@ -145,7 +144,10 @@ export const reorderComponent: Command<typeof reorderComponentArgs> = {
     const screen = spec.screens[screenIndex];
     if (!screen) return { spec };
 
-    const variants = screen.variants as Record<string, { kind: string; tree: unknown[]; when?: unknown } | null>;
+    const variants = screen.variants as Record<
+      string,
+      { kind: string; tree: unknown[]; when?: unknown } | null
+    >;
     const variant = variants[variantKind];
     if (!variant || !Array.isArray(variant.tree)) return { spec };
 

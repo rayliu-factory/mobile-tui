@@ -19,9 +19,9 @@
 import { z } from "zod";
 import { ComponentNodeSchema } from "../../model/component.ts";
 import type { Spec } from "../../model/index.ts";
-import type { AstHandle } from "../../serialize/ast-handle.ts";
-import { JsonPointerSchema } from "../../primitives/path.ts";
 import { ScreenIdSchema } from "../../primitives/ids.ts";
+import { JsonPointerSchema } from "../../primitives/path.ts";
+import type { AstHandle } from "../../serialize/ast-handle.ts";
 import type { Command } from "../types.ts";
 
 export const addComponentArgs = z.object({
@@ -42,11 +42,7 @@ interface AddComponentInverseArgs {
   insertedAstPath: (string | number)[];
 }
 
-function getVariantTree(
-  spec: Spec,
-  screenIndex: number,
-  variantKind: string,
-): unknown[] | null {
+function getVariantTree(spec: Spec, screenIndex: number, variantKind: string): unknown[] | null {
   const screen = spec.screens[screenIndex];
   if (!screen) return null;
   const variants = screen.variants as Record<string, { tree: unknown[] } | null>;
@@ -122,7 +118,10 @@ export const addComponent: Command<typeof addComponentArgs> = {
     if (!screen) return { spec, inverseArgs: null };
 
     // For MVP: only support root-level tree (parentPath === "")
-    const variants = screen.variants as Record<string, { kind: string; tree: unknown[]; when?: unknown } | null>;
+    const variants = screen.variants as Record<
+      string,
+      { kind: string; tree: unknown[]; when?: unknown } | null
+    >;
     const variant = variants[variantKind];
     if (!variant || !Array.isArray(variant.tree)) {
       return { spec, inverseArgs: null };
@@ -178,11 +177,7 @@ export const addComponent: Command<typeof addComponentArgs> = {
     return { spec: newSpec, inverseArgs };
   },
 
-  invert(
-    spec: Spec,
-    astHandle: AstHandle,
-    inverseArgs: unknown,
-  ): { spec: Spec } {
+  invert(spec: Spec, astHandle: AstHandle, inverseArgs: unknown): { spec: Spec } {
     const inv = inverseArgs as AddComponentInverseArgs;
     if (!inv || typeof inv.screenIndex !== "number") return { spec };
 
@@ -192,7 +187,10 @@ export const addComponent: Command<typeof addComponentArgs> = {
     const screen = spec.screens[screenIndex];
     if (!screen) return { spec };
 
-    const variants = screen.variants as Record<string, { kind: string; tree: unknown[]; when?: unknown } | null>;
+    const variants = screen.variants as Record<
+      string,
+      { kind: string; tree: unknown[]; when?: unknown } | null
+    >;
     const variant = variants[variantKind];
     if (!variant || !Array.isArray(variant.tree)) return { spec };
 

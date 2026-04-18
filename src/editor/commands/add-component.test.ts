@@ -43,9 +43,7 @@ describe("addComponent command (D-55, D-62)", () => {
 
     // Re-apply: same result
     const { spec: after2 } = addComponent.apply(restored, before.astHandle, args);
-    expect(after2.screens[0]?.variants.content.tree).toHaveLength(
-      (origTree?.length ?? 0) + 1,
-    );
+    expect(after2.screens[0]?.variants.content.tree).toHaveLength((origTree?.length ?? 0) + 1);
   });
 
   it("fixture 2: add Column container at specific index", async () => {

@@ -18,10 +18,9 @@
 //   via YAML node toJSON() — a plain deep-JS copy, never a live YAML node ref.
 import { z } from "zod";
 import type { Spec } from "../../model/index.ts";
-import type { AstHandle } from "../../serialize/ast-handle.ts";
-import { JsonPointerSchema } from "../../primitives/path.ts";
 import { ScreenIdSchema } from "../../primitives/ids.ts";
-import { decodeSegment } from "../../primitives/path.ts";
+import { decodeSegment, JsonPointerSchema } from "../../primitives/path.ts";
+import type { AstHandle } from "../../serialize/ast-handle.ts";
 import type { Command } from "../types.ts";
 
 export const removeComponentArgs = z.object({
@@ -42,9 +41,7 @@ interface RemoveComponentInverseArgs {
 }
 
 /** Parse a JsonPointer to (parentAstPathSuffix, index) for root-level paths like "/N". */
-function parseRootPointer(
-  pointer: string,
-): { index: number } | null {
+function parseRootPointer(pointer: string): { index: number } | null {
   if (pointer === "") return null;
   const segments = pointer.split("/").slice(1);
   if (segments.length !== 1) return null; // MVP: only root-level paths
@@ -72,7 +69,10 @@ export const removeComponent: Command<typeof removeComponentArgs> = {
     const screen = spec.screens[screenIndex];
     if (!screen) return { spec, inverseArgs: null };
 
-    const variants = screen.variants as Record<string, { kind: string; tree: unknown[]; when?: unknown } | null>;
+    const variants = screen.variants as Record<
+      string,
+      { kind: string; tree: unknown[]; when?: unknown } | null
+    >;
     const variant = variants[variantKind];
     if (!variant || !Array.isArray(variant.tree)) return { spec, inverseArgs: null };
 
@@ -130,11 +130,7 @@ export const removeComponent: Command<typeof removeComponentArgs> = {
     return { spec: newSpec, inverseArgs };
   },
 
-  invert(
-    spec: Spec,
-    astHandle: AstHandle,
-    inverseArgs: unknown,
-  ): { spec: Spec } {
+  invert(spec: Spec, astHandle: AstHandle, inverseArgs: unknown): { spec: Spec } {
     const inv = inverseArgs as RemoveComponentInverseArgs;
     if (!inv || typeof inv.screenIndex !== "number") return { spec };
 
@@ -143,7 +139,10 @@ export const removeComponent: Command<typeof removeComponentArgs> = {
     const screen = spec.screens[screenIndex];
     if (!screen) return { spec };
 
-    const variants = screen.variants as Record<string, { kind: string; tree: unknown[]; when?: unknown } | null>;
+    const variants = screen.variants as Record<
+      string,
+      { kind: string; tree: unknown[]; when?: unknown } | null
+    >;
     const variant = variants[variantKind];
     if (!variant || !Array.isArray(variant.tree)) return { spec };
 

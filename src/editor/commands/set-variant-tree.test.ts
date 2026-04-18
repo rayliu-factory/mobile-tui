@@ -29,11 +29,7 @@ describe("setVariantTree command (D-54, D-62)", () => {
       tree: [{ kind: "Text" as const, text: "Placeholder" }],
     };
 
-    const { spec: after1, inverseArgs } = setVariantTree.apply(
-      before.spec,
-      before.astHandle,
-      args,
-    );
+    const { spec: after1, inverseArgs } = setVariantTree.apply(before.spec, before.astHandle, args);
 
     const tree1 = after1.screens[0]?.variants.content.tree;
     expect(tree1).toHaveLength(1);
@@ -61,11 +57,7 @@ describe("setVariantTree command (D-54, D-62)", () => {
       ],
     };
 
-    const { spec: after1, inverseArgs } = setVariantTree.apply(
-      before.spec,
-      before.astHandle,
-      args,
-    );
+    const { spec: after1, inverseArgs } = setVariantTree.apply(before.spec, before.astHandle, args);
 
     const tree1 = after1.screens[0]?.variants.empty?.tree;
     expect(tree1).toHaveLength(3);
@@ -90,11 +82,7 @@ describe("setVariantTree command (D-54, D-62)", () => {
       tree: [],
     };
 
-    const { spec: after1, inverseArgs } = setVariantTree.apply(
-      before.spec,
-      before.astHandle,
-      args,
-    );
+    const { spec: after1, inverseArgs } = setVariantTree.apply(before.spec, before.astHandle, args);
 
     const tree1 = after1.screens[1]?.variants.loading?.tree;
     expect(tree1).toHaveLength(0);

@@ -95,7 +95,9 @@ export const deleteScreen: Command<typeof deleteScreenArgs> = {
 
     // AST mutations (D-62): delete in reverse order of indices to keep positions stable
     // First delete nav edges (in reverse original index order)
-    const sortedRemovedIndices = [...removedEdges.map((e) => e.originalIndex)].sort((a, b) => b - a);
+    const sortedRemovedIndices = [...removedEdges.map((e) => e.originalIndex)].sort(
+      (a, b) => b - a,
+    );
     for (const edgeIdx of sortedRemovedIndices) {
       astHandle.doc.deleteIn(["navigation", "edges", edgeIdx]);
     }

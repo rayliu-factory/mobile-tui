@@ -22,8 +22,8 @@ import type { Screen } from "../../model/screen.ts";
 import type { Spec } from "../../model/spec.ts";
 import type { ScreenId } from "../../primitives/ids.ts";
 import { ScreenIdSchema } from "../../primitives/ids.ts";
-import { setScalarPreserving } from "../../serialize/write.ts";
 import type { AstHandle } from "../../serialize/ast-handle.ts";
+import { setScalarPreserving } from "../../serialize/write.ts";
 import type { Command } from "../types.ts";
 
 export const renameScreenArgs = z.object({
@@ -133,8 +133,13 @@ export const renameScreen: Command<typeof renameScreenArgs> = {
   argsSchema: renameScreenArgs,
 
   apply(spec, astHandle, args: RenameScreenArgs) {
-    const { spec: newSpec, screenIndex, cascadedNavRoot, cascadedEdgeIndices, cascadedActionIds } =
-      renameInSpec(spec, astHandle, args.from, args.to);
+    const {
+      spec: newSpec,
+      screenIndex,
+      cascadedNavRoot,
+      cascadedEdgeIndices,
+      cascadedActionIds,
+    } = renameInSpec(spec, astHandle, args.from, args.to);
 
     const inverseArgs: RenameScreenInverse = {
       prevId: args.from,

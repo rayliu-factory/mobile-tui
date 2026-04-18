@@ -31,11 +31,7 @@ describe("setVariantNull command (D-55, D-62, T-04-14)", () => {
       variantKind: "empty" as const,
     };
 
-    const { spec: after1, inverseArgs } = setVariantNull.apply(
-      before.spec,
-      before.astHandle,
-      args,
-    );
+    const { spec: after1, inverseArgs } = setVariantNull.apply(before.spec, before.astHandle, args);
 
     expect(after1.screens[0]?.variants.empty).toBeNull();
 
@@ -59,11 +55,7 @@ describe("setVariantNull command (D-55, D-62, T-04-14)", () => {
       variantKind: "loading" as const,
     };
 
-    const { spec: after1, inverseArgs } = setVariantNull.apply(
-      before.spec,
-      before.astHandle,
-      args,
-    );
+    const { spec: after1, inverseArgs } = setVariantNull.apply(before.spec, before.astHandle, args);
 
     expect(after1.screens[1]?.variants.loading).toBeNull();
 
@@ -86,11 +78,7 @@ describe("setVariantNull command (D-55, D-62, T-04-14)", () => {
       variantKind: "error" as const,
     };
 
-    const { spec: after1, inverseArgs } = setVariantNull.apply(
-      before.spec,
-      before.astHandle,
-      args,
-    );
+    const { spec: after1, inverseArgs } = setVariantNull.apply(before.spec, before.astHandle, args);
 
     expect(after1.screens[1]?.variants.error).toBeNull();
 

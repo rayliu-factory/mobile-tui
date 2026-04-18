@@ -30,7 +30,12 @@ describe("addScreen command (D-54, D-62)", () => {
     },
     {
       name: "with back_behavior pop",
-      args: { id: "about" as ScreenId, title: "About", kind: "regular" as const, back_behavior: "pop" as const },
+      args: {
+        id: "about" as ScreenId,
+        title: "About",
+        kind: "regular" as const,
+        back_behavior: "pop" as const,
+      },
     },
   ];
 

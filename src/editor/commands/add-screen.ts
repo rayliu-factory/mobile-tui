@@ -14,9 +14,9 @@
 // THREAT T-04-ASTDrift: invert must fully reverse both spec + AST; A1 canary
 //   in store.test.ts proves doc.createNode determinism for this pattern.
 import { z } from "zod";
+import { BackBehaviorSchema } from "../../model/back-behavior.ts";
 import type { Screen } from "../../model/screen.ts";
 import { SCREEN_KINDS } from "../../model/screen.ts";
-import { BackBehaviorSchema } from "../../model/back-behavior.ts";
 import { ScreenIdSchema } from "../../primitives/ids.ts";
 import type { Command } from "../types.ts";
 

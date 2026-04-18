@@ -16,10 +16,9 @@
 // THREAT T-04-13 (path traversal): paths resolve only inside variant.tree.
 import { z } from "zod";
 import type { Spec } from "../../model/index.ts";
-import type { AstHandle } from "../../serialize/ast-handle.ts";
-import { JsonPointerSchema } from "../../primitives/path.ts";
 import { ScreenIdSchema } from "../../primitives/ids.ts";
-import { decodeSegment } from "../../primitives/path.ts";
+import { decodeSegment, JsonPointerSchema } from "../../primitives/path.ts";
+import type { AstHandle } from "../../serialize/ast-handle.ts";
 import type { Command } from "../types.ts";
 
 export const moveComponentArgs = z.object({
@@ -69,7 +68,10 @@ export const moveComponent: Command<typeof moveComponentArgs> = {
     const screen = spec.screens[screenIndex];
     if (!screen) return { spec, inverseArgs: null };
 
-    const variants = screen.variants as Record<string, { kind: string; tree: unknown[]; when?: unknown } | null>;
+    const variants = screen.variants as Record<
+      string,
+      { kind: string; tree: unknown[]; when?: unknown } | null
+    >;
     const variant = variants[variantKind];
     if (!variant || !Array.isArray(variant.tree)) return { spec, inverseArgs: null };
 
@@ -136,11 +138,7 @@ export const moveComponent: Command<typeof moveComponentArgs> = {
     return { spec: newSpec, inverseArgs };
   },
 
-  invert(
-    spec: Spec,
-    astHandle: AstHandle,
-    inverseArgs: unknown,
-  ): { spec: Spec } {
+  invert(spec: Spec, astHandle: AstHandle, inverseArgs: unknown): { spec: Spec } {
     const inv = inverseArgs as MoveComponentInverseArgs;
     if (!inv || typeof inv.screenIndex !== "number") return { spec };
 
@@ -149,7 +147,10 @@ export const moveComponent: Command<typeof moveComponentArgs> = {
     const screen = spec.screens[screenIndex];
     if (!screen) return { spec };
 
-    const variants = screen.variants as Record<string, { kind: string; tree: unknown[]; when?: unknown } | null>;
+    const variants = screen.variants as Record<
+      string,
+      { kind: string; tree: unknown[]; when?: unknown } | null
+    >;
     const variant = variants[variantKind];
     if (!variant || !Array.isArray(variant.tree)) return { spec };
 
