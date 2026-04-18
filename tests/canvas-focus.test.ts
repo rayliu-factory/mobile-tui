@@ -192,3 +192,101 @@ describe("CommandPalette — filter mode (CANVAS-02)", () => {
     expect(applySpy).not.toHaveBeenCalled();
   });
 });
+
+// ── CommandPalette filter and arg-prompt flow (CANVAS-02) ────────────────────
+
+describe("CommandPalette — filter and arg-prompt (CANVAS-02)", () => {
+  it("initial render lists all commands from COMMANDS registry", () => {
+    const store = makeStubStore();
+    const onClose = vi.fn();
+    const palette = new CommandPalette(store, onClose, mockTheme);
+    const output = palette.render(60).join("\n");
+    // COMMANDS registry has 34 commands; at least one known command must appear
+    expect(output).toContain("add-screen");
+  });
+
+  it("Esc closes palette without store.apply", () => {
+    const store = makeStubStore();
+    const onClose = vi.fn();
+    const applySpy = vi.spyOn(store, "apply");
+    const palette = new CommandPalette(store, onClose, mockTheme);
+    palette.handleInput("\x1b"); // Esc
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(applySpy).not.toHaveBeenCalled();
+  });
+
+  it("typing filters commands by prefix/substring", () => {
+    const store = makeStubStore();
+    const onClose = vi.fn();
+    const palette = new CommandPalette(store, onClose, mockTheme);
+    // Type "add-s" — should match "add-screen" but NOT "delete-screen"
+    for (const ch of "add-s") {
+      palette.handleInput(ch);
+    }
+    const output = palette.render(60).join("\n");
+    expect(output).toContain("add-screen");
+    expect(output).not.toContain("delete-screen");
+  });
+
+  it("selecting a command with required args enters arg-prompt flow", () => {
+    const store = makeStubStore();
+    const onClose = vi.fn();
+    const palette = new CommandPalette(store, onClose, mockTheme);
+    // Filter to "add-screen" (which has required args: id, title, kind)
+    for (const ch of "add-screen") {
+      palette.handleInput(ch);
+    }
+    // Press Enter to select
+    palette.handleInput("\r");
+    // Should now be in arg-prompt mode — render should show a label with ": "
+    const output = palette.render(60).join("\n");
+    expect(output).toContain(": ");
+    // store.apply should NOT have been called yet
+    expect(vi.spyOn(store, "apply")).not.toHaveBeenCalled();
+    // onClose should NOT have been called
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("entering all required args fires store.apply and closes", () => {
+    const store = makeStubStore();
+    const onClose = vi.fn();
+    const applySpy = vi.spyOn(store, "apply");
+    const palette = new CommandPalette(store, onClose, mockTheme);
+    // Filter to "set-nav-root" (1 required arg: screenId)
+    for (const ch of "set-nav-root") {
+      palette.handleInput(ch);
+    }
+    // Press Enter to select the command
+    palette.handleInput("\r");
+    // Now in arg-prompt mode — type a screenId value and press Enter
+    for (const ch of "home") {
+      palette.handleInput(ch);
+    }
+    palette.handleInput("\r"); // Enter on last (only) arg
+    // store.apply should have been called once with the command + collected arg
+    expect(applySpy).toHaveBeenCalledTimes(1);
+    const [cmdName, args] = applySpy.mock.calls[0]!;
+    expect(cmdName).toBe("set-nav-root");
+    expect((args as Record<string, string>)["screenId"]).toBe("home");
+    // onClose should have been called
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("Esc mid arg-prompt cancels without store.apply", () => {
+    const store = makeStubStore();
+    const onClose = vi.fn();
+    const applySpy = vi.spyOn(store, "apply");
+    const palette = new CommandPalette(store, onClose, mockTheme);
+    // Navigate to add-screen
+    for (const ch of "add-screen") {
+      palette.handleInput(ch);
+    }
+    palette.handleInput("\r"); // select → enters arg-prompt
+    // Now in arg-prompt mode — press Esc instead of completing
+    palette.handleInput("\x1b");
+    // No store.apply should fire
+    expect(applySpy).not.toHaveBeenCalled();
+    // onClose should have been called once
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
