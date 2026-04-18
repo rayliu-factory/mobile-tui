@@ -39,7 +39,7 @@ Phase 1 (Model L1/L2)
 
 - [ ] **Phase 1: Spec Model & Invariants** — Lock the framework-agnostic Spec shape, Zod schemas, closed component catalog, and `validateSpec()` contract. Headless fixtures prove the model.
 - [x] **Phase 2: Serialization & Round-Trip** — Byte-identical round-trip on no-op save via `eemeli/yaml` Document-AST diff-and-apply, HTML-comment-anchored markdown body, ~20 golden fixtures in CI.
-- [ ] **Phase 3: Wireframe Renderer & Dogfood Gate** — Pure-function renderer producing ~40-line ASCII wireframes per screen and state variant; 20 reference wireframes pasted into a real PR before TUI work begins.
+- [x] **Phase 3: Wireframe Renderer & Dogfood Gate** — Pure-function renderer producing ~40-line ASCII wireframes per screen and state variant; 20 reference wireframes pasted into a real PR before TUI work begins.
 - [ ] **Phase 4: Editor Store, Commands & Undo** — Single reactive store with named undoable commands, 200-step history, write-through debounced autosave, live diagnostics, and a headless `cli-edit` harness.
 - [ ] **Phase 5: Canvas TUI Shell** — 3-pane keyboard-driven canvas with focus FSM, command palette, persistent help line, save indicator, and `ctx.ui.custom()`-scoped rendering.
 - [ ] **Phase 6: Wizard & Graduation** — 8 linear steps layered on the canvas store; re-entry edits in place; mode-flip to canvas with no reset.
@@ -123,7 +123,7 @@ Phase 1 (Model L1/L2)
 - [x] 03-06-PLAN.md — Wave 2 structural emitters (parallel): Column + Row + Card + List (single-item + bindsTo footer per RESEARCH Pitfall 9) + ListItem with recursion via dispatch.renderNode; nested-Card test proves width-drift discipline
 - [x] 03-07-PLAN.md — Wave 2 chrome + overlay emitters (parallel): NavBar + TabBar (per D-37 — no device chrome) + Modal + Sheet (shared renderOverlayBox helper per D-36); closes 18-of-18 kinds
 - [x] 03-08-PLAN.md — Wave 3 variant composition: render(spec, screenId) + 4-variant stacking (D-39) + header-in-border (D-40) + when-trigger placement (D-41) + null (N/A) markers + acceptance footer under content (D-45) + NavBar root-trim (D-37); UNSKIP catalog+ASCII-baseline integration tests
-- [ ] 03-09-PLAN.md — Wave 4 dogfood gate: renderSingleVariant + 3-arg CLI + 5 composite .spec.md sources + 20 .wf.txt golden files (7+6+5+5 adjusted to reality) + fixtures/wireframes/README.md index + SHARED.md author-ready template + unskipped dogfood-gate test + HUMAN GATE (≥3 shareable entries blocks Phase 4 per D-49) + ROADMAP Phase 3 close
+- [x] 03-09-PLAN.md — Wave 4 dogfood gate: renderSingleVariant + 3-arg CLI + 5 composite .spec.md sources + 20 .wf.txt golden files (5+5+5+5 locked enumeration) + fixtures/wireframes/README.md index + SHARED.md author-ready template + unskipped dogfood-gate test + HUMAN GATE (≥3 shareable entries — author-certified inline 2026-04-18) + ROADMAP Phase 3 close
 **UI hint**: yes
 
 ### Phase 4: Editor Store, Commands & Undo
@@ -236,7 +236,7 @@ Phase 1 (Model L1/L2)
 |-------|----------------|--------|-----------|
 | 1. Spec Model & Invariants | 8/8 | Complete | 2026-04-17 |
 | 2. Serialization & Round-Trip | 5/5 | Complete | 2026-04-17 |
-| 3. Wireframe Renderer & Dogfood Gate | 6/9 | In progress | — |
+| 3. Wireframe Renderer & Dogfood Gate | 9/9 | Complete | 2026-04-18 |
 | 4. Editor Store, Commands & Undo | 0/? | Not started | — |
 | 5. Canvas TUI Shell | 0/? | Not started | — |
 | 6. Wizard & Graduation | 0/? | Not started | — |

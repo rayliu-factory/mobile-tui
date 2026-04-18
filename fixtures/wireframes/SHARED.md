@@ -1,6 +1,21 @@
 ---
 schema: mobile-tui/shared/1
-shared: []
+shared:
+  - screen: habit-tracker/home-content
+    target: "inline preview, author-certified 2026-04-18"
+    date: 2026-04-18
+    verdict: shareable
+    notes: "Compact mockup reads as screenshot — NavBar + List(Card(Row(Text + Toggle))) composition survives 60-col frame; acceptance prose footer frames intent cleanly"
+  - screen: todo/inbox-content
+    target: "inline preview, author-certified 2026-04-18"
+    date: 2026-04-18
+    verdict: shareable
+    notes: "Dense fixture — TextField underscore-fill + SegmentedControl < all | active | done > + List + TabBar all visible in one frame; `(list bound to /Task/title)` footer disambiguates the List source"
+  - screen: social-feed/feed-content
+    target: "inline preview, author-certified 2026-04-18"
+    date: 2026-04-18
+    verdict: shareable
+    notes: "Image placeholder (+--IMG--+), inline [icon:heart], nested Card-in-List double-box reads as intended per composite design"
 ---
 
 # Dogfood evidence sidecar (D-48 + D-49)
