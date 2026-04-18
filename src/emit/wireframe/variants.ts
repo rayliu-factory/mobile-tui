@@ -78,6 +78,42 @@ export function renderAllVariants(spec: Spec, screenId: string, opts?: RenderOpt
   return render(spec, screenId, opts);
 }
 
+// renderSingleVariant: renders ONE variant block for ONE screen.
+// Used by scripts/render-wireframe.ts (3-arg form) + Phase 3 Plan 03-09's
+// 20-file corpus generation (one .wf.txt per screen-variant, per D-47).
+//
+// Behavior notes:
+//   - Locates screen by id; throws on miss (same contract as render()).
+//   - Renders ONLY the named variant block via the shared
+//     renderVariantBlock() helper — null variants still produce the 1-line
+//     (N/A) marker (D-39), identical to how render() treats them.
+//   - For `content`, appends the acceptance footer (D-45); other variants
+//     never render acceptance (no duplication).
+//   - Returns the block string with a trailing newline (same shape as
+//     render(), so CLI stdout behavior is uniform).
+export function renderSingleVariant(
+  spec: Spec,
+  screenId: string,
+  variantKind: VariantKind,
+  opts?: RenderOptions,
+): string {
+  void opts;
+  const screen = spec.screens.find((s) => s.id === screenId);
+  if (!screen) {
+    throw new Error(`renderSingleVariant: screen "${screenId}" not in spec.screens`);
+  }
+  const width = PHONE_WIDTH;
+  const screenIsRoot = screen.back_behavior === undefined;
+  const variantValue = screen.variants[variantKind];
+  let block = renderVariantBlock(screen, variantKind, variantValue, screenIsRoot, width);
+
+  if (variantKind === "content" && screen.acceptance && screen.acceptance.length > 0) {
+    block = `${block}\n\n${renderAcceptance(screen.acceptance, width)}`;
+  }
+
+  return `${block}\n`;
+}
+
 type VariantRecord = Screen["variants"];
 type VariantValue = VariantRecord[VariantKind];
 

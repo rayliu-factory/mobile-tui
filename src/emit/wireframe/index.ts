@@ -10,4 +10,4 @@
 // Barrel follows the EXPLICIT-NAMED pattern per src/model/index.ts +
 // src/serialize/index.ts (NOT `export *`).
 export { PHONE_WIDTH, type VariantKind } from "./layout.ts";
-export { type RenderOptions, render, renderAllVariants } from "./variants.ts";
+export { type RenderOptions, render, renderAllVariants, renderSingleVariant } from "./variants.ts";
