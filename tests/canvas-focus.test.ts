@@ -15,6 +15,7 @@ import type { Spec } from "../src/model/index.ts";
 import type { AstHandle } from "../src/serialize/ast-handle.ts";
 import type { WriteResult } from "../src/serialize/write.ts";
 import { RootCanvas } from "../src/canvas/root.ts";
+import { FOCUS_CYCLE, nextFocus } from "../src/canvas/focus-fsm.ts";
 
 // ── Minimal spec fixture ──────────────────────────────────────────────────────
 
@@ -70,6 +71,46 @@ const mockTheme = {
   fg: (_token: string, str: string) => str,
   bold: (str: string) => str,
 };
+
+// ── Pure-function unit tests for focus FSM ────────────────────────────────────
+
+describe("nextFocus pure function (CANVAS-01)", () => {
+  it("FOCUS_CYCLE contains exactly screens, inspector, preview", () => {
+    expect(FOCUS_CYCLE).toEqual(["screens", "inspector", "preview"]);
+  });
+
+  it("nextFocus('screens', false) returns 'inspector'", () => {
+    expect(nextFocus("screens", false)).toBe("inspector");
+  });
+
+  it("nextFocus('inspector', false) returns 'preview'", () => {
+    expect(nextFocus("inspector", false)).toBe("preview");
+  });
+
+  it("nextFocus('preview', false) returns 'screens' (wraps)", () => {
+    expect(nextFocus("preview", false)).toBe("screens");
+  });
+
+  it("nextFocus('screens', true) returns 'preview' (reverse)", () => {
+    expect(nextFocus("screens", true)).toBe("preview");
+  });
+
+  it("nextFocus('inspector', true) returns 'screens' (reverse)", () => {
+    expect(nextFocus("inspector", true)).toBe("screens");
+  });
+
+  it("nextFocus('preview', true) returns 'inspector' (reverse)", () => {
+    expect(nextFocus("preview", true)).toBe("inspector");
+  });
+
+  it("nextFocus('palette', false) returns 'screens' (palette collapse)", () => {
+    expect(nextFocus("palette", false)).toBe("screens");
+  });
+
+  it("nextFocus('palette', true) returns 'screens' (palette collapse, reverse)", () => {
+    expect(nextFocus("palette", true)).toBe("screens");
+  });
+});
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
