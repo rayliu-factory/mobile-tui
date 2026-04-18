@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderToggle (D-34, D-42) > default off state: \`[ ] label\` (bindsTo unresolved at render time) 1`] = `
+[
+  "[ ] Done                                                    ",
+]
+`;

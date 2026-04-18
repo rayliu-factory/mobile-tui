@@ -78,10 +78,7 @@ describe("renderToggle (D-34, D-42)", () => {
   it("rectangular contract: every line has length === width across widths", () => {
     const widths = [10, 20, 40, 60];
     for (const w of widths) {
-      const r = renderToggle(
-        { kind: "Toggle", label: "Go", action: "g", testID: "g" },
-        w,
-      );
+      const r = renderToggle({ kind: "Toggle", label: "Go", action: "g", testID: "g" }, w);
       expect(r.every((l) => l.length === w)).toBe(true);
     }
   });

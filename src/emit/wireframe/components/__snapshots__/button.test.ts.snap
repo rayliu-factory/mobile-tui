@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderButton (D-34, D-42) > primary variant: [[ label ]] 1`] = `
+[
+  "[[ Save ]]                                                  ",
+]
+`;
