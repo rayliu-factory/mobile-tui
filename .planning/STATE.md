@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 3 Wave 2 — Plan 03-03 (text-style + overflow) COMPLETE; Wave 3 per-kind emitters (03-04..07) fully unblocked
-last_updated: "2026-04-18T05:41:18Z"
+status: Phase 3 Wave 3 — Plan 03-04 (leaf emitters — Text/Icon/Divider/Spacer/Image) COMPLETE; remaining Wave-3 emitters (03-05/06/07) still parallelizable
+last_updated: "2026-04-18T05:55:03Z"
 progress:
   total_phases: 9
   completed_phases: 2
   total_plans: 22
-  completed_plans: 16
-  percent: 70
+  completed_plans: 17
+  percent: 77
 ---
 
 # mobile-tui — STATE
@@ -26,10 +26,11 @@ Project memory. Updated at every phase transition and plan completion.
 ## Current Position
 
 Phase: 03 (wireframe-renderer-dogfood-gate) — IN PROGRESS
-Plan: 3 of 9 complete (Wave 0 scaffold + Wave 1 layout + Wave 2 text-transform primitives landed)
+Plan: 4 of 9 complete (Wave 0 scaffold + Wave 1 layout + Wave 2 text-transform + Wave 3 leaf emitters landed)
 **Milestone**: v1
 **Phase**: 3 — Wireframe Renderer & Dogfood Gate — IN PROGRESS
-**Plan**: Plans 03-01 (Wave 0 scaffold) + 03-02 (layout primitives) + 03-03 (text-style + overflow) COMPLETE. All layout + text-transform primitives shipped. Wave 3 (Plans 03-04..03-07 per-kind emitters, parallelizable) is now fully unblocked — every per-kind plan has `PHONE_WIDTH`, `VariantKind`, `buildVariantHeader`, `padRight`, `drawFrame`, `truncate`, `applyTextStyle`, `TextStyle` available. Plans 03-08 (composition) + 03-09 (dogfood gate) follow in Waves 4/5.
+**Plan**: Plans 03-01 (Wave 0 scaffold) + 03-02 (layout primitives) + 03-03 (text-style + overflow) + 03-04 (leaf emitters) COMPLETE. 5 of 18 component kinds now have real emitters (Text, Icon, Divider, Spacer, Image); 13 NYI stubs remain (Button, TextField, Toggle, SegmentedControl, Column, Row, Card, List, ListItem, NavBar, TabBar, Modal, Sheet) across Wave-3 parallel plans 03-05/06/07. Plans 03-08 (composition) + 03-09 (dogfood gate) follow in Waves 4/5.
+**Plan 03-04 status**: CLOSED. 5 leaf emitters replace Wave-0 NYI stubs under `src/emit/wireframe/components/`: `renderText` composes `applyTextStyle → truncate → padRight` per D-43 + D-44; `renderIcon` emits inline `[icon:${name}]` with truncate+padRight per D-Claude; `renderDivider` emits `"-".repeat(width)` single line per D-36; `renderSpacer` maps `size → lineCount` (sm=1 / md=2 default / lg=3) per D-36; `renderImage` implements 3 paths per D-Claude — (1) empty-alt → `(no alt)` inline defensive single line, (2) width<8 → `[img:alt]` inline with load-bearing `[img:` prefix preserved via marker-first budget allocation, (3) default → 3-line `+--IMG---+ / | alt | / +--------+` box at min(10, width) cols. Every output line length === width (rectangular contract tested explicitly across all 5 emitters). Full gate: 491 pass / 3 skip (baseline 464/3 → **+27 active assertions**, 0 skipped-delta) via 5 co-located `.test.ts` files + 5 accepted snapshots. `npx tsc --noEmit` + `npx biome check .` both exit 0 (1 pre-existing Phase-2 `write.ts:254` info-level suggestion logged to `deferred-items.md` — out of scope). **One Rule-3 auto-fix landed**: `noUncheckedIndexedAccess` + biome formatter surfaced only at Task-3 full-gate pass; applied the established `firstLine()`/`requireAt()` destructure-or-throw pattern (same as `layout.test.ts` drawFrame tests) across all 5 test files + collapsed a multi-line `renderIcon(...)` call to single-line per biome. Commits: f7570d1 (test RED text/icon/divider) → 853d2d4 (feat GREEN text/icon/divider) → e283669 (test RED spacer/image) → eb93cd8 (feat GREEN spacer/image w/ empty-alt test correction) → 8150f69 (fix Rule-3 TSC narrowing + biome format).
 **Plan 03-03 status**: CLOSED. `src/emit/wireframe/overflow.ts` ships `truncate(str, width)` per D-44: identity when `len ≤ width`, `.`.repeat(width) fallback when `width < 3`, else `${str.slice(0, width-3)}...`. `src/emit/wireframe/text-style.ts` ships `applyTextStyle(text, style?)` per D-43 switch: heading-1 → UPPERCASE, heading-2/body → identity (respect author capitalization; no Title-Case mangle for acronyms), caption → `(${text})`, undefined → body default. Both co-located `.test.ts` files landed: overflow.test.ts (8 assertions across D-44 behavior + 8-case rectangular-contract matrix + determinism) + text-style.test.ts (14 assertions across 6 describe blocks). All 3 `.skip` markers in `layout.test.ts` stripped; all 3 previously-deferred truncate-path tests GREEN. Full suite 464 pass + 3 skip across 35 files (baseline 439/6 → +25 active / -3 skip). `npx tsc --noEmit` + `npx biome check .` exit 0. **One Rule-1 deviation landed**: unskipping the `layout.test.ts` extreme-overflow test surfaced a latent bug in Plan 03-02's `layout.ts` stage-3 path — blind `truncate(content, avail)` was dropping `variant: <kind>` off the right edge, contradicting the docblock's own "preserve `screen:` + `variant:` metadata" contract. Replaced with structured budget allocator: reserve fixed overhead for `screen: ` (8) + `  ` (2) + `variant: <kind>` (9-16 chars), distribute remainder to screenId (truncate) + when-expr (truncate). `variant:` marker now structurally guaranteed visible on any width ≥ 36 cols. Commits: 6787e80 (test RED) → c4cdf11 (feat GREEN truncate) → d284e2f (test RED) → f05303d (feat GREEN text-style) → 14629f3 (fix unskip-3 + variant-preserve).
 **Plan 03-02 status**: CLOSED (context retained from prior session). `src/emit/wireframe/layout.ts` ships the 60-col frame composer: `PHONE_WIDTH=60` + `VariantKind` + `buildVariantHeader` (3-stage overflow cascade per RESEARCH Pitfall 5, preserves `screen:`+`variant:` metadata at stage 3) + `padRight` (delegates to truncate on overflow) + `drawFrame` (rectangular `| ... |` body rows + `+---+` borders; zero-height `[border, border]` collapse for empty body per D-39). 12 new active assertions + 3 `.skip` now all unskipped by Plan 03-03. Commits: 938466e (test RED) → b0e7bda (feat GREEN).
 **Status**: Phase 2 CLOSED. Wave 4 shipped the real `parseSpecFile` orchestrator (retired Wave-0 `.spec.json`-sibling stub), landed the 20-fixture `Buffer#equals` round-trip matrix (covering 3 triple-form canonicals + 3 sigil rewrites + 3 comment variants + 4 top-level key reorders + 2 unknown-top-level keys + 2 YAML-1.1 gotchas + empty-body + comment-only-body + nested-block-scalar), validated the three-layer prototype-pollution defense (parse emits error + write returns `{written: false}` + no disk artifacts), and deleted all 4 `.spec.json` Phase-1 scaffolding files. Full suite: 425/425 tests green across 30 files (was 393 baseline; +32 new — 9 parse.test.ts + 23 round-trip.test.ts). Coverage: 95.06% stmts on `src/serialize/`. `npx tsc --noEmit` + `npx biome check .` + `npx vitest run --coverage` all exit 0. **TWO Rule-1 deviations landed during execution**: (1) parse.ts steps 6/7 swapped — sigil normalization MUST run before partition (partitionTopLevel's toJSON() snapshot froze the raw sigil form, failing Phase-1's printable-ASCII + SIGIL validators); (2) write.ts step 6 switched from `doc.toString()` to full CST token-stream emit via `Parser.parse` on the matter substring — yaml@^2.8.3's `doc.toString()` normalizes inline-comment spacing (collapses 2+ spaces before `#` to 1) and relocates inline comments onto their own line, both breaking byte-identical round-trip. Leading document-level comments (CST tokens sibling to doc.contents) are also preserved via the full-stream emit. Schema-inject fallback retains `doc.toString()` for the newly-injected pair. Commits: cfd0bd2 (fixtures) → a5db9e3 (parse RED) → e9469db (parse GREEN) → 55f2228 (round-trip RED) → efd5e52 (round-trip GREEN + parse-order + CST-emit Rule-1 fixes) → 30cbfaf (.spec.json deletion).
@@ -42,10 +43,10 @@ Wave 3 write-path CLOSED. `src/serialize/atomic.ts` ships `atomicWrite(targetPat
 
 Wave 2 transform primitives closed. src/serialize/sigil.ts ships `SIGIL_REGEX = /^\[(.+?) →([a-z][a-z0-9_]*) test:([a-z][a-z0-9_]*)\]$/` (anchored, non-backtracking — T-01-01 ReDoS-safe on 100KB input per dedicated regression), `INTERACTABLE_KINDS: ReadonlySet<string>` = 5-element set {Button, TextField, Toggle, SegmentedControl, ListItem} mirroring src/model/component.ts InteractableBase consumers (TabBar excluded per 01-04 inline-extended decision), pure `parseSigil(str): SigilTriple | null`, fresh-WeakMap factory `createSigilOriginsMap()`, and `normalizeSigilsOnDoc(doc, wm)` walking `doc[screens]` via isMap/isSeq/isScalar type guards — on sigil match: splits label scalar → triple, adds/updates action + testID pairs on the YAMLMap, records `'sigil'` origin; else records `'triple'`; non-interactables skipped (no WeakMap entry). src/serialize/schema-inject.ts ships idempotent `injectSchemaIfAbsent(doc): boolean` — returns false on doc.has('schema') early-return; mutation path creates schema pair via `doc.createPair('schema', SCHEMA_VERSION)` (literal NEVER inlined — imported from `../model/index.ts`), unshifts at items[0] position (D-28), sets `items[1].key.spaceBefore = true` to force blank line between schema and original first key (Pitfall 6 anchor). Empty/non-map doc handled via `doc.createNode({schema: SV}, {flow: false})`. 34 new unit tests across 2 co-located files all green (26 sigil + 8 schema-inject). Full gate GREEN: `npx vitest run` 374/374 across 26 files (was 340 baseline; +34 Plan 02-03); `npx tsc --noEmit` 0 errors; `npx biome check .` 0 errors. Phase-1 + Wave-0 + Wave-1 regression intact. Quirk noted for Plan 02-04: `doc.toString()` in yaml@^2.8.3 does NOT accept `{ version: '1.2' }` (`ToStringOptions` excludes `version`); parse-time version is sticky on the Document — emit-time call is argless or formatting-opts only.
 
-**Progress**: Phase 1/9 complete (Phase 1 all 8 plans shipped). Phase 2 CLOSED (all 5 plans shipped). Phase 3 IN PROGRESS — 3 of 9 plans shipped (03-01 Wave-0 scaffold + 03-02 layout primitives + 03-03 text-transform primitives).
+**Progress**: Phase 1/9 complete (Phase 1 all 8 plans shipped). Phase 2 CLOSED (all 5 plans shipped). Phase 3 IN PROGRESS — 4 of 9 plans shipped (03-01 Wave-0 scaffold + 03-02 layout primitives + 03-03 text-transform primitives + 03-04 leaf emitters).
 
 ```
-[███████░░░] 70% — Phase 3 Wave 2 Plan 03 complete (3/9 Phase-3 plans)
+[████████░░] 77% — Phase 3 Wave 3 Plan 04 complete (4/9 Phase-3 plans; 5 of 18 emitter kinds real)
 ```
 
 ## Performance Metrics
@@ -69,6 +70,7 @@ Wave 2 transform primitives closed. src/serialize/sigil.ts ships `SIGIL_REGEX = 
 | Phase 03-wireframe-renderer-dogfood-gate P01 | ~6m | 3 tasks | 31 created + 2 modified |
 | Phase 03-wireframe-renderer-dogfood-gate P02 | 5m | 2 tasks | 2 files |
 | Phase 03-wireframe-renderer-dogfood-gate P03 | 4m 43s | 3 tasks | 2 created + 4 modified |
+| Phase 03-wireframe-renderer-dogfood-gate P04 | ~5m | 3 tasks | 11 created + 5 modified |
 
 ### Plan Timing
 
@@ -90,6 +92,7 @@ Wave 2 transform primitives closed. src/serialize/sigil.ts ships `SIGIL_REGEX = 
 | 03-01 (Wave 0 wireframe-renderer scaffold + CLI stub + 3 integration harnesses) | ~6m | 3 (3 commits: 1 RED + 2 GREEN) | 31 created + 2 modified |
 | 03-02 (Wave 1 layout primitives: PHONE_WIDTH + buildVariantHeader + padRight + drawFrame) | ~5m | 2 (2 commits: 1 RED + 1 GREEN) | 1 created + 1 modified |
 | 03-03 (Wave 2 text-transform primitives: truncate + applyTextStyle + unskip-3 + variant-preserve fix) | 4m 43s | 3 (5 commits: 2 TDD pairs + 1 unskip-with-fix) | 2 created + 4 modified |
+| 03-04 (Wave 3 leaf emitters: Text + Icon + Divider + Spacer + Image) | ~5m | 3 (5 commits: 2 TDD pairs + 1 Rule-3 fix) | 11 created + 5 modified |
 
 ## Accumulated Context
 
