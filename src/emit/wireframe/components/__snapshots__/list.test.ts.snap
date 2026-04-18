@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderList (D-36, RESEARCH Pitfall 9) > single-item box + \`(list bound to ...)\` footer 1`] = `
+[
+  "+----------------------------------------------------------+",
+  "| Item row                                                 |",
+  "+----------------------------------------------------------+",
+  "   (list bound to /Habit/title)                             ",
+]
+`;
