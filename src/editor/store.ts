@@ -35,6 +35,7 @@ import type { JsonPointer } from "../primitives/path.ts";
 import type { AstHandle } from "../serialize/ast-handle.ts";
 import type { WriteResult } from "../serialize/write.ts";
 import { writeSpecFile } from "../serialize/write.ts";
+import { COMMANDS } from "./commands/index.ts";
 import { EDITOR_CODES } from "./diagnostics.ts";
 import type { ApplyResult, Command, Snapshot, Store, StoreState } from "./types.ts";
 import type { UndoEntry } from "./undo.ts";
@@ -48,12 +49,12 @@ type CommandRegistry = Record<string, AnyCommand>;
  * Create a reactive editor store (D-50).
  *
  * @param initial - Initial { spec, astHandle, filePath } loaded via parseSpecFile.
- * @param commands - Command registry (keyed by command name). Defaults to {} for testing.
- *   Later plans pass the COMMANDS barrel from commands/index.ts.
+ * @param commands - Command registry (keyed by command name). Defaults to COMMANDS barrel.
+ *   Tests may inject a partial registry for isolation.
  */
 export function createStore(
   initial: { spec: Spec; astHandle: AstHandle; filePath: string },
-  commands: CommandRegistry = {},
+  commands: CommandRegistry = COMMANDS,
 ): Store {
   // ── Internal closure state (D-53) ──────────────────────────────────────
   let spec = initial.spec;
