@@ -33,7 +33,7 @@ All v1 requirements are hypotheses until shipped and validated.
 
 - [x] **WIREFRAME-01**: Given a Screen's component tree, the renderer produces a ~40-line ASCII wireframe at a fixed target width (~60 cols) with explicit right borders so copy-paste into PRs/Slack/email does not visually mangle
 - [x] **WIREFRAME-02**: The persisted wireframe uses the ASCII baseline character set (`|`, `-`, `+`, `.`); Unicode BMP box-drawing glyphs are allowed **only** in the live in-TUI preview, never in the written file
-- [ ] **WIREFRAME-03**: The renderer supports every component in the closed v1 catalog; a snapshot test exists per component and for at least 5 composite layouts
+- [x] **WIREFRAME-03**: The renderer supports every component in the closed v1 catalog; a snapshot test exists per component and for at least 5 composite layouts
 - [x] **WIREFRAME-04**: Each of the 4 state variants (content/empty/loading/error) renders as its own wireframe block under the screen — no "empty state as a squiggle on top of the happy path"
 - [ ] **WIREFRAME-05**: The renderer is a pure function from spec to string; it has no hidden state, does not touch disk, and is independently runnable via a `render-wireframe <spec> <screen-id>` script
 - [ ] **WIREFRAME-06**: At least 20 reference wireframes are committed as golden fixtures before any TUI work starts (the "would a dev paste this in a PR" bar is an explicit gate)
@@ -140,7 +140,7 @@ All v1 requirements are hypotheses until shipped and validated.
 | SERDE-08 | Phase 1 | Complete |
 | WIREFRAME-01 | Phase 3 | Complete |
 | WIREFRAME-02 | Phase 3 | Complete |
-| WIREFRAME-03 | Phase 3 | Pending |
+| WIREFRAME-03 | Phase 3 | Complete |
 | WIREFRAME-04 | Phase 3 | Complete |
 | WIREFRAME-05 | Phase 3 | Pending |
 | WIREFRAME-06 | Phase 3 | Pending |
