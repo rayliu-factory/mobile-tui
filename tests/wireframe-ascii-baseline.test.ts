@@ -16,9 +16,14 @@ import { allWireframeFiles } from "./helpers/wireframe-files.ts";
 const ASCII_BASELINE = /^[|\-+. \x20-\x7E\n]*$/;
 
 describe("wireframe ASCII-baseline (WIREFRAME-02)", () => {
+  it("fixtures/wireframes/ contains exactly 20 .wf.txt files at phase close (WIREFRAME-06)", async () => {
+    const files = await allWireframeFiles();
+    expect(files.length).toBe(20);
+  });
+
   it("every .wf.txt file matches ^[|\\-+. \\x20-\\x7E\\n]*$", async () => {
     const files = await allWireframeFiles();
-    // At Wave-0 files.length === 0; later plans grow it to 20.
+    // At Wave-0 files.length === 0; Plan 03-09 grows it to exactly 20.
     for (const f of files) {
       const content = readFileSync(f, "utf8");
       if (!ASCII_BASELINE.test(content)) {
