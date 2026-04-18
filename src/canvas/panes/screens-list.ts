@@ -47,10 +47,14 @@ interface SelectItem {
  * This mirrors truncateToWidth from @mariozechner/pi-tui.
  * ANSI escape sequences are transparent to visible-width counting.
  */
+// Regex to strip SGR ANSI color codes (ESC [ ... m). Built via RegExp constructor
+// to avoid the biome noControlCharactersInRegex lint rule on regex literals.
+const ANSI_SGR = new RegExp("\x1b\\[[0-9;]*m", "g");
+
 function truncateToWidth(str: string, width: number): string {
   if (width <= 0) return "";
   // Measure visible width (strip ANSI codes for counting)
-  const stripped = str.replace(/\x1b\[[0-9;]*m/g, "");
+  const stripped = str.replace(ANSI_SGR, "");
   if (stripped.length <= width) {
     // Pad to exact width with spaces (after the visible content)
     return str + " ".repeat(width - stripped.length);
@@ -67,7 +71,7 @@ function truncateToWidth(str: string, width: number): string {
       i++; // skip ESC
       if (i < str.length && str[i] === "[") {
         i++; // skip [
-        while (i < str.length && !/[A-Za-z]/.test(str[i]!)) i++;
+        while (i < str.length && !/[A-Za-z]/.test(str[i] ?? "")) i++;
         if (i < str.length) i++; // skip terminator
       }
       result += str.slice(start, i);
@@ -183,7 +187,8 @@ class InlineSelectList {
     const end = Math.min(start + this.maxVisible, this.items.length);
 
     for (let i = start; i < end; i++) {
-      const item = this.items[i]!;
+      const item = this.items[i];
+      if (!item) continue;
       const isSelected = i === this.selectedIndex;
       const prefix = isSelected ? "> " : "  ";
 
@@ -219,8 +224,8 @@ export class ScreensListPane implements Component {
   private list: InlineSelectList;
 
   constructor(
-    private readonly onSelect: (screenId: string) => void,
-    private readonly theme: CanvasTheme,
+    onSelect: (screenId: string) => void,
+    readonly theme: CanvasTheme,
   ) {
     // Initialize with empty items — update() populates on first snapshot
     this.list = new InlineSelectList([], 20, theme);

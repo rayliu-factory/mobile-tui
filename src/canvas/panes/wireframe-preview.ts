@@ -33,10 +33,14 @@ interface Component {
  * Truncate a string to a maximum visible width (ANSI-aware).
  * This mirrors truncateToWidth from @mariozechner/pi-tui.
  */
+// Regex to strip SGR ANSI color codes (ESC [ ... m). Built via RegExp constructor
+// to avoid the biome noControlCharactersInRegex lint rule on regex literals.
+const ANSI_SGR = new RegExp("\x1b\\[[0-9;]*m", "g");
+
 function truncateToWidth(str: string, width: number): string {
   if (width <= 0) return "";
   // Measure visible width (strip ANSI codes for counting)
-  const stripped = str.replace(/\x1b\[[0-9;]*m/g, "");
+  const stripped = str.replace(ANSI_SGR, "");
   if (stripped.length <= width) {
     // Pad to exact width with spaces (after the visible content)
     return str + " ".repeat(width - stripped.length);
@@ -52,7 +56,7 @@ function truncateToWidth(str: string, width: number): string {
       i++; // skip ESC
       if (i < str.length && str[i] === "[") {
         i++; // skip [
-        while (i < str.length && !/[A-Za-z]/.test(str[i]!)) i++;
+        while (i < str.length && !/[A-Za-z]/.test(str[i] ?? "")) i++;
         if (i < str.length) i++; // skip terminator
       }
       result += str.slice(start, i);
