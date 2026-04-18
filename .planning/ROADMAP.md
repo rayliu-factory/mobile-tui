@@ -167,7 +167,16 @@ Plans:
   4. Canvas runs without ever writing outside the region returned by `ctx.ui.custom()` — a chrome-hygiene test asserts no raw alt-buffer escape sequences are emitted.
   5. Launching canvas against a spec file that has never been through the wizard still works end-to-end — edit a screen, see the wireframe update, quit, re-open and find the edit on disk.
 
-**Plans**: TBD
+**Plans**: 6 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Wave 0 scaffold: src/canvas/ directory tree stubs + 4 test file skeletons
+- [ ] 05-02-PLAN.md — Wave 2 utilities: focus-fsm, help-line, save-indicator, HorizontalLayout compositor
+- [ ] 05-03-PLAN.md — Wave 2 panes: ScreensListPane (SelectList) + WireframePreviewPane (read-only)
+- [ ] 05-04-PLAN.md — Wave 3 pane: PropertyInspectorPane (Focusable, Input, field editing, D-70/71/72)
+- [ ] 05-05-PLAN.md — Wave 3 palette: CommandPalette overlay (filter mode + arg-prompt FSM, D-74/75/76)
+- [ ] 05-06-PLAN.md — Wave 4 assembly: RootCanvas wiring + scripts/canvas.ts CLI entry + full integration test
+
 **UI hint**: yes
 
 ### Phase 6: Wizard & Graduation
@@ -246,8 +255,8 @@ Plans:
 | 1. Spec Model & Invariants | 8/8 | Complete | 2026-04-17 |
 | 2. Serialization & Round-Trip | 5/5 | Complete | 2026-04-17 |
 | 3. Wireframe Renderer & Dogfood Gate | 9/9 | Complete | 2026-04-18 |
-| 4. Editor Store, Commands & Undo | 0/7 | In Progress | — |
-| 5. Canvas TUI Shell | 0/? | Not started | — |
+| 4. Editor Store, Commands & Undo | 7/7 | Complete | 2026-04-18 |
+| 5. Canvas TUI Shell | 0/6 | Planned | — |
 | 6. Wizard & Graduation | 0/? | Not started | — |
 | 7. Maestro Emitter | 0/? | Not started | — |
 | 8. LLM Handoff Commands | 0/? | Not started | — |
