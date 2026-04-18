@@ -18,7 +18,8 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "wireframe": "npx tsx scripts/render-wireframe.ts",
-    "cli-edit": "npx tsx scripts/cli-edit.ts"
+    "cli-edit": "npx tsx scripts/cli-edit.ts",
+    "canvas": "npx tsx scripts/canvas.ts"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",
