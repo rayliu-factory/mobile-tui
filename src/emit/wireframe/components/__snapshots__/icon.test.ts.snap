@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderIcon (D-Claude inline marker) > renders \`[icon:name]\` padded to width 1`] = `
+[
+  "[icon:heart]                                                ",
+]
+`;

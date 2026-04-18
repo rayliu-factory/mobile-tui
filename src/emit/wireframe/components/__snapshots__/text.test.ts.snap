@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderText (D-43, D-44) > heading-1: UPPERCASE transform + padded to width 1`] = `
+[
+  "MY HABITS                                                   ",
+]
+`;
