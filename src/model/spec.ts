@@ -33,6 +33,25 @@ import { NavigationGraphSchema } from "./navigation.ts";
 import { ScreenSchema } from "./screen.ts";
 import { SCHEMA_VERSION } from "./version.ts";
 
+// Phase-6: Wizard intake fields — all optional so existing specs that lack
+// wizard fields continue to parse without errors (WIZARD-01 backward compat).
+//
+// THREAT T-06-03: .strict() is retained on SpecSchema — unknown keys still
+// rejected. Only declared wizard fields pass. The wizard fields are ADDED to
+// the known-key set here, satisfying strict mode.
+//
+// Export WizardMeta type for wizard command arg typing (Plan 06-02 onward).
+const WizardMetaSchema = z.object({
+  app_idea: z.string().optional(),
+  primary_user: z.string().optional(),
+  nav_pattern: z.enum(["tab_bar", "side_drawer", "stack", "modal_first"]).optional(),
+  auth: z.enum(["none", "email_password", "oauth", "biometric", "magic_link"]).optional(),
+  offline_sync: z.enum(["none", "read_only", "full"]).optional(),
+  target_platforms: z.array(z.enum(["ios", "android"])).optional(),
+});
+
+export type WizardMeta = z.infer<typeof WizardMetaSchema>;
+
 export const SpecSchema = z
   .object({
     // Exact literal match. Migration runner (Plan 07) upgrades older spec
@@ -48,16 +67,24 @@ export const SpecSchema = z
     // a spec with zero actions is unusual but not structurally broken.
     actions: ActionsRegistrySchema,
 
-    // Data model (SPEC-04). DataModelSchema itself enforces `.min(1)` on entities.
+    // Data model (SPEC-04). DataModelSchema itself enforces `.min(0)` on entities
+    // after Phase-6 relaxation (new wizard specs start with empty entities).
     data: DataModelSchema,
 
     // Navigation graph (SPEC-03). NavigationGraphSchema requires root; cross-ref
     // (Plan 06) ensures root names an actual screen in `screens[]`.
     navigation: NavigationGraphSchema,
+
+    // Phase-6 wizard fields — all optional for backward compat (WIZARD-01).
+    // Spread WizardMetaSchema.shape so .strict() sees them as known keys.
+    ...WizardMetaSchema.shape,
   })
   // .strict() — HARD boundary per Plan 05 + RESEARCH §Anti-Patterns. Phase 2
   // relaxes via an _unknown: bucket in the SERIALIZER, not here. See comment
   // block at top of file for the full rationale.
+  //
+  // Phase-6: wizard fields are added to the known-key set above, so .strict()
+  // remains enforced — unknown keys still rejected (T-06-03 mitigation).
   .strict();
 
 export type Spec = z.infer<typeof SpecSchema>;
