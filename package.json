@@ -17,7 +17,7 @@
     "test:coverage": "vitest run --coverage",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "wireframe": "tsx scripts/render-wireframe.ts"
+    "wireframe": "npx tsx scripts/render-wireframe.ts"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",
