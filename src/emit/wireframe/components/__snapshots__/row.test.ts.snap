@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderRow (D-36, Phase-3 v1 single-line join) > 2-child Row at width 60 produces single line with both children 1`] = `
+[
+  "left                          right                         ",
+]
+`;

@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderColumn (D-36) > 2-child default (gap=md) produces 1 blank line between children 1`] = `
+[
+  "hello                                                       ",
+  "                                                            ",
+  "------------------------------------------------------------",
+]
+`;

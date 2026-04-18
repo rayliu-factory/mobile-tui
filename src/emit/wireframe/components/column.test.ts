@@ -16,10 +16,7 @@ describe("renderColumn (D-36)", () => {
     const r = renderColumn(
       {
         kind: "Column",
-        children: [
-          { kind: "Text", text: "hello" },
-          { kind: "Divider" },
-        ],
+        children: [{ kind: "Text", text: "hello" }, { kind: "Divider" }],
       },
       60,
     );
