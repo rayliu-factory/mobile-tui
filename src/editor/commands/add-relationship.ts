@@ -49,7 +49,11 @@ export const addRelationship: Command<typeof addRelationshipArgs> = {
     const existingRels = entity.relationships ?? [];
     const insertedRelIndex = existingRels.length;
 
-    const newRel: Relationship = { from: args.from, to: args.to, kind: args.kind as RelationshipKind };
+    const newRel: Relationship = {
+      from: args.from,
+      to: args.to,
+      kind: args.kind as RelationshipKind,
+    };
     const updatedRels = [...existingRels, newRel];
     const updatedEntity: Entity = { ...entity, relationships: updatedRels };
     const newEntities = spec.data.entities.map((e, i) => (i === entityIndex ? updatedEntity : e));
@@ -84,13 +88,7 @@ export const addRelationship: Command<typeof addRelationshipArgs> = {
     const newEntities = spec.data.entities.map((e, i) => (i === entityIndex ? updatedEntity : e));
 
     // AST-level: remove from sequence
-    astHandle.doc.deleteIn([
-      "data",
-      "entities",
-      entityIndex,
-      "relationships",
-      insertedRelIndex,
-    ]);
+    astHandle.doc.deleteIn(["data", "entities", entityIndex, "relationships", insertedRelIndex]);
 
     return { spec: { ...spec, data: { ...spec.data, entities: newEntities } } };
   },

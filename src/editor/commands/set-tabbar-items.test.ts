@@ -48,7 +48,12 @@ async function loadFixture() {
     result.astHandle.doc.createNode(newTree),
   );
 
-  return { spec: modifiedSpec, astHandle: result.astHandle, homeIndex, tabBarIndex: newTree.length - 1 };
+  return {
+    spec: modifiedSpec,
+    astHandle: result.astHandle,
+    homeIndex,
+    tabBarIndex: newTree.length - 1,
+  };
 }
 
 describe("setTabbarItems command (D-54)", () => {
@@ -70,18 +75,27 @@ describe("setTabbarItems command (D-54)", () => {
 
     const { spec: after1, inverseArgs } = setTabbarItems.apply(before, astHandle, args);
     const homeScreen1 = after1.screens[homeIndex]!;
-    const tabbar1 = homeScreen1.variants.content.tree[tabBarIndex] as { kind: "TabBar"; items: unknown[] };
+    const tabbar1 = homeScreen1.variants.content.tree[tabBarIndex] as {
+      kind: "TabBar";
+      items: unknown[];
+    };
     expect(tabbar1?.kind).toBe("TabBar");
     expect(tabbar1?.items).toHaveLength(3);
 
     const { spec: restored } = setTabbarItems.invert(after1, astHandle, inverseArgs);
     const homeScreenR = restored.screens[homeIndex]!;
-    const tabbarR = homeScreenR.variants.content.tree[tabBarIndex] as { kind: "TabBar"; items: unknown[] };
+    const tabbarR = homeScreenR.variants.content.tree[tabBarIndex] as {
+      kind: "TabBar";
+      items: unknown[];
+    };
     expect(tabbarR?.items).toHaveLength(2);
 
     const { spec: after2 } = setTabbarItems.apply(restored, astHandle, args);
     const homeScreen2 = after2.screens[homeIndex]!;
-    const tabbar2 = homeScreen2.variants.content.tree[tabBarIndex] as { kind: "TabBar"; items: unknown[] };
+    const tabbar2 = homeScreen2.variants.content.tree[tabBarIndex] as {
+      kind: "TabBar";
+      items: unknown[];
+    };
     expect(tabbar2?.items).toHaveLength(3);
   });
 
@@ -96,15 +110,21 @@ describe("setTabbarItems command (D-54)", () => {
     };
 
     const { spec: after1, inverseArgs } = setTabbarItems.apply(before, astHandle, args);
-    const tabbar1 = after1.screens[homeIndex]!.variants.content.tree[tabBarIndex] as { items: unknown[] };
+    const tabbar1 = after1.screens[homeIndex]!.variants.content.tree[tabBarIndex] as {
+      items: unknown[];
+    };
     expect(tabbar1?.items).toHaveLength(1);
 
     const { spec: restored } = setTabbarItems.invert(after1, astHandle, inverseArgs);
-    const tabbarR = restored.screens[homeIndex]!.variants.content.tree[tabBarIndex] as { items: unknown[] };
+    const tabbarR = restored.screens[homeIndex]!.variants.content.tree[tabBarIndex] as {
+      items: unknown[];
+    };
     expect(tabbarR?.items).toHaveLength(2);
 
     const { spec: after2 } = setTabbarItems.apply(restored, astHandle, args);
-    const tabbar2 = after2.screens[homeIndex]!.variants.content.tree[tabBarIndex] as { items: unknown[] };
+    const tabbar2 = after2.screens[homeIndex]!.variants.content.tree[tabBarIndex] as {
+      items: unknown[];
+    };
     expect(tabbar2?.items).toHaveLength(1);
   });
 
@@ -116,21 +136,37 @@ describe("setTabbarItems command (D-54)", () => {
       variantKind: "content" as const,
       path: `/${tabBarIndex}` as JsonPointer,
       items: [
-        { label: "Home", action: "go_home" as ActionId, testID: "tab_home2" as TestID, icon: "home" },
-        { label: "Search", action: "go_search" as ActionId, testID: "tab_search" as TestID, icon: "search" },
+        {
+          label: "Home",
+          action: "go_home" as ActionId,
+          testID: "tab_home2" as TestID,
+          icon: "home",
+        },
+        {
+          label: "Search",
+          action: "go_search" as ActionId,
+          testID: "tab_search" as TestID,
+          icon: "search",
+        },
       ],
     };
 
     const { spec: after1, inverseArgs } = setTabbarItems.apply(before, astHandle, args);
-    const tabbar1 = after1.screens[homeIndex]!.variants.content.tree[tabBarIndex] as { items: Array<{ icon?: string }> };
+    const tabbar1 = after1.screens[homeIndex]!.variants.content.tree[tabBarIndex] as {
+      items: Array<{ icon?: string }>;
+    };
     expect(tabbar1?.items[0]?.icon).toBe("home");
 
     const { spec: restored } = setTabbarItems.invert(after1, astHandle, inverseArgs);
-    const tabbarR = restored.screens[homeIndex]!.variants.content.tree[tabBarIndex] as { items: Array<{ icon?: string }> };
+    const tabbarR = restored.screens[homeIndex]!.variants.content.tree[tabBarIndex] as {
+      items: Array<{ icon?: string }>;
+    };
     expect(tabbarR?.items[0]?.icon).toBeUndefined();
 
     const { spec: after2 } = setTabbarItems.apply(restored, astHandle, args);
-    const tabbar2 = after2.screens[homeIndex]!.variants.content.tree[tabBarIndex] as { items: Array<{ icon?: string }> };
+    const tabbar2 = after2.screens[homeIndex]!.variants.content.tree[tabBarIndex] as {
+      items: Array<{ icon?: string }>;
+    };
     expect(tabbar2?.items[0]?.icon).toBe("home");
   });
 });

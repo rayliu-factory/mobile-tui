@@ -38,13 +38,19 @@ export const renameField: Command<typeof renameFieldArgs> = {
   apply(spec, astHandle, args: RenameFieldArgs) {
     const entityIndex = spec.data.entities.findIndex((e) => e.name === args.entity);
     if (entityIndex === -1) {
-      return { spec, inverseArgs: { entityName: args.entity, fieldIndex: -1, prevName: args.from } };
+      return {
+        spec,
+        inverseArgs: { entityName: args.entity, fieldIndex: -1, prevName: args.from },
+      };
     }
 
     const entity = spec.data.entities[entityIndex] as Entity;
     const fieldIndex = entity.fields.findIndex((f) => f.name === args.from);
     if (fieldIndex === -1) {
-      return { spec, inverseArgs: { entityName: args.entity, fieldIndex: -1, prevName: args.from } };
+      return {
+        spec,
+        inverseArgs: { entityName: args.entity, fieldIndex: -1, prevName: args.from },
+      };
     }
 
     // AST-level scalar edit

@@ -22,7 +22,10 @@ describe("addEntity command (D-54, D-62)", () => {
   const fixtures = [
     {
       name: "entity with no fields (uses default empty fields array)",
-      args: { name: "User" as EntityName, fields: [{ name: "id", type: "string" as const, required: true }] },
+      args: {
+        name: "User" as EntityName,
+        fields: [{ name: "id", type: "string" as const, required: true }],
+      },
     },
     {
       name: "entity with multiple fields",

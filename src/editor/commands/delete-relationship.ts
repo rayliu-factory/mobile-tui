@@ -66,13 +66,7 @@ export const deleteRelationship: Command<typeof deleteRelationshipArgs> = {
     const newEntities = spec.data.entities.map((e, i) => (i === entityIndex ? updatedEntity : e));
 
     // AST-level: remove from sequence
-    astHandle.doc.deleteIn([
-      "data",
-      "entities",
-      entityIndex,
-      "relationships",
-      args.index,
-    ]);
+    astHandle.doc.deleteIn(["data", "entities", entityIndex, "relationships", args.index]);
 
     const inverseArgs: DeleteRelationshipInverse = {
       entityName: args.entity,
@@ -91,11 +85,7 @@ export const deleteRelationship: Command<typeof deleteRelationshipArgs> = {
 
     const entity = spec.data.entities[entityIndex] as Entity;
     const existingRels = entity.relationships ?? [];
-    const restoredRels = [
-      ...existingRels.slice(0, index),
-      relJSON,
-      ...existingRels.slice(index),
-    ];
+    const restoredRels = [...existingRels.slice(0, index), relJSON, ...existingRels.slice(index)];
     const updatedEntity: Entity = { ...entity, relationships: restoredRels };
     const newEntities = spec.data.entities.map((e, i) => (i === entityIndex ? updatedEntity : e));
 

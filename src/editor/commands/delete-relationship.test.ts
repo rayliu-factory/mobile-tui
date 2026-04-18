@@ -24,7 +24,11 @@ describe("deleteRelationship command (D-54, D-62)", () => {
     const args = { entity: "Habit" as EntityName, index: 0 };
     const firstRel = entity?.relationships?.[0];
 
-    const { spec: after1, inverseArgs } = deleteRelationship.apply(before.spec, before.astHandle, args);
+    const { spec: after1, inverseArgs } = deleteRelationship.apply(
+      before.spec,
+      before.astHandle,
+      args,
+    );
     const afterEntity = after1.data.entities.find((e) => e.name === "Habit");
     expect(afterEntity?.relationships ?? []).toHaveLength(initialRelCount - 1);
 
@@ -44,7 +48,11 @@ describe("deleteRelationship command (D-54, D-62)", () => {
     // Habit has 1 relationship (has_many Completion)
     const args = { entity: "Habit" as EntityName, index: 0 };
 
-    const { spec: after1, inverseArgs } = deleteRelationship.apply(before.spec, before.astHandle, args);
+    const { spec: after1, inverseArgs } = deleteRelationship.apply(
+      before.spec,
+      before.astHandle,
+      args,
+    );
     const afterEntity = after1.data.entities.find((e) => e.name === "Habit");
     expect(afterEntity?.relationships ?? []).toHaveLength(0);
 
@@ -53,14 +61,20 @@ describe("deleteRelationship command (D-54, D-62)", () => {
     expect(restoredEntity?.relationships).toHaveLength(1);
 
     const { spec: after2 } = deleteRelationship.apply(restored, before.astHandle, args);
-    expect(after2.data.entities.find((e) => e.name === "Habit")?.relationships ?? []).toHaveLength(0);
+    expect(after2.data.entities.find((e) => e.name === "Habit")?.relationships ?? []).toHaveLength(
+      0,
+    );
   });
 
   it("apply→invert→apply is idempotent: second apply returns same state as first", async () => {
     const before = await loadFixture();
     const args = { entity: "Habit" as EntityName, index: 0 };
 
-    const { spec: after1, inverseArgs } = deleteRelationship.apply(before.spec, before.astHandle, args);
+    const { spec: after1, inverseArgs } = deleteRelationship.apply(
+      before.spec,
+      before.astHandle,
+      args,
+    );
     const { spec: restored } = deleteRelationship.invert(after1, before.astHandle, inverseArgs);
     const { spec: after2 } = deleteRelationship.apply(restored, before.astHandle, args);
 

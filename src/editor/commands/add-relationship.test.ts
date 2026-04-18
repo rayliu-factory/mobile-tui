@@ -50,7 +50,11 @@ describe("addRelationship command (D-54, D-62)", () => {
     const entity = before.spec.data.entities.find((e) => e.name === args.entity);
     const initialRelCount = entity?.relationships?.length ?? 0;
 
-    const { spec: after1, inverseArgs } = addRelationship.apply(before.spec, before.astHandle, args);
+    const { spec: after1, inverseArgs } = addRelationship.apply(
+      before.spec,
+      before.astHandle,
+      args,
+    );
     const afterEntity = after1.data.entities.find((e) => e.name === args.entity);
     expect(afterEntity?.relationships ?? []).toHaveLength(initialRelCount + 1);
     const addedRel = afterEntity?.relationships?.[afterEntity.relationships.length - 1];

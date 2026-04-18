@@ -38,7 +38,11 @@ export const deleteField: Command<typeof deleteFieldArgs> = {
     if (entityIndex === -1) {
       return {
         spec,
-        inverseArgs: { entityName: args.entity, fieldJSON: null as unknown as Field, fieldIndex: -1 },
+        inverseArgs: {
+          entityName: args.entity,
+          fieldJSON: null as unknown as Field,
+          fieldIndex: -1,
+        },
       };
     }
 
@@ -47,7 +51,11 @@ export const deleteField: Command<typeof deleteFieldArgs> = {
     if (fieldIndex === -1) {
       return {
         spec,
-        inverseArgs: { entityName: args.entity, fieldJSON: null as unknown as Field, fieldIndex: -1 },
+        inverseArgs: {
+          entityName: args.entity,
+          fieldJSON: null as unknown as Field,
+          fieldIndex: -1,
+        },
       };
     }
 

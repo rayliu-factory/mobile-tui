@@ -108,9 +108,7 @@ export const deleteEntity: Command<typeof deleteEntityArgs> = {
     const restoredEntities = [...newEntities];
     // Sort by entity index and rel index descending so insertions don't shift indices
     const sorted = [...removedRelationships].sort((a, b) =>
-      a.entityIndex !== b.entityIndex
-        ? a.entityIndex - b.entityIndex
-        : a.relIndex - b.relIndex,
+      a.entityIndex !== b.entityIndex ? a.entityIndex - b.entityIndex : a.relIndex - b.relIndex,
     );
     for (const { entityIndex: eIdx, relIndex, rel } of sorted) {
       const entity = restoredEntities[eIdx];

@@ -44,7 +44,12 @@ export const setFieldType: Command<typeof setFieldTypeArgs> = {
     if (entityIndex === -1) {
       return {
         spec,
-        inverseArgs: { entityName: args.entity, fieldIndex: -1, prevType: "string" as FieldType, prevOf: undefined },
+        inverseArgs: {
+          entityName: args.entity,
+          fieldIndex: -1,
+          prevType: "string" as FieldType,
+          prevOf: undefined,
+        },
       };
     }
 
@@ -53,7 +58,12 @@ export const setFieldType: Command<typeof setFieldTypeArgs> = {
     if (fieldIndex === -1) {
       return {
         spec,
-        inverseArgs: { entityName: args.entity, fieldIndex: -1, prevType: "string" as FieldType, prevOf: undefined },
+        inverseArgs: {
+          entityName: args.entity,
+          fieldIndex: -1,
+          prevType: "string" as FieldType,
+          prevOf: undefined,
+        },
       };
     }
 
@@ -95,7 +105,12 @@ export const setFieldType: Command<typeof setFieldTypeArgs> = {
       const newEntities = spec.data.entities.map((e, i) => (i === entityIndex ? updatedEntity : e));
       return {
         spec: { ...spec, data: { ...spec.data, entities: newEntities } },
-        inverseArgs: { entityName: args.entity, fieldIndex, prevType, prevOf } satisfies SetFieldTypeInverse,
+        inverseArgs: {
+          entityName: args.entity,
+          fieldIndex,
+          prevType,
+          prevOf,
+        } satisfies SetFieldTypeInverse,
       };
     }
 
@@ -103,7 +118,12 @@ export const setFieldType: Command<typeof setFieldTypeArgs> = {
     const updatedEntity: Entity = { ...entity, fields: updatedFields };
     const newEntities = spec.data.entities.map((e, i) => (i === entityIndex ? updatedEntity : e));
 
-    const inverseArgs: SetFieldTypeInverse = { entityName: args.entity, fieldIndex, prevType, prevOf };
+    const inverseArgs: SetFieldTypeInverse = {
+      entityName: args.entity,
+      fieldIndex,
+      prevType,
+      prevOf,
+    };
     return { spec: { ...spec, data: { ...spec.data, entities: newEntities } }, inverseArgs };
   },
 

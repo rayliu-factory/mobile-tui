@@ -43,9 +43,7 @@ describe("renameEntity command (D-54, D-62, cascade)", () => {
     expect(after1.data.entities.map((e) => e.name)).toContain("Task");
     expect(after1.data.entities.map((e) => e.name)).not.toContain("Habit");
     // submit.entity cascaded
-    const submitAction = Object.values(after1.actions).find(
-      (a) => a?.kind === "submit",
-    );
+    const submitAction = Object.values(after1.actions).find((a) => a?.kind === "submit");
     expect(submitAction?.kind === "submit" && submitAction.entity).toBe("Task");
 
     const { spec: restored } = renameEntity.invert(after1, before.astHandle, inverseArgs);
