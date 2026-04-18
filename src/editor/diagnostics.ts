@@ -35,10 +35,7 @@ export type EditorCode = (typeof EDITOR_CODES)[keyof typeof EDITOR_CODES];
  *
  * Returns an unsubscribe function matching store.subscribe's contract.
  */
-export function subscribeDiagnostics(
-  store: Store,
-  fn: (d: Diagnostic[]) => void,
-): () => void {
+export function subscribeDiagnostics(store: Store, fn: (d: Diagnostic[]) => void): () => void {
   return store.subscribe(({ diagnostics }) => {
     if (diagnostics.length > 0) fn(diagnostics);
   });

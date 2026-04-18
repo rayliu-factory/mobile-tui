@@ -3,8 +3,8 @@
 //
 // Test shape mirrors src/primitives/diagnostic.test.ts (grouped describe per concern).
 import { describe, expect, it } from "vitest";
-import { UNDO_STACK_CAP, clearRedo, pushUndo } from "./undo.ts";
 import type { UndoEntry } from "./undo.ts";
+import { clearRedo, pushUndo, UNDO_STACK_CAP } from "./undo.ts";
 
 function makeEntry(n: number): UndoEntry {
   return { commandName: `cmd-${n}`, args: { n }, inverseArgs: { prev: n - 1 } };

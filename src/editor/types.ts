@@ -13,10 +13,10 @@
 // Per D-53: store scope is spec-only ({ spec, astHandle, diagnostics, dirty, undoStack, redoStack }).
 //           No mode, wizardStep, or focus fields.
 import type { z } from "zod";
+import type { Spec } from "../model/index.ts";
 import type { Diagnostic } from "../primitives/diagnostic.ts";
 import type { AstHandle } from "../serialize/ast-handle.ts";
 import type { WriteResult } from "../serialize/write.ts";
-import type { Spec } from "../model/index.ts";
 
 /**
  * Per-command interface (D-56). Each command file exports a `Command<T>` where
@@ -29,16 +29,8 @@ import type { Spec } from "../model/index.ts";
 export interface Command<T extends z.ZodObject<any>> {
   name: string;
   argsSchema: T;
-  apply(
-    spec: Spec,
-    astHandle: AstHandle,
-    args: z.infer<T>,
-  ): { spec: Spec; inverseArgs: unknown };
-  invert(
-    spec: Spec,
-    astHandle: AstHandle,
-    inverseArgs: unknown,
-  ): { spec: Spec };
+  apply(spec: Spec, astHandle: AstHandle, args: z.infer<T>): { spec: Spec; inverseArgs: unknown };
+  invert(spec: Spec, astHandle: AstHandle, inverseArgs: unknown): { spec: Spec };
 }
 
 /**

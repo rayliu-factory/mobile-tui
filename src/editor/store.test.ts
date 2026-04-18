@@ -9,13 +9,14 @@ import { promises as fs } from "node:fs";
 import { join, resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
+import type { Spec } from "../model/index.ts";
 import type { Diagnostic } from "../primitives/diagnostic.ts";
+import type { ScreenId } from "../primitives/ids.ts";
 import type { AstHandle } from "../serialize/ast-handle.ts";
 import { parseSpecFile } from "../serialize/parse.ts";
 import { writeSpecFile } from "../serialize/write.ts";
-import type { Spec } from "../model/index.ts";
-import { createStore } from "./store.ts";
 import { EDITOR_CODES } from "./diagnostics.ts";
+import { createStore } from "./store.ts";
 import type { Snapshot } from "./types.ts";
 
 const TMP_DIR = resolve(process.cwd(), "tests", "tmp");
@@ -128,7 +129,9 @@ describe("notify snapshot discipline", () => {
       { stub: stubCommand },
     );
 
-    const errorFn = vi.fn(() => { throw new Error("subscriber error"); });
+    const errorFn = vi.fn(() => {
+      throw new Error("subscriber error");
+    });
     const goodFn = vi.fn();
 
     store.subscribe(errorFn);
@@ -154,7 +157,9 @@ describe("apply pipeline", () => {
     );
     const result = await store.apply("no-such-command", {});
     expect(result.ok).toBe(false);
-    expect(result.diagnostics.some((d) => d.code === EDITOR_CODES.EDITOR_COMMAND_NOT_FOUND)).toBe(true);
+    expect(result.diagnostics.some((d) => d.code === EDITOR_CODES.EDITOR_COMMAND_NOT_FOUND)).toBe(
+      true,
+    );
   });
 
   it("invalid args → ok:false + EDITOR_COMMAND_ARG_INVALID diagnostic", async () => {
@@ -167,7 +172,9 @@ describe("apply pipeline", () => {
     // tag must be string; pass number to fail Zod parse
     const result = await store.apply("stub", { tag: 42 });
     expect(result.ok).toBe(false);
-    expect(result.diagnostics.some((d) => d.code === EDITOR_CODES.EDITOR_COMMAND_ARG_INVALID)).toBe(true);
+    expect(result.diagnostics.some((d) => d.code === EDITOR_CODES.EDITOR_COMMAND_ARG_INVALID)).toBe(
+      true,
+    );
   });
 
   it("known command with valid args → ok:true, subscriber notified", async () => {
@@ -194,7 +201,9 @@ describe("apply pipeline", () => {
       { stub: stubCommand },
     );
     let received: Diagnostic[] | null = null;
-    store.subscribe((s) => { received = s.diagnostics; });
+    store.subscribe((s) => {
+      received = s.diagnostics;
+    });
     await store.apply("stub", { tag: "timing" });
     // Must be non-null synchronously after await (the await is the microtask boundary)
     expect(received).not.toBeNull();
@@ -315,7 +324,7 @@ describe("A1 canary (D-62 AST invert — byte-identical round-trip)", () => {
       apply: (spec: Spec, astHandle: AstHandle, args: z.infer<typeof addScreenArgs>) => {
         const insertedIndex = spec.screens.length;
         const newScreen = {
-          id: args.id,
+          id: args.id as ScreenId,
           title: args.title,
           kind: "regular" as const,
           variants: {
@@ -368,8 +377,10 @@ describe("A1 canary (D-62 AST invert — byte-identical round-trip)", () => {
     if (!byteIdentical) {
       console.error(
         "[A1 canary] DRIFT DETECTED — Strategy B fallback required!\n" +
-          "--- ORIGINAL ---\n" + originalBytes.toString("utf8").slice(0, 500) +
-          "\n--- WRITTEN ---\n" + writtenBytes.toString("utf8").slice(0, 500),
+          "--- ORIGINAL ---\n" +
+          originalBytes.toString("utf8").slice(0, 500) +
+          "\n--- WRITTEN ---\n" +
+          writtenBytes.toString("utf8").slice(0, 500),
       );
     }
 
