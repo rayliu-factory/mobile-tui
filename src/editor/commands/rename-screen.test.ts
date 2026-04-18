@@ -3,6 +3,7 @@
 //
 // Fixture: fixtures/habit-tracker.spec.md
 import { describe, expect, it } from "vitest";
+import type { ScreenId } from "../../primitives/ids.ts";
 import { parseSpecFile } from "../../serialize/index.ts";
 import { renameScreen } from "./rename-screen.ts";
 
@@ -19,7 +20,7 @@ async function loadFixture() {
 describe("renameScreen command (D-54, D-58 cascade, D-62)", () => {
   it("apply→invert→apply is idempotent: rename non-root screen", async () => {
     const before = await loadFixture();
-    const args = { from: "new_habit" as const, to: "create_habit" as const };
+    const args = { from: "new_habit" as ScreenId, to: "create_habit" as ScreenId };
 
     const { spec: after1, inverseArgs } = renameScreen.apply(before.spec, before.astHandle, args);
 
@@ -40,7 +41,7 @@ describe("renameScreen command (D-54, D-58 cascade, D-62)", () => {
   it("apply→invert→apply is idempotent: rename root screen", async () => {
     const before = await loadFixture();
     // 'home' is the root
-    const args = { from: "home" as const, to: "dashboard" as const };
+    const args = { from: "home" as ScreenId, to: "dashboard" as ScreenId };
 
     const { spec: after1, inverseArgs } = renameScreen.apply(before.spec, before.astHandle, args);
 
@@ -59,7 +60,7 @@ describe("renameScreen command (D-54, D-58 cascade, D-62)", () => {
   it("apply→invert→apply is idempotent: cascades through nav edges", async () => {
     const before = await loadFixture();
     // Use 'home' which has nav edges (as from/to)
-    const args = { from: "home" as const, to: "home_v2" as const };
+    const args = { from: "home" as ScreenId, to: "home_v2" as ScreenId };
 
     const { spec: after1, inverseArgs } = renameScreen.apply(before.spec, before.astHandle, args);
 

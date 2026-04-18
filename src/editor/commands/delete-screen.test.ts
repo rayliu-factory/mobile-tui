@@ -3,6 +3,7 @@
 //
 // Fixture: fixtures/habit-tracker.spec.md
 import { describe, expect, it } from "vitest";
+import type { ScreenId } from "../../primitives/ids.ts";
 import { parseSpecFile } from "../../serialize/index.ts";
 import { deleteScreen } from "./delete-screen.ts";
 
@@ -19,7 +20,7 @@ async function loadFixture() {
 describe("deleteScreen command (D-54, D-58 cascade, D-62)", () => {
   it("apply→invert→apply is idempotent: delete non-root screen", async () => {
     const before = await loadFixture();
-    const args = { id: "new_habit" as const };
+    const args = { id: "new_habit" as ScreenId };
 
     const { spec: after1, inverseArgs } = deleteScreen.apply(before.spec, before.astHandle, args);
 
@@ -44,7 +45,7 @@ describe("deleteScreen command (D-54, D-58 cascade, D-62)", () => {
   it("apply→invert→apply is idempotent: delete screen with nav edges", async () => {
     const before = await loadFixture();
     // 'home' likely has outgoing nav edges
-    const args = { id: "home" as const };
+    const args = { id: "home" as ScreenId };
 
     const { spec: after1, inverseArgs } = deleteScreen.apply(before.spec, before.astHandle, args);
 
@@ -65,7 +66,7 @@ describe("deleteScreen command (D-54, D-58 cascade, D-62)", () => {
   it("apply→invert→apply is idempotent: delete root screen (root reassigned)", async () => {
     const before = await loadFixture();
     // Delete the root screen 'home'; root should be reassigned to first remaining screen
-    const args = { id: "home" as const };
+    const args = { id: "home" as ScreenId };
 
     const { spec: after1, inverseArgs } = deleteScreen.apply(before.spec, before.astHandle, args);
 

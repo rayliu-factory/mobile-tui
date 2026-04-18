@@ -4,6 +4,7 @@
 // Fixture: fixtures/habit-tracker.spec.md (has 2 screens: home, new_habit)
 // Each test re-parses the fixture to reset astHandle state before each test.
 import { describe, expect, it } from "vitest";
+import type { ScreenId } from "../../primitives/ids.ts";
 import { parseSpecFile } from "../../serialize/index.ts";
 import { addScreen } from "./add-screen.ts";
 
@@ -21,17 +22,17 @@ describe("addScreen command (D-54, D-62)", () => {
   const fixtures = [
     {
       name: "regular screen",
-      args: { id: "settings", title: "Settings", kind: "regular" as const },
+      args: { id: "settings" as ScreenId, title: "Settings", kind: "regular" as const },
     },
     {
       name: "overlay screen",
-      args: { id: "filter_modal", title: "Filter", kind: "overlay" as const },
+      args: { id: "filter_modal" as ScreenId, title: "Filter", kind: "overlay" as const },
     },
     {
       name: "with back_behavior pop",
-      args: { id: "about", title: "About", kind: "regular" as const, back_behavior: "pop" as const },
+      args: { id: "about" as ScreenId, title: "About", kind: "regular" as const, back_behavior: "pop" as const },
     },
-  ] as const;
+  ];
 
   it.each(fixtures)("apply→invert→apply is idempotent: $name", async ({ args }) => {
     const before = await loadFixture();
