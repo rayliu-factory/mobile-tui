@@ -21,12 +21,14 @@ describe("renderImage (D-Claude, RESEARCH §Component Emitter Details §Image)",
     expect(r[0].startsWith("[img:")).toBe(true);
   });
 
-  it("empty alt falls back to `(no alt)` defensive literal", () => {
+  it("empty alt falls back to `(no alt)` inline defensive literal", () => {
     // Phase-1 schema requires alt; this is a defense-in-depth check.
+    // Plan 03-04 <behavior>: render `(no alt)` inline, single line, padded to width.
     const r = renderImage({ kind: "Image", source: "/a.png", alt: "" }, 60);
-    expect(r).toHaveLength(3);
-    expect(r.every((l) => l.length === 60)).toBe(true);
-    expect(r[1]).toContain("(no alt)");
+    expect(r).toHaveLength(1);
+    expect(r[0]).toHaveLength(60);
+    expect(r[0]).toContain("(no alt)");
+    expect(r[0].startsWith("(no alt)")).toBe(true);
   });
 
   it("rectangular contract: every line has length === width at varied widths", () => {

@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderSpacer (D-36) > size=sm → 1 blank line at width 1`] = `
+[
+  "                                                            ",
+]
+`;

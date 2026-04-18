@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderImage (D-Claude, RESEARCH §Component Emitter Details §Image) > default 3-line box at width 60 — alt visible 1`] = `
+[
+  "+--IMG---+                                                  ",
+  "| icon   |                                                  ",
+  "+--------+                                                  ",
+]
+`;

@@ -1,13 +1,20 @@
 // src/emit/wireframe/components/spacer.ts
-// renderSpacer — blank line(s) per D-36: sm=1, md=2, lg=3.
-// Implementation lands in Plan 03-04.
+// renderSpacer — blank line(s) per D-36: size → line-count mapping
+//   sm → 1 line
+//   md → 2 lines (DEFAULT; applies when size omitted)
+//   lg → 3 lines
+// Each line is a run of spaces at width (rectangular contract).
+//
+// THREAT T-03-04 (snapshot drift): pure function; no Date, no random.
 import type { ComponentNode } from "../../../model/component.ts";
 
 export function renderSpacer(
   node: Extract<ComponentNode, { kind: "Spacer" }>,
   width: number,
 ): string[] {
-  void node;
-  void width;
-  throw new Error("NYI: Plan 03-04 renderSpacer (scaffolded in 03-01)");
+  const count = node.size === "sm" ? 1 : node.size === "lg" ? 3 : 2;
+  const blank = " ".repeat(Math.max(0, width));
+  const out: string[] = [];
+  for (let i = 0; i < count; i++) out.push(blank);
+  return out;
 }
