@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderNavBar (D-37) > emits \`< Title\` + --- rule at width 60 1`] = `
+[
+  "< Home                                                      ",
+  "------------------------------------------------------------",
+]
+`;

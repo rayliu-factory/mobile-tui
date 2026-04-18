@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderTabBar (D-37, D-42) > emits --- rule + \`[ Home ] | [ Stats ] | [ Settings ]\` row at width 60 1`] = `
+[
+  "------------------------------------------------------------",
+  "[ Home ] | [ Stats ] | [ Settings ]                         ",
+]
+`;
