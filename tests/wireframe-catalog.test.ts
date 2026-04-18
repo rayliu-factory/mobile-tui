@@ -49,15 +49,63 @@ describe("wireframe catalog coverage (WIREFRAME-03)", () => {
     expect(missing).toEqual([]);
   });
 
-  // UNSKIP after Plan 03-08 ships variants.ts render() — renders every kind
-  // and asserts per-kind snapshot via renderNode(node, 60). Kept as a .skip
-  // stanza so the test file shape is complete at Wave-0 scaffolding time.
-  it.skip("renders every kind via render() — UNSKIP after Plan 03-08", async () => {
-    // Placeholder body: once render() lands, walk canonicals, call
-    // renderNode(node, 60) per encountered kind, and snapshot each.
+  // UNSKIPPED by Plan 03-08: render() is live; walk canonicals, call
+  // render(spec, screen.id), and assert per-kind fingerprint fragments
+  // appear somewhere in the aggregate output. Structural containers
+  // (Column/Row/ListItem/Spacer) are inferred via their children's glyphs
+  // and skipped from the fingerprint table.
+  it("every kind in COMPONENT_KINDS appears in at least one canonical render output", async () => {
+    const { render } = await import("../src/emit/wireframe/index.ts");
+    const { parseSpecFile } = await import("../src/serialize/index.ts");
+
+    const allOutputs: string[] = [];
     for (const name of CANONICAL) {
-      const kinds = await collectKindsFromFixture(name);
-      expect(kinds.size).toBeGreaterThan(0);
+      const r = await parseSpecFile(`fixtures/${name}.spec.md`);
+      if (!r.spec) throw new Error(`${name} failed to parse`);
+      for (const screen of r.spec.screens) {
+        allOutputs.push(render(r.spec, screen.id));
+      }
+    }
+    const combined = allOutputs.join("\n");
+
+    // Per-kind glyph fingerprints: fragments expected in at least one
+    // render output for each non-structural kind. Structural containers
+    // (Column/Row/ListItem/Spacer) have no own-glyph — their presence is
+    // inferred via children; marked `null` and skipped.
+    const kindFingerprints: Record<string, string[] | null> = {
+      Text: ["MY HABITS", "Habit Title", "Saving", "Title is required"],
+      Icon: ["[icon:"],
+      Divider: ["-----"],
+      Spacer: null,
+      Image: ["[img:", "+--IMG"],
+      Button: ["[[ ", "[ "],
+      TextField: [": _"],
+      Toggle: ["[ ]"],
+      SegmentedControl: ["< ", " | "],
+      Column: null,
+      Row: null,
+      Card: ["+--"],
+      List: ["list bound to"],
+      ListItem: null,
+      NavBar: ["---"],
+      TabBar: [" | ["],
+      Modal: ["+-- Modal"],
+      Sheet: ["+-- Sheet"],
+    };
+
+    for (const kind of COMPONENT_KINDS) {
+      const fps = kindFingerprints[kind];
+      if (fps === null) continue; // structural — skip fingerprint check
+      if (fps === undefined) {
+        throw new Error(`catalog coverage: no fingerprint table entry for kind "${kind}"`);
+      }
+      const matched = fps.some((fp) => combined.includes(fp));
+      if (!matched) {
+        throw new Error(
+          `catalog coverage: kind "${kind}" has no fingerprint in render output ` +
+            `(looked for: ${JSON.stringify(fps)})`,
+        );
+      }
     }
   });
 });
