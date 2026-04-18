@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 3 Wave-0 scaffold COMPLETE (Plan 03-01) — ready for Wave 1 (Plans 03-02/03-03)
-last_updated: "2026-04-18T17:16:45.000Z"
+status: Phase 3 Wave 1 — Plan 03-02 (layout primitives) COMPLETE; Plan 03-03 (text-style + overflow) still pending before Wave 2 emitters can ship
+last_updated: "2026-04-18T05:35:00.000Z"
 progress:
   total_phases: 9
   completed_phases: 2
-  total_plans: 14
-  completed_plans: 14
-  percent: 100
+  total_plans: 22
+  completed_plans: 15
+  percent: 68
 ---
 
 # mobile-tui — STATE
@@ -26,22 +26,25 @@ Project memory. Updated at every phase transition and plan completion.
 ## Current Position
 
 Phase: 03 (wireframe-renderer-dogfood-gate) — IN PROGRESS
-Plan: 1 of 9 complete (Wave 0 scaffold landed)
+Plan: 2 of 9 complete (Wave 0 scaffold + Wave 1 layout primitives landed)
 **Milestone**: v1
 **Phase**: 3 — Wireframe Renderer & Dogfood Gate — IN PROGRESS
-**Plan**: Plan 03-01 (Wave 0 scaffold) COMPLETE. Ready for Wave 1 (Plans 03-02 layout + 03-03 text-style/overflow, parallelizable).
+**Plan**: Plans 03-01 (Wave 0 scaffold) + 03-02 (layout primitives) COMPLETE. Ready for Plan 03-03 (text-style + overflow) which will UNSKIP the 3 deferred `truncate`-path tests in `src/emit/wireframe/layout.test.ts`. After 03-03, Wave 2 (Plans 03-04..03-07 per-kind emitters, parallelizable) is unblocked.
+**Plan 03-02 status**: CLOSED. `src/emit/wireframe/layout.ts` ships the 60-col frame composer: `PHONE_WIDTH=60` + `VariantKind` + `buildVariantHeader` (3-stage overflow cascade per RESEARCH Pitfall 5, preserves `screen:`+`variant:` metadata at stage 3) + `padRight` (delegates to truncate on overflow) + `drawFrame` (rectangular `| ... |` body rows + `+---+` borders; zero-height `[border, border]` collapse for empty body per D-39). 12 new active assertions + 3 `.skip` (UNSKIP after Plan 03-03 ships `truncate`). Full suite 439 pass + 6 skip across 34 files (baseline 427/3 → +12/+3). `npx tsc --noEmit` + `npx biome check .` clean. **Two Rule-1 plan-spec deviations landed**: (1) plan's canonical at-60-cols test used a when-expr (`collection /Habit/title`) that made stage 1 mathematically impossible — content=60 chars needs 66-col frame; fixed by shortening to `collection /H/t` (15 chars); D-40 shape lock preserved; (2) plan's "moderate/extreme overflow" tests at width 60 landed in stage 3 (truncate path), not stage 2 — reclassified as `.skip` per plan's own truncate-path-skip pattern; added compensating `stage-2 fit` test (screenId `"a"` + when `"collection /Ent/fldXX"` → content.length=55 → stage 2 fits exactly at 60 cols). Commits: 938466e (test RED) → b0e7bda (feat GREEN).
 **Status**: Phase 2 CLOSED. Wave 4 shipped the real `parseSpecFile` orchestrator (retired Wave-0 `.spec.json`-sibling stub), landed the 20-fixture `Buffer#equals` round-trip matrix (covering 3 triple-form canonicals + 3 sigil rewrites + 3 comment variants + 4 top-level key reorders + 2 unknown-top-level keys + 2 YAML-1.1 gotchas + empty-body + comment-only-body + nested-block-scalar), validated the three-layer prototype-pollution defense (parse emits error + write returns `{written: false}` + no disk artifacts), and deleted all 4 `.spec.json` Phase-1 scaffolding files. Full suite: 425/425 tests green across 30 files (was 393 baseline; +32 new — 9 parse.test.ts + 23 round-trip.test.ts). Coverage: 95.06% stmts on `src/serialize/`. `npx tsc --noEmit` + `npx biome check .` + `npx vitest run --coverage` all exit 0. **TWO Rule-1 deviations landed during execution**: (1) parse.ts steps 6/7 swapped — sigil normalization MUST run before partition (partitionTopLevel's toJSON() snapshot froze the raw sigil form, failing Phase-1's printable-ASCII + SIGIL validators); (2) write.ts step 6 switched from `doc.toString()` to full CST token-stream emit via `Parser.parse` on the matter substring — yaml@^2.8.3's `doc.toString()` normalizes inline-comment spacing (collapses 2+ spaces before `#` to 1) and relocates inline comments onto their own line, both breaking byte-identical round-trip. Leading document-level comments (CST tokens sibling to doc.contents) are also preserved via the full-stream emit. Schema-inject fallback retains `doc.toString()` for the newly-injected pair. Commits: cfd0bd2 (fixtures) → a5db9e3 (parse RED) → e9469db (parse GREEN) → 55f2228 (round-trip RED) → efd5e52 (round-trip GREEN + parse-order + CST-emit Rule-1 fixes) → 30cbfaf (.spec.json deletion).
 
 ## Wave-3 state (superseded — retained for context)
+
 Wave 3 write-path CLOSED. `src/serialize/atomic.ts` ships `atomicWrite(targetPath, contents): Promise<{written, tmpOrphan}>` (POSIX primitive: `fs.writeFile(.{base}.tmp)` → `fs.rename` — same-device atomic; writeFile failure path best-effort `fs.unlink(.tmp)` + re-throw; rename failure AFTER writeFile leaves `.tmp` + returns orphan path per D-30) + `detectOrphanTmp(targetPath): Promise<string|null>` (orphan-detection hook for parse.ts Plan 05). `src/serialize/write.ts` ships `writeSpecFile(path, spec, astHandle): Promise<{written, diagnostics}>` with the full 9-step pipeline: (0) BLOCKER fix #3 — `partitionTopLevel(doc)` re-scan; if `unknownKeys ∩ ADVERSARIAL_KEYS` non-empty → `{written: false, diagnostics: [SPEC_UNKNOWN_TOP_LEVEL_KEY error]}` with zero disk I/O (defense-in-depth Layer 3 — Layer 1 is unknown.ts which strips adversarial from knownSubset, Layer 2 is parse.ts Plan 05 SPEC_UNKNOWN_TOP_LEVEL_KEY emission); (1) D-31 save-gate via `validateSpec(spec).diagnostics.some(d => d.severity === 'error')` → `{written: false}` with zero disk I/O, never throws on schema-error input; (2) `injectSchemaIfAbsent(doc)` idempotent first-save inject; (3-5) diff-apply / sigil re-emit / SERDE-07 auto-quote — SERDE-07 runs inline in `setScalarPreserving`; diff-apply + partial-sigil-drop reserved for Phase-4; (6) `doc.toString()` ARGLESS (yaml@^2.8.3 `ToStringOptions` excludes `version` per 02-03 quirk carryover); (7) BLOCKER fix #1 manual splice `"---" + LE + newMatter + "---" + closingDelimiterTerminator + bodyBytes` — honors LF, empty-body `""`, and CRLF terminators verbatim for Buffer.equals round-trip; (8) `atomicWrite(path, output)`. Helper `setScalarPreserving(doc, path, newValue)` uses `CST.setScalarValue(token)` with no context (preserves previous quoting) in common path; passes `{type: 'QUOTE_DOUBLE'}` for YAML 1.1 gotcha strings (yes/no/on/off/y/n/true/false, case-insensitive — SERDE-07) to prevent round-trip regression to implicit-boolean under YAML 1.1 parsers. 19 new unit tests across 2 co-located files (7 atomic + 12 write). Full gate GREEN: `npx vitest run` 393/393 across 28 files (was 374 baseline; +19 Plan 02-04); `npx tsc --noEmit` 0 errors; `npx biome check .` 0 errors. Phase-1 + Wave-0/1/2 regression intact. SERDE-03 anti-grep gate clean: no `YAML.stringify(…)` or `stringify(spec…)` anywhere in `src/serialize/`. BLOCKER fix #3 false-positive scan: all 3 canonical fixtures (habit-tracker/todo/social-feed) → `unknownKeys: []` (zero false positives).
 
 ## Wave-2 state (superseded — retained for context)
+
 Wave 2 transform primitives closed. src/serialize/sigil.ts ships `SIGIL_REGEX = /^\[(.+?) →([a-z][a-z0-9_]*) test:([a-z][a-z0-9_]*)\]$/` (anchored, non-backtracking — T-01-01 ReDoS-safe on 100KB input per dedicated regression), `INTERACTABLE_KINDS: ReadonlySet<string>` = 5-element set {Button, TextField, Toggle, SegmentedControl, ListItem} mirroring src/model/component.ts InteractableBase consumers (TabBar excluded per 01-04 inline-extended decision), pure `parseSigil(str): SigilTriple | null`, fresh-WeakMap factory `createSigilOriginsMap()`, and `normalizeSigilsOnDoc(doc, wm)` walking `doc[screens]` via isMap/isSeq/isScalar type guards — on sigil match: splits label scalar → triple, adds/updates action + testID pairs on the YAMLMap, records `'sigil'` origin; else records `'triple'`; non-interactables skipped (no WeakMap entry). src/serialize/schema-inject.ts ships idempotent `injectSchemaIfAbsent(doc): boolean` — returns false on doc.has('schema') early-return; mutation path creates schema pair via `doc.createPair('schema', SCHEMA_VERSION)` (literal NEVER inlined — imported from `../model/index.ts`), unshifts at items[0] position (D-28), sets `items[1].key.spaceBefore = true` to force blank line between schema and original first key (Pitfall 6 anchor). Empty/non-map doc handled via `doc.createNode({schema: SV}, {flow: false})`. 34 new unit tests across 2 co-located files all green (26 sigil + 8 schema-inject). Full gate GREEN: `npx vitest run` 374/374 across 26 files (was 340 baseline; +34 Plan 02-03); `npx tsc --noEmit` 0 errors; `npx biome check .` 0 errors. Phase-1 + Wave-0 + Wave-1 regression intact. Quirk noted for Plan 02-04: `doc.toString()` in yaml@^2.8.3 does NOT accept `{ version: '1.2' }` (`ToStringOptions` excludes `version`); parse-time version is sticky on the Document — emit-time call is argless or formatting-opts only.
 
-**Progress**: Phase 1/9 complete (Phase 1 all 8 plans shipped). Phase 2 CLOSED (all 5 plans shipped). Phase 3 next.
+**Progress**: Phase 1/9 complete (Phase 1 all 8 plans shipped). Phase 2 CLOSED (all 5 plans shipped). Phase 3 IN PROGRESS — 2 of 9 plans shipped (03-01 Wave-0 scaffold + 03-02 layout primitives).
 
 ```
-[██████████] 100% — Phase 2 all 5 plans complete
+[███████░░░] 68% — Phase 3 Wave 1 Plan 02 complete (2/9 Phase-3 plans)
 ```
 
 ## Performance Metrics
@@ -63,6 +66,7 @@ Wave 2 transform primitives closed. src/serialize/sigil.ts ships `SIGIL_REGEX = 
 | Phase 02-serialization-round-trip P04 | 6m 23s | 2 tasks | 3 files + 1 modified |
 | Phase 02-serialization-round-trip P05 | 15m 28s | 3 tasks | 21 created + 2 modified + 4 deleted |
 | Phase 03-wireframe-renderer-dogfood-gate P01 | ~6m | 3 tasks | 31 created + 2 modified |
+| Phase 03-wireframe-renderer-dogfood-gate P02 | 5m | 2 tasks | 2 files |
 
 ### Plan Timing
 
@@ -82,6 +86,7 @@ Wave 2 transform primitives closed. src/serialize/sigil.ts ships `SIGIL_REGEX = 
 | 02-04 (Wave 3 write path: atomic + writeSpecFile) | 6m 23s | 2 (4 TDD commits) | 3 + 1 modified |
 | 02-05 (Wave 4 E2E round-trip + real parseSpecFile + 20-fixture matrix) | 15m 28s | 3 (6 commits: 3 TDD + 1 fixture + 1 refactor) | 21 created + 2 modified + 4 deleted |
 | 03-01 (Wave 0 wireframe-renderer scaffold + CLI stub + 3 integration harnesses) | ~6m | 3 (3 commits: 1 RED + 2 GREEN) | 31 created + 2 modified |
+| 03-02 (Wave 1 layout primitives: PHONE_WIDTH + buildVariantHeader + padRight + drawFrame) | ~5m | 2 (2 commits: 1 RED + 1 GREEN) | 1 created + 1 modified |
 
 ## Accumulated Context
 
@@ -184,6 +189,12 @@ Wave 2 transform primitives closed. src/serialize/sigil.ts ships `SIGIL_REGEX = 
 - **[03-01] Wave-0 scaffold pattern: NYI stubs carry BOTH current-plan and future-plan tags** — every stub body throws `new Error("NYI: Plan 03-NN <fnName> (scaffolded in 03-01)")`. Current plan tag confirms who built the scaffold; future plan tag routes downstream executors to the right follow-up (03-02 layout, 03-03 style/overflow, 03-04 leaves, 03-05 interactables, 03-06 structural, 03-07 chrome+overlays, 03-08 composition). Proven end-to-end via `npx tsx scripts/render-wireframe.ts fixtures/habit-tracker.spec.md home` → `error: NYI: Plan 03-08 render` + exit code 1. Reusable for any future phase-spanning scaffolding that needs to ship compile-green intermediate state.
 - **[03-01] EXPLICIT-NAMED barrel carried forward to src/emit/wireframe/index.ts** — matches the Phase-1 `src/model/index.ts` + Phase-2 `src/serialize/index.ts` precedent. Public exports: `PHONE_WIDTH`, `VariantKind`, `RenderOptions`, `render`, `renderAllVariants`. Per-kind emitters stay INTERNAL (importable from leaf `src/emit/wireframe/components/*.ts` only by co-located tests); Phase 4 store + Phase 5 canvas + Phase 8 :yank handler consume the barrel, never individual emitters.
 - **[03-01] Auto-fixed test-side bugs (4 × Rule-1)** — (a) `let entries` needed explicit `Dirent[]` type annotation against Biome's `noImplicitAnyLet`; (b) `YAML.parse(s) as object` cast required for gray-matter's `engines.yaml.parse: (str: string) => object` contract; (c) added sanity `expect(Array.isArray(files)).toBe(true)` to ASCII-baseline test so Wave-0 zero-file run still exercises one assertion; (d) Biome 2-space indent + 100-col single-line signature collapse on row.ts and variants.ts. All test-side or purely cosmetic; no production semantics changed.
+- **[03-02] layout.ts 3-stage header overflow cascade** (`--+` → `-+` → truncate-with-ellipsis) lands per RESEARCH Pitfall 5. `buildVariantHeader` preserves load-bearing `screen:` + `variant:` metadata at stage 3 via `truncate(content.trim(), avail)` + `padRight` fill to `width - 8`. Implementation mirrors RESEARCH §Code Examples lines 783-810 structure verbatim; only difference is defensive `Math.max(0, width - 2)` in `drawFrame` for negative-width robustness.
+- **[03-02] Plan's canonical at-60-cols test had width-arithmetic spec bug** — `buildVariantHeader("home", "empty", "collection /Habit/title", 60)` with `.toContain("when collection /Habit/title")` was mathematically impossible at width 60 (content = 60 chars → stage 1 needs 66 cols). Rule-1 fix: shortened when-expr to `collection /H/t` (15 chars) so stage 1 fits with padLen=1. D-40 `+-- ... --+` canonical shape lock preserved; only the specific when-expr string changed. Determinism test updated to use the same short when-expr.
+- **[03-02] Plan's "moderate overflow" + "extreme overflow" tests at width 60 actually landed in stage 3, not stage 2** — plan-supplied screenIds (`"very-long-screen-id"` + `"supercalifragilisticexpialidocious-..."`) produced content lengths 83 and 135 respectively; at width 60 both require stage 3 (truncate). Reclassified both as `it.skip("UNSKIP after Plan 03-03 ships truncate — ...")` matching the plan's own Test 9 skip pattern for `padRight>width` path. Added compensating `stage-2 fit` test: screenId `"a"` + when `"collection /Ent/fldXX"` → content.length=55 → stage1=61 cols (fails by 1), stage2=60 cols (fits exactly). This is the FIRST test in the suite that actually exercises the stage-2 branch without the truncate dependency.
+- **[03-02] `drawFrame([])` zero-height null-marker shape decided at the primitive layer** — returns `[border, border]` (2 rows, no body). Prevents Plan 03-08 from re-deciding "what does an empty variant body look like" at composition time. Load-bearing for D-39's `loading/empty/error` variants that may legitimately have zero body content.
+- **[03-02] Array-access nullability pattern carried forward** — `src/serialize/body.test.ts`'s `if (x === null) throw new Error(...)` early-throw narrowing extends to `noUncheckedIndexedAccess`-triggered array accesses in `drawFrame` tests (`const [top, body, bottom] = frame; if (top === undefined || ...) throw ...`). Same discipline, different error class. Reusable for any future co-located test that asserts on array returns.
+- **[03-02] TDD RED-then-GREEN landed atomically per Phase 1/2 convention** — `test(03-02):` RED commit (938466e) has 12 failing + 1 passing (PHONE_WIDTH sanity) + 1 `.skip`. `feat(03-02):` GREEN commit (b0e7bda) lands the implementation + the Rule-1 test-side fixups. Final state: 12 active pass + 3 skip (plan's original 13 active became 12 after 2 reclassifications + 1 new stage-2 test = 12 active; +2 additional skips for the reclassified tests). Full-suite 439 pass / 6 skip (baseline 427 / 3 → +12 / +3).
 
 ### Open TODOs
 
