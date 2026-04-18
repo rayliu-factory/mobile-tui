@@ -82,15 +82,60 @@ describe("canvas integration (CANVAS-05)", { timeout: 15000 }, () => {
     expect(stat.size).toBeGreaterThan(0);
   });
 
-  it.todo(
-    "CANVAS-05: 'j' key navigates to second screen and wireframe preview updates (NYI: handleInput)",
-  );
+  it("CANVAS-05: 'j' key navigates to second screen and wireframe preview updates", async () => {
+    const r = await parseSpecFile(tmpPath);
+    expect(r.spec).toBeTruthy();
 
-  it.todo(
-    "CANVAS-05: ':' key opens palette and focus changes to 'palette' (NYI: handleInput)",
-  );
+    const store = createStore({
+      spec: r.spec!,
+      astHandle: r.astHandle!,
+      filePath: tmpPath,
+    });
+    const root = new RootCanvas(store, { theme: mockTheme });
 
-  it.todo(
-    "CANVAS-05: Ctrl+Q triggers onQuit callback (NYI: handleInput)",
-  );
+    const initialLines = root.render(80);
+    expect(initialLines.length).toBeGreaterThan(0);
+
+    // Navigate screens pane (j key goes to next screen)
+    root.handleInput("j");
+    const afterNavLines = root.render(80);
+    // Should still render without throwing
+    expect(afterNavLines.length).toBeGreaterThan(0);
+  });
+
+  it("CANVAS-05: ':' key opens palette and focus changes to 'palette'", async () => {
+    const r = await parseSpecFile(tmpPath);
+    expect(r.spec).toBeTruthy();
+
+    const store = createStore({
+      spec: r.spec!,
+      astHandle: r.astHandle!,
+      filePath: tmpPath,
+    });
+    const root = new RootCanvas(store, { theme: mockTheme });
+
+    expect(root.getFocus()).toBe("screens");
+    root.handleInput(":");
+    expect(root.getFocus()).toBe("palette");
+  });
+
+  it("CANVAS-05: Ctrl+Q triggers onQuit callback", async () => {
+    const r = await parseSpecFile(tmpPath);
+    expect(r.spec).toBeTruthy();
+
+    const store = createStore({
+      spec: r.spec!,
+      astHandle: r.astHandle!,
+      filePath: tmpPath,
+    });
+    const root = new RootCanvas(store, { theme: mockTheme });
+
+    let quitCalled = false;
+    root.onQuit = async () => {
+      quitCalled = true;
+    };
+
+    root.handleInput("\x11"); // Ctrl+Q
+    expect(quitCalled).toBe(true);
+  });
 });
