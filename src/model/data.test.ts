@@ -96,7 +96,9 @@ describe("DataModelSchema", () => {
     ).toBe(true);
   });
 
-  it("rejects empty entities array", () => {
-    expect(DataModelSchema.safeParse({ entities: [] }).success).toBe(false);
+  // Phase-6: .min(1) relaxed to .min(0) — new wizard specs start with empty entities.
+  // The old "rejects empty entities array" test is replaced by this acceptance test.
+  it("accepts empty entities array (.min(0) — wizard spec has no entities yet)", () => {
+    expect(DataModelSchema.safeParse({ entities: [] }).success).toBe(true);
   });
 });

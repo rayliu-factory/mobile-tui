@@ -52,7 +52,12 @@ export type Entity = z.infer<typeof EntitySchema>;
 
 export const DataModelSchema = z
   .object({
-    entities: z.array(EntitySchema).min(1, "data model must declare at least one entity"),
+    // Phase-6: relaxed from .min(1) to .min(0) — a new wizard spec has no
+    // entities until step 6 of the wizard flow. The old min(1) was a
+    // correctness gate for fully-authored specs; wizard introduces valid
+    // partially-filled specs. Entity presence is enforced by the graduation
+    // gate (Phase-6 Plan 05) not at the schema level.
+    entities: z.array(EntitySchema).min(0),
   })
   .strict();
 export type DataModel = z.infer<typeof DataModelSchema>;

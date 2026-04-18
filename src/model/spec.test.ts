@@ -123,6 +123,46 @@ describe("SpecSchema", () => {
     expect(SpecSchema.safeParse(richer).success).toBe(true);
   });
 
+  // Phase-6 wizard schema extension tests — RED until spec.ts is edited.
+  it("WIZARD accepts app_idea optional field (backward compat)", () => {
+    const withWizard = { ...minimalSpec, app_idea: "A habit tracking app" };
+    expect(SpecSchema.safeParse(withWizard).success).toBe(true);
+  });
+
+  it("WIZARD accepts nav_pattern optional enum field", () => {
+    const withNav = { ...minimalSpec, nav_pattern: "tab_bar" as const };
+    expect(SpecSchema.safeParse(withNav).success).toBe(true);
+  });
+
+  it("WIZARD accepts auth optional enum field", () => {
+    const withAuth = { ...minimalSpec, auth: "email_password" as const };
+    expect(SpecSchema.safeParse(withAuth).success).toBe(true);
+  });
+
+  it("WIZARD accepts offline_sync optional enum field", () => {
+    const withSync = { ...minimalSpec, offline_sync: "read_only" as const };
+    expect(SpecSchema.safeParse(withSync).success).toBe(true);
+  });
+
+  it("WIZARD accepts target_platforms optional array field", () => {
+    const withPlatforms = { ...minimalSpec, target_platforms: ["ios", "android"] as const };
+    expect(SpecSchema.safeParse(withPlatforms).success).toBe(true);
+  });
+
+  it("WIZARD accepts primary_user optional string field", () => {
+    const withUser = { ...minimalSpec, primary_user: "fitness enthusiasts" };
+    expect(SpecSchema.safeParse(withUser).success).toBe(true);
+  });
+
+  it("WIZARD existing spec without wizard fields still passes (backward compat)", () => {
+    expect(SpecSchema.safeParse(minimalSpec).success).toBe(true);
+  });
+
+  it("WIZARD rejects invalid nav_pattern enum value", () => {
+    const bad = { ...minimalSpec, nav_pattern: "drawer_bad" };
+    expect(SpecSchema.safeParse(bad).success).toBe(false);
+  });
+
   it("rejects an unknown component kind nested deep in a screen tree", () => {
     const bad = {
       ...minimalSpec,
