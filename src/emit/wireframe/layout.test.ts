@@ -33,11 +33,11 @@ describe("buildVariantHeader (D-40, D-41)", () => {
     expect(header).not.toContain("when ");
   });
 
-  it.skip("UNSKIP after Plan 03-03 ships truncate — moderate overflow degrades to single-dash close `-+`", () => {
+  it("moderate overflow degrades to single-dash close `-+` — unskipped after Plan 03-03", () => {
     // Pick a case where full `--+` overflows by 1 char; -+ saves it.
     // NOTE: stage 2 at this screenId length also overflows, so this actually
     // tests stage-3 truncation (see also the extreme-overflow test below).
-    // Depends on truncate() — unskipped when Plan 03-03 lands.
+    // Now running after Plan 03-03.
     const header = buildVariantHeader(
       "very-long-screen-id",
       "loading",
@@ -50,7 +50,8 @@ describe("buildVariantHeader (D-40, D-41)", () => {
     expect(endsCorrectly).toBe(true);
   });
 
-  it.skip("UNSKIP after Plan 03-03 ships truncate — extreme overflow truncates content with ...", () => {
+  it("extreme overflow truncates content with ... — unskipped after Plan 03-03", () => {
+    // Now running after Plan 03-03.
     const header = buildVariantHeader(
       "supercalifragilisticexpialidocious-screen-identifier",
       "error",
@@ -116,7 +117,8 @@ describe("padRight", () => {
     expect(out).toBe("exactly-10");
   });
 
-  it.skip("UNSKIP after Plan 03-03 ships truncate — delegates to truncate when input exceeds width", () => {
+  it("delegates to truncate when input exceeds width — unskipped after Plan 03-03", () => {
+    // Now running after Plan 03-03.
     const out = padRight("this-is-longer-than-width", 10);
     expect(out.length).toBe(10);
     expect(out.endsWith("...")).toBe(true);

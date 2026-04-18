@@ -61,9 +61,29 @@ export function buildVariantHeader(
     return `+--${content}${"-".repeat(padLen)}-+`;
   }
 
-  // Stage 3: truncate content; preserve `screen:` + `variant:` metadata.
-  // Frame overhead = `+-- ` (4) + ` --+` (4) = 8 chars.
+  // Stage 3: truncate overlong parts; preserve `screen:` + `variant:` metadata
+  // intact per RESEARCH Pitfall 5. We shave the screenId (and, if present, the
+  // when-expr) rather than the tail of the composed string — otherwise
+  // `variant:` falls off the right edge. Frame overhead = `+-- ` + ` --+` = 8.
   const avail = width - "+--  --+".length;
-  const truncatedInner = truncate(content.trim(), avail);
-  return `+-- ${padRight(truncatedInner, avail)} --+`;
+  const variantSegment = `variant: ${kind}`;
+  const screenLabel = "screen: ";
+  // Fixed: 2-space gap between screen and variant segments.
+  const fixedOverhead = screenLabel.length + "  ".length + variantSegment.length;
+  // Budget remaining for screenId, and for ` when <expr>` if present.
+  const remaining = avail - fixedOverhead;
+  if (remaining <= 0) {
+    // Extreme degenerate: not even `screen: X  variant: <kind>` fits.
+    // Fall back to blind truncate of the full content to stay within width.
+    return `+-- ${padRight(truncate(content.trim(), avail), avail)} --+`;
+  }
+  // Allocate screenId first; reserve space for when-expr if present.
+  const whenSuffix = whenExpr ? `  when ${whenExpr}` : "";
+  const minScreenId = Math.min(3, screenId.length);
+  const whenBudget = Math.max(0, remaining - minScreenId);
+  const truncatedWhen = whenSuffix ? truncate(whenSuffix, whenBudget) : "";
+  const screenBudget = remaining - truncatedWhen.length;
+  const truncatedScreenId = truncate(screenId, Math.max(0, screenBudget));
+  const inner = `${screenLabel}${truncatedScreenId}  ${variantSegment}${truncatedWhen}`;
+  return `+-- ${padRight(inner, avail)} --+`;
 }
