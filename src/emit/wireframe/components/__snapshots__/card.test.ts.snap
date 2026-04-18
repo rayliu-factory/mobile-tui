@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderCard (D-36) > wraps child in \`+--+\` box at width 60 1`] = `
+[
+  "+----------------------------------------------------------+",
+  "| content                                                  |",
+  "+----------------------------------------------------------+",
+]
+`;

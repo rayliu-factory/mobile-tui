@@ -12,10 +12,7 @@ function firstLine(lines: string[]): string {
 
 describe("renderListItem (D-36, D-42)", () => {
   it("container ListItem: vertical concat of children", () => {
-    const r = renderListItem(
-      { kind: "ListItem", children: [{ kind: "Text", text: "row" }] },
-      60,
-    );
+    const r = renderListItem({ kind: "ListItem", children: [{ kind: "Text", text: "row" }] }, 60);
     expect(r).toHaveLength(1);
     const line = firstLine(r);
     expect(line.startsWith("row")).toBe(true);
@@ -44,10 +41,7 @@ describe("renderListItem (D-36, D-42)", () => {
     const r = renderListItem(
       {
         kind: "ListItem",
-        children: [
-          { kind: "Text", text: "a" },
-          { kind: "Divider" },
-        ],
+        children: [{ kind: "Text", text: "a" }, { kind: "Divider" }],
       },
       40,
     );
@@ -59,10 +53,7 @@ describe("renderListItem (D-36, D-42)", () => {
     const r = renderListItem(
       {
         kind: "ListItem",
-        children: [
-          { kind: "Text", text: "a" },
-          { kind: "Divider" },
-        ],
+        children: [{ kind: "Text", text: "a" }, { kind: "Divider" }],
       },
       40,
     );
