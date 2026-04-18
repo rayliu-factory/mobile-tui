@@ -243,29 +243,58 @@ describe("canvas pane rendering (CANVAS-01, CANVAS-03, CANVAS-04)", () => {
     expect(lines.length).toBeGreaterThan(0);
   });
 
-  it.todo(
-    "CANVAS-01: root.render(80) produces lines of at most 80 visible chars (NYI: full render)",
-  );
+  it("CANVAS-01: root.render(80) produces lines of at most 80 visible chars", () => {
+    const store = makeStubStore();
+    const root = new RootCanvas(store, { theme: mockThemePassthrough });
+    const lines = root.render(80);
+    expect(lines.length).toBeGreaterThan(0);
+    for (const line of lines) {
+      const visible = line.replace(/\x1b\[[0-9;]*m/g, "");
+      expect(visible.length).toBeLessThanOrEqual(80);
+    }
+  });
 
-  it.todo(
-    "CANVAS-03: help line shows '[j/k] navigate' when focus is 'screens' (NYI: renderHelpLine)",
-  );
+  it("CANVAS-03: root render contains '[j/k] navigate' when focus is 'screens'", () => {
+    const store = makeStubStore();
+    const root = new RootCanvas(store, { theme: mockThemePassthrough });
+    // Default focus is 'screens'
+    const output = root.render(200).join("\n");
+    expect(output).toContain("[j/k] navigate");
+  });
 
-  it.todo(
-    "CANVAS-03: help line shows '[↑↓] navigate' when focus is 'palette' (NYI: renderHelpLine)",
-  );
+  it("CANVAS-03: root render contains '[↑↓] navigate' when focus is 'palette'", () => {
+    const store = makeStubStore();
+    const root = new RootCanvas(store, { theme: mockThemePassthrough });
+    root.handleInput(":"); // open palette
+    const output = root.render(200).join("\n");
+    expect(output).toContain("[↑↓] navigate");
+  });
 
-  it.todo(
-    "CANVAS-04: save indicator shows ● when dirty (NYI: renderSaveIndicator)",
-  );
+  it("CANVAS-04: root render shows ● when dirty", () => {
+    const store = makeStubStore();
+    store._setDirty(true);
+    const root = new RootCanvas(store, { theme: mockThemePassthrough });
+    const output = root.render(80).join("\n");
+    expect(output).toContain("●");
+  });
 
-  it.todo(
-    "CANVAS-04: save indicator shows ✓ when clean (NYI: renderSaveIndicator)",
-  );
+  it("CANVAS-04: root render shows ✓ when clean", () => {
+    const store = makeStubStore();
+    const root = new RootCanvas(store, { theme: mockThemePassthrough });
+    const output = root.render(80).join("\n");
+    expect(output).toContain("✓");
+  });
 
-  it.todo(
-    "CANVAS-01: render output lines respect narrow terminal width of 40 (NYI: calcPaneWidths)",
-  );
+  it("CANVAS-01: render output lines respect narrow terminal width of 40", () => {
+    const store = makeStubStore();
+    const root = new RootCanvas(store, { theme: mockThemePassthrough });
+    const lines = root.render(40);
+    expect(lines.length).toBeGreaterThan(0);
+    for (const line of lines) {
+      const visible = line.replace(/\x1b\[[0-9;]*m/g, "");
+      expect(visible.length).toBeLessThanOrEqual(40);
+    }
+  });
 });
 
 // ── ScreensListPane tests (plan 05-03, CANVAS-01) ────────────────────────────
