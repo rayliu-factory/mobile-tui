@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderSegmentedControl (D-34, D-42) > renders \`< Day | Week | Month >\` padded to width (no selection in v1) 1`] = `
+[
+  "< Day | Week | Month >                                      ",
+]
+`;

@@ -87,24 +87,15 @@ describe("renderTextField (D-34, D-42)", () => {
   });
 
   it("is deterministic (byte-equal on repeated calls)", () => {
-    const a = renderTextField(
-      { kind: "TextField", label: "X", action: "a", testID: "b" },
-      40,
-    );
-    const b = renderTextField(
-      { kind: "TextField", label: "X", action: "a", testID: "b" },
-      40,
-    );
+    const a = renderTextField({ kind: "TextField", label: "X", action: "a", testID: "b" }, 40);
+    const b = renderTextField({ kind: "TextField", label: "X", action: "a", testID: "b" }, 40);
     expect(a).toEqual(b);
   });
 
   it("rectangular contract: every line has length === width across widths", () => {
     const widths = [10, 20, 40, 60];
     for (const w of widths) {
-      const r = renderTextField(
-        { kind: "TextField", label: "Lbl", action: "a", testID: "b" },
-        w,
-      );
+      const r = renderTextField({ kind: "TextField", label: "Lbl", action: "a", testID: "b" }, w);
       expect(r.every((l) => l.length === w)).toBe(true);
     }
   });

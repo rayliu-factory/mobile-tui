@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderTextField (D-34, D-42) > renders \`Title: ______...\` padded to width 1`] = `
+[
+  "Title: _____________________________________________________",
+]
+`;

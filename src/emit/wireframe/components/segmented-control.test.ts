@@ -72,11 +72,7 @@ describe("renderSegmentedControl (D-34, D-42)", () => {
         label: "x",
         action: "y",
         testID: "z",
-        options: [
-          "very-long-option-one",
-          "very-long-option-two",
-          "very-long-option-three",
-        ],
+        options: ["very-long-option-one", "very-long-option-two", "very-long-option-three"],
       },
       30,
     );
