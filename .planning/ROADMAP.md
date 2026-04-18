@@ -117,7 +117,7 @@ Phase 1 (Model L1/L2)
 
 - [x] 03-01-PLAN.md — Wave 0 scaffold: src/emit/wireframe/ dir tree (18 emitter stubs + layout/text-style/overflow/variants stubs + dispatch exhaustive switch + barrel) + scripts/render-wireframe.ts CLI stub + fixtures/wireframes/ dir + SHARED.md/README.md templates + 3 integration test harnesses + .gitattributes LF lock + package.json wireframe script
 - [x] 03-02-PLAN.md — Wave 1 layout primitives: PHONE_WIDTH=60 + buildVariantHeader (3-stage overflow cascade per RESEARCH Pitfall 5) + padRight + drawFrame per D-38/D-40/D-41
-- [ ] 03-03-PLAN.md — Wave 1 text transforms (parallel with 03-02): overflow.ts truncate per D-44 + text-style.ts applyTextStyle per D-43 (heading-1 UPPERCASE, heading-2 identity, body identity, caption parens, undefined=body)
+- [x] 03-03-PLAN.md — Wave 1 text transforms (parallel with 03-02): overflow.ts truncate per D-44 + text-style.ts applyTextStyle per D-43 (heading-1 UPPERCASE, heading-2 identity, body identity, caption parens, undefined=body)
 - [ ] 03-04-PLAN.md — Wave 2 leaf emitters: Text + Icon + Divider + Spacer + Image (5 kinds) with snapshot + rectangular-contract tests
 - [ ] 03-05-PLAN.md — Wave 2 interactable emitters (parallel): Button (3 variants) + Toggle ([ ]/[x]) + TextField (underscore fill) + SegmentedControl (< opts >) per D-34; D-42 metadata-hidden enforced per test
 - [ ] 03-06-PLAN.md — Wave 2 structural emitters (parallel): Column + Row + Card + List (single-item + bindsTo footer per RESEARCH Pitfall 9) + ListItem with recursion via dispatch.renderNode; nested-Card test proves width-drift discipline
@@ -236,7 +236,7 @@ Phase 1 (Model L1/L2)
 |-------|----------------|--------|-----------|
 | 1. Spec Model & Invariants | 8/8 | Complete | 2026-04-17 |
 | 2. Serialization & Round-Trip | 5/5 | Complete | 2026-04-17 |
-| 3. Wireframe Renderer & Dogfood Gate | 1/9 | In progress | — |
+| 3. Wireframe Renderer & Dogfood Gate | 3/9 | In progress | — |
 | 4. Editor Store, Commands & Undo | 0/? | Not started | — |
 | 5. Canvas TUI Shell | 0/? | Not started | — |
 | 6. Wizard & Graduation | 0/? | Not started | — |
