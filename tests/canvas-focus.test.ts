@@ -1,0 +1,106 @@
+// tests/canvas-focus.test.ts — CANVAS-01, CANVAS-02 requirements
+// Focus FSM test stubs: Tab cycle and palette-open behaviour.
+//
+// Tests use makeStubStore() to avoid real file I/O.
+// All tests that depend on NYI stubs are marked it.todo() so the test suite
+// compiles and runs without throwing from NYI bodies (T-05-03 mitigation).
+//
+// Test file is intentionally in RED state for CANVAS-01 / CANVAS-02 —
+// it.todo() tests show as "todo" in vitest output, not as failures.
+// They will go GREEN in Phase 5 plans 02-03 when implementation lands.
+
+import { describe, expect, it } from "vitest";
+import type { ApplyResult, Snapshot, Store, StoreState } from "../src/editor/types.ts";
+import type { Spec } from "../src/model/index.ts";
+import type { AstHandle } from "../src/serialize/ast-handle.ts";
+import type { WriteResult } from "../src/serialize/write.ts";
+import { RootCanvas } from "../src/canvas/root.ts";
+
+// ── Minimal spec fixture ──────────────────────────────────────────────────────
+
+function minimalSpec(): Spec {
+  return {
+    version: "1.0",
+    screens: [],
+    navigation: { root: "s1", edges: [] },
+    dataModels: [],
+    actions: {},
+    testFlows: [],
+  } as unknown as Spec;
+}
+
+// ── Stub store (no file I/O) ──────────────────────────────────────────────────
+
+function makeStubStore(): Store & { _setDirty: (d: boolean) => void } {
+  const subscribers = new Set<(s: Snapshot) => void>();
+  let dirty = false;
+
+  const stubState: StoreState = {
+    spec: minimalSpec(),
+    astHandle: {} as AstHandle,
+    diagnostics: [],
+    dirty,
+  };
+
+  const store = {
+    getState: () => ({ ...stubState, dirty }),
+    subscribe: (fn: (s: Snapshot) => void) => {
+      subscribers.add(fn);
+      return () => subscribers.delete(fn);
+    },
+    apply: async (_: string, __: unknown): Promise<ApplyResult> => ({
+      spec: minimalSpec(),
+      diagnostics: [],
+      ok: false,
+    }),
+    undo: async () => null,
+    redo: async () => null,
+    flush: async (): Promise<WriteResult> => ({ written: true, diagnostics: [] }),
+    _setDirty: (d: boolean) => {
+      dirty = d;
+    },
+  };
+
+  return store as Store & { _setDirty: (d: boolean) => void };
+}
+
+// ── Mock theme (strips ANSI; safe for assertions) ─────────────────────────────
+
+const mockTheme = {
+  fg: (_token: string, str: string) => str,
+  bold: (str: string) => str,
+};
+
+// ── Tests ─────────────────────────────────────────────────────────────────────
+
+describe("canvas focus FSM (CANVAS-01, CANVAS-02)", () => {
+  it("initial focus state is 'screens'", () => {
+    const store = makeStubStore();
+    const root = new RootCanvas(store, { theme: mockTheme });
+    expect(root.getFocus()).toBe("screens");
+  });
+
+  it.todo(
+    "CANVAS-01: Tab cycles screens → inspector → preview → screens (NYI: nextFocus)",
+  );
+
+  it.todo(
+    "CANVAS-01: Shift-Tab reverses the focus cycle (NYI: nextFocus)",
+  );
+
+  it.todo(
+    "CANVAS-02: colon ':' opens the command palette regardless of focused pane (NYI: handleInput)",
+  );
+
+  it.todo(
+    "CANVAS-02: Ctrl+P opens the command palette (NYI: handleInput)",
+  );
+
+  it.todo(
+    "CANVAS-02: Esc while palette is open returns focus to the previous pane (NYI: handleInput)",
+  );
+
+  it.todo(
+    "CANVAS-01: Tab from 'palette' focus returns to 'screens' (NYI: nextFocus + handleInput)",
+  );
+});
