@@ -141,7 +141,16 @@ Phase 1 (Model L1/L2)
   4. Simulated rapid-fire commands (10 applies within 100ms) coalesce into at most 2 disk writes within 1s via the debounced autosave — verified by a spy on the serializer.
   5. Each command lives in its own file under `src/editor/commands/` with `apply` and `invert` exports, and `vitest` runs an exhaustive table of apply-invert-apply idempotence assertions.
 
-**Plans**: TBD
+**Plans**: 7 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Store substrate: hand-rolled signal, undo stack helpers, diagnostic registry, A1 canary (D-62 validation)
+- [ ] 04-02-PLAN.md — Autosave: 500ms trailing-edge debounce + beforeExit flush hook (SERDE-06 debounce half)
+- [ ] 04-03-PLAN.md — Screen commands: add/rename/delete-screen (MVP), set-screen-kind/title/back-behavior, set-acceptance-prose (7 commands)
+- [ ] 04-04-PLAN.md — Component + variant commands: add/remove/move/reorder-component, set-component-prop/action, set-variant-null/tree/when (9 commands)
+- [ ] 04-05-PLAN.md — Data model + action + nav + TabBar commands: entities, fields, relationships, actions, nav edges, tabbar-items (18 commands — completes 34-command exhaustive catalog)
+- [ ] 04-06-PLAN.md — Commands registry barrel + 200-apply/200-undo byte-identical integration + diagnostics one-tick subscriber test
+- [ ] 04-07-PLAN.md — cli-edit script + CLI integration test + editor/index.ts barrel + package.json script
 
 ### Phase 5: Canvas TUI Shell
 
@@ -237,7 +246,7 @@ Phase 1 (Model L1/L2)
 | 1. Spec Model & Invariants | 8/8 | Complete | 2026-04-17 |
 | 2. Serialization & Round-Trip | 5/5 | Complete | 2026-04-17 |
 | 3. Wireframe Renderer & Dogfood Gate | 9/9 | Complete | 2026-04-18 |
-| 4. Editor Store, Commands & Undo | 0/? | Not started | — |
+| 4. Editor Store, Commands & Undo | 0/7 | In Progress | — |
 | 5. Canvas TUI Shell | 0/? | Not started | — |
 | 6. Wizard & Graduation | 0/? | Not started | — |
 | 7. Maestro Emitter | 0/? | Not started | — |
