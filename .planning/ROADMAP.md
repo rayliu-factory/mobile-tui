@@ -120,7 +120,7 @@ Phase 1 (Model L1/L2)
 - [x] 03-03-PLAN.md — Wave 1 text transforms (parallel with 03-02): overflow.ts truncate per D-44 + text-style.ts applyTextStyle per D-43 (heading-1 UPPERCASE, heading-2 identity, body identity, caption parens, undefined=body)
 - [x] 03-04-PLAN.md — Wave 2 leaf emitters: Text + Icon + Divider + Spacer + Image (5 kinds) with snapshot + rectangular-contract tests
 - [x] 03-05-PLAN.md — Wave 2 interactable emitters (parallel): Button (3 variants) + Toggle ([ ]/[x]) + TextField (underscore fill) + SegmentedControl (< opts >) per D-34; D-42 metadata-hidden enforced per test
-- [ ] 03-06-PLAN.md — Wave 2 structural emitters (parallel): Column + Row + Card + List (single-item + bindsTo footer per RESEARCH Pitfall 9) + ListItem with recursion via dispatch.renderNode; nested-Card test proves width-drift discipline
+- [x] 03-06-PLAN.md — Wave 2 structural emitters (parallel): Column + Row + Card + List (single-item + bindsTo footer per RESEARCH Pitfall 9) + ListItem with recursion via dispatch.renderNode; nested-Card test proves width-drift discipline
 - [ ] 03-07-PLAN.md — Wave 2 chrome + overlay emitters (parallel): NavBar + TabBar (per D-37 — no device chrome) + Modal + Sheet (shared renderOverlayBox helper per D-36); closes 18-of-18 kinds
 - [ ] 03-08-PLAN.md — Wave 3 variant composition: render(spec, screenId) + 4-variant stacking (D-39) + header-in-border (D-40) + when-trigger placement (D-41) + null (N/A) markers + acceptance footer under content (D-45) + NavBar root-trim (D-37); UNSKIP catalog+ASCII-baseline integration tests
 - [ ] 03-09-PLAN.md — Wave 4 dogfood gate: renderSingleVariant + 3-arg CLI + 5 composite .spec.md sources + 20 .wf.txt golden files (7+6+5+5 adjusted to reality) + fixtures/wireframes/README.md index + SHARED.md author-ready template + unskipped dogfood-gate test + HUMAN GATE (≥3 shareable entries blocks Phase 4 per D-49) + ROADMAP Phase 3 close
@@ -236,7 +236,7 @@ Phase 1 (Model L1/L2)
 |-------|----------------|--------|-----------|
 | 1. Spec Model & Invariants | 8/8 | Complete | 2026-04-17 |
 | 2. Serialization & Round-Trip | 5/5 | Complete | 2026-04-17 |
-| 3. Wireframe Renderer & Dogfood Gate | 5/9 | In progress | — |
+| 3. Wireframe Renderer & Dogfood Gate | 6/9 | In progress | — |
 | 4. Editor Store, Commands & Undo | 0/? | Not started | — |
 | 5. Canvas TUI Shell | 0/? | Not started | — |
 | 6. Wizard & Graduation | 0/? | Not started | — |
