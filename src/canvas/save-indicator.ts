@@ -1,15 +1,26 @@
 // src/canvas/save-indicator.ts
-// Pure function: dirty boolean → save indicator string.
+// Pure function: dirty boolean → save indicator string (D-85).
 // Analog: src/emit/wireframe/index.ts (pure function transform).
-// Implementation lands in Phase 5 plan 02.
 
 /**
- * Render a save indicator glyph.
- * Returns "●" (dirty) or "✓" (clean), styled by theme.
- * @param dirty - True if the store has unsaved changes
- * @param theme - pi-tui theme object (typed as unknown at stub stage)
- * @returns A single styled string (empty stub — NYI)
+ * Minimal theme interface for renderSaveIndicator.
+ * Compatible with pi-tui's Theme object (which has fg() and bold()).
  */
-export function renderSaveIndicator(dirty: boolean, theme: unknown): string {
-  return "";
+export interface MinimalTheme {
+  fg: (token: string, str: string) => string;
+}
+
+/**
+ * Render a save indicator glyph via theme tokens (D-85).
+ * - dirty=true  → theme.fg("warning", "●")
+ * - dirty=false → theme.fg("success", "✓")
+ *
+ * Theme is applied in the function body, never cached (T-05-06).
+ *
+ * @param dirty - True if the store has unsaved changes
+ * @param theme - Minimal theme interface (pi-tui Theme compatible)
+ * @returns A single styled string
+ */
+export function renderSaveIndicator(dirty: boolean, theme: MinimalTheme): string {
+  return dirty ? theme.fg("warning", "●") : theme.fg("success", "✓");
 }
