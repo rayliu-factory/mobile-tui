@@ -24,7 +24,11 @@ describe("setBackBehavior command (D-54, D-62)", () => {
     // new_habit already has back_behavior: pop — change to dismiss
     const args = { id: "new_habit" as ScreenId, behavior: "dismiss" as const };
 
-    const { spec: after1, inverseArgs } = setBackBehavior.apply(before.spec, before.astHandle, args);
+    const { spec: after1, inverseArgs } = setBackBehavior.apply(
+      before.spec,
+      before.astHandle,
+      args,
+    );
 
     expect(after1.screens.find((s) => s.id === "new_habit")?.back_behavior).toBe("dismiss");
 
@@ -40,7 +44,11 @@ describe("setBackBehavior command (D-54, D-62)", () => {
     // home has no back_behavior
     const args = { id: "home" as ScreenId, behavior: "dismiss" as const };
 
-    const { spec: after1, inverseArgs } = setBackBehavior.apply(before.spec, before.astHandle, args);
+    const { spec: after1, inverseArgs } = setBackBehavior.apply(
+      before.spec,
+      before.astHandle,
+      args,
+    );
 
     expect(after1.screens.find((s) => s.id === "home")?.back_behavior).toBe("dismiss");
 
@@ -56,7 +64,11 @@ describe("setBackBehavior command (D-54, D-62)", () => {
     // new_habit has back_behavior: pop — remove it
     const args = { id: "new_habit" as ScreenId, behavior: null };
 
-    const { spec: after1, inverseArgs } = setBackBehavior.apply(before.spec, before.astHandle, args);
+    const { spec: after1, inverseArgs } = setBackBehavior.apply(
+      before.spec,
+      before.astHandle,
+      args,
+    );
 
     expect(after1.screens.find((s) => s.id === "new_habit")?.back_behavior).toBeUndefined();
 

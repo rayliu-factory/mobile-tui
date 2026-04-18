@@ -23,7 +23,11 @@ describe("setAcceptanceProse command (D-54, D-55, D-62)", () => {
     const before = await loadFixture();
     const args = { id: "home" as ScreenId, lines: ["User sees the home screen"] };
 
-    const { spec: after1, inverseArgs } = setAcceptanceProse.apply(before.spec, before.astHandle, args);
+    const { spec: after1, inverseArgs } = setAcceptanceProse.apply(
+      before.spec,
+      before.astHandle,
+      args,
+    );
 
     expect(after1.screens.find((s) => s.id === "home")?.acceptance).toEqual(args.lines);
 
@@ -45,7 +49,11 @@ describe("setAcceptanceProse command (D-54, D-55, D-62)", () => {
       ],
     };
 
-    const { spec: after1, inverseArgs } = setAcceptanceProse.apply(before.spec, before.astHandle, args);
+    const { spec: after1, inverseArgs } = setAcceptanceProse.apply(
+      before.spec,
+      before.astHandle,
+      args,
+    );
 
     expect(after1.screens.find((s) => s.id === "home")?.acceptance).toEqual(args.lines);
 
@@ -61,7 +69,11 @@ describe("setAcceptanceProse command (D-54, D-55, D-62)", () => {
     // 'home' fixture has 3 acceptance lines — replace with empty
     const args = { id: "home" as ScreenId, lines: [] };
 
-    const { spec: after1, inverseArgs } = setAcceptanceProse.apply(before.spec, before.astHandle, args);
+    const { spec: after1, inverseArgs } = setAcceptanceProse.apply(
+      before.spec,
+      before.astHandle,
+      args,
+    );
 
     expect(after1.screens.find((s) => s.id === "home")?.acceptance).toEqual([]);
 
