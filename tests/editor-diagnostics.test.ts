@@ -60,7 +60,8 @@ describe("EDITOR-05: one-tick subscriber publish", () => {
 
     // After apply: subscriber must have been called (synchronously inside apply)
     expect(received).not.toBeNull();
-    expect(Array.isArray((received as Snapshot).diagnostics)).toBe(true);
+    // biome-ignore lint/style/noNonNullAssertion: guarded by expect above
+    expect(Array.isArray(received!.diagnostics)).toBe(true);
   });
 
   it("subscriber receives new spec with the applied change", async () => {
@@ -74,7 +75,8 @@ describe("EDITOR-05: one-tick subscriber publish", () => {
     await store.apply("add-screen", { id: "x_diag2", title: "X2", kind: "regular" });
 
     expect(received).not.toBeNull();
-    const snap = received as Snapshot;
+    // biome-ignore lint/style/noNonNullAssertion: guarded by expect above
+    const snap = received!;
     // The snapshot spec must have one more screen than the initial spec
     expect(snap.spec.screens.length).toBe(initialSpec.screens.length + 1);
   });
@@ -295,12 +297,14 @@ describe("EDITOR-01: multiple subscribers receive same Snapshot", () => {
     expect(snap2).not.toBeNull();
 
     // Both subscribers receive a spec with the new screen
-    expect((snap1 as Snapshot).spec.screens.length).toBe(initialSpec.screens.length + 1);
-    expect((snap2 as Snapshot).spec.screens.length).toBe(initialSpec.screens.length + 1);
+    // biome-ignore lint/style/noNonNullAssertion: guarded by expect above
+    expect(snap1!.spec.screens.length).toBe(initialSpec.screens.length + 1);
+    // biome-ignore lint/style/noNonNullAssertion: guarded by expect above
+    expect(snap2!.spec.screens.length).toBe(initialSpec.screens.length + 1);
 
     // Both receive the same spec object (reference equality — notify passes currentSnapshot() once)
-    // The snapshot function returns the same object; both listeners receive the same call
-    expect((snap1 as Snapshot).spec).toBe((snap2 as Snapshot).spec);
+    // biome-ignore lint/style/noNonNullAssertion: guarded by expect above
+    expect(snap1!.spec).toBe(snap2!.spec);
   });
 });
 
