@@ -2,20 +2,16 @@
 // Focus FSM test stubs: Tab cycle and palette-open behaviour.
 //
 // Tests use makeStubStore() to avoid real file I/O.
-// All tests that depend on NYI stubs are marked it.todo() so the test suite
-// compiles and runs without throwing from NYI bodies (T-05-03 mitigation).
-//
-// Test file is intentionally in RED state for CANVAS-01 / CANVAS-02 —
-// it.todo() tests show as "todo" in vitest output, not as failures.
-// They will go GREEN in Phase 5 plans 02-03 when implementation lands.
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { ApplyResult, Snapshot, Store, StoreState } from "../src/editor/types.ts";
 import type { Spec } from "../src/model/index.ts";
 import type { AstHandle } from "../src/serialize/ast-handle.ts";
 import type { WriteResult } from "../src/serialize/write.ts";
 import { RootCanvas } from "../src/canvas/root.ts";
 import { FOCUS_CYCLE, nextFocus } from "../src/canvas/focus-fsm.ts";
+import { CommandPalette } from "../src/canvas/palette/index.ts";
+import { COMMANDS } from "../src/editor/commands/index.ts";
 
 // ── Minimal spec fixture ──────────────────────────────────────────────────────
 
@@ -121,27 +117,78 @@ describe("canvas focus FSM (CANVAS-01, CANVAS-02)", () => {
     expect(root.getFocus()).toBe("screens");
   });
 
-  it.todo(
-    "CANVAS-01: Tab cycles screens → inspector → preview → screens (NYI: nextFocus)",
-  );
+  it("CANVAS-01: Tab cycles screens → inspector → preview → screens", () => {
+    const store = makeStubStore();
+    const root = new RootCanvas(store, { theme: mockTheme });
+    expect(root.getFocus()).toBe("screens");
+    root.handleInput("\t"); // Tab
+    expect(root.getFocus()).toBe("inspector");
+    root.handleInput("\t");
+    expect(root.getFocus()).toBe("preview");
+    root.handleInput("\t");
+    expect(root.getFocus()).toBe("screens"); // wraps
+  });
 
-  it.todo(
-    "CANVAS-01: Shift-Tab reverses the focus cycle (NYI: nextFocus)",
-  );
+  it("CANVAS-01: Shift-Tab reverses the focus cycle", () => {
+    const store = makeStubStore();
+    const root = new RootCanvas(store, { theme: mockTheme });
+    root.handleInput("\x1b[Z"); // Shift-Tab
+    expect(root.getFocus()).toBe("preview");
+  });
 
-  it.todo(
-    "CANVAS-02: colon ':' opens the command palette regardless of focused pane (NYI: handleInput)",
-  );
+  it("CANVAS-02: colon ':' opens the command palette regardless of focused pane", () => {
+    const store = makeStubStore();
+    const root = new RootCanvas(store, { theme: mockTheme });
+    root.handleInput("\t"); // move to inspector
+    expect(root.getFocus()).toBe("inspector");
+    root.handleInput(":");
+    expect(root.getFocus()).toBe("palette");
+  });
 
-  it.todo(
-    "CANVAS-02: Ctrl+P opens the command palette (NYI: handleInput)",
-  );
+  it("CANVAS-02: Ctrl+P opens the command palette", () => {
+    const store = makeStubStore();
+    const root = new RootCanvas(store, { theme: mockTheme });
+    root.handleInput("\x10"); // Ctrl+P
+    expect(root.getFocus()).toBe("palette");
+  });
 
-  it.todo(
-    "CANVAS-02: Esc while palette is open returns focus to the previous pane (NYI: handleInput)",
-  );
+  it("CANVAS-02: Esc while palette is open returns focus to the previous pane", () => {
+    const store = makeStubStore();
+    const root = new RootCanvas(store, { theme: mockTheme });
+    root.handleInput(":");
+    expect(root.getFocus()).toBe("palette");
+    root.handleInput("\x1b"); // Esc
+    expect(root.getFocus()).toBe("screens");
+  });
 
-  it.todo(
-    "CANVAS-01: Tab from 'palette' focus returns to 'screens' (NYI: nextFocus + handleInput)",
-  );
+  it("CANVAS-01: Tab from 'palette' focus returns to 'screens'", () => {
+    const store = makeStubStore();
+    const root = new RootCanvas(store, { theme: mockTheme });
+    root.handleInput(":");
+    expect(root.getFocus()).toBe("palette");
+    root.handleInput("\t"); // Tab while palette open
+    expect(root.getFocus()).toBe("screens");
+  });
+});
+
+// ── CommandPalette unit tests (CANVAS-02) ────────────────────────────────────
+
+describe("CommandPalette — filter mode (CANVAS-02)", () => {
+  it("initial render lists all commands from COMMANDS registry", () => {
+    const store = makeStubStore();
+    const onClose = vi.fn();
+    const palette = new CommandPalette(store, onClose, mockTheme);
+    const output = palette.render(60).join("\n");
+    expect(output).toContain("add-screen");
+  });
+
+  it("Esc closes palette without store.apply", () => {
+    const store = makeStubStore();
+    const onClose = vi.fn();
+    const applySpy = vi.spyOn(store, "apply");
+    const palette = new CommandPalette(store, onClose, mockTheme);
+    palette.handleInput("\x1b"); // Esc
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(applySpy).not.toHaveBeenCalled();
+  });
 });
