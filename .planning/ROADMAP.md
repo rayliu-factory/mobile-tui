@@ -113,7 +113,17 @@ Phase 1 (Model L1/L2)
   4. The persisted wireframe output contains only `|`, `-`, `+`, `.`, and printable ASCII (regex-enforced in tests); the in-TUI preview path is the only caller allowed to request Unicode glyphs.
   5. **Dogfood gate**: 20 reference wireframes are committed under `fixtures/wireframes/` and the author has pasted at least 3 of them into a real PR / Slack thread and judged them "shareable". This gate blocks the Phase 4 kickoff.
 
-**Plans**: TBD
+**Plans**: 9 plans
+
+- [ ] 03-01-PLAN.md — Wave 0 scaffold: src/emit/wireframe/ dir tree (18 emitter stubs + layout/text-style/overflow/variants stubs + dispatch exhaustive switch + barrel) + scripts/render-wireframe.ts CLI stub + fixtures/wireframes/ dir + SHARED.md/README.md templates + 3 integration test harnesses + .gitattributes LF lock + package.json wireframe script
+- [ ] 03-02-PLAN.md — Wave 1 layout primitives: PHONE_WIDTH=60 + buildVariantHeader (3-stage overflow cascade per RESEARCH Pitfall 5) + padRight + drawFrame per D-38/D-40/D-41
+- [ ] 03-03-PLAN.md — Wave 1 text transforms (parallel with 03-02): overflow.ts truncate per D-44 + text-style.ts applyTextStyle per D-43 (heading-1 UPPERCASE, heading-2 identity, body identity, caption parens, undefined=body)
+- [ ] 03-04-PLAN.md — Wave 2 leaf emitters: Text + Icon + Divider + Spacer + Image (5 kinds) with snapshot + rectangular-contract tests
+- [ ] 03-05-PLAN.md — Wave 2 interactable emitters (parallel): Button (3 variants) + Toggle ([ ]/[x]) + TextField (underscore fill) + SegmentedControl (< opts >) per D-34; D-42 metadata-hidden enforced per test
+- [ ] 03-06-PLAN.md — Wave 2 structural emitters (parallel): Column + Row + Card + List (single-item + bindsTo footer per RESEARCH Pitfall 9) + ListItem with recursion via dispatch.renderNode; nested-Card test proves width-drift discipline
+- [ ] 03-07-PLAN.md — Wave 2 chrome + overlay emitters (parallel): NavBar + TabBar (per D-37 — no device chrome) + Modal + Sheet (shared renderOverlayBox helper per D-36); closes 18-of-18 kinds
+- [ ] 03-08-PLAN.md — Wave 3 variant composition: render(spec, screenId) + 4-variant stacking (D-39) + header-in-border (D-40) + when-trigger placement (D-41) + null (N/A) markers + acceptance footer under content (D-45) + NavBar root-trim (D-37); UNSKIP catalog+ASCII-baseline integration tests
+- [ ] 03-09-PLAN.md — Wave 4 dogfood gate: renderSingleVariant + 3-arg CLI + 5 composite .spec.md sources + 20 .wf.txt golden files (7+6+5+5 adjusted to reality) + fixtures/wireframes/README.md index + SHARED.md author-ready template + unskipped dogfood-gate test + HUMAN GATE (≥3 shareable entries blocks Phase 4 per D-49) + ROADMAP Phase 3 close
 **UI hint**: yes
 
 ### Phase 4: Editor Store, Commands & Undo
