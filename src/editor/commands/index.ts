@@ -45,6 +45,13 @@ import { setTabbarItems } from "./set-tabbar-items.ts";
 import { setVariantNull } from "./set-variant-null.ts";
 import { setVariantTree } from "./set-variant-tree.ts";
 import { setVariantWhen } from "./set-variant-when.ts";
+import { setWizardAppIdea } from "./set-wizard-app-idea.ts";
+import { setWizardAuth } from "./set-wizard-auth.ts";
+import { setWizardNavPattern } from "./set-wizard-nav-pattern.ts";
+import { setWizardOfflineSync } from "./set-wizard-offline-sync.ts";
+import { setWizardPrimaryUser } from "./set-wizard-primary-user.ts";
+import { setWizardScreens } from "./set-wizard-screens.ts";
+import { setWizardTargetPlatforms } from "./set-wizard-target-platforms.ts";
 import { updateNavEdge } from "./update-nav-edge.ts";
 
 export const COMMANDS = {
@@ -78,6 +85,13 @@ export const COMMANDS = {
   "set-screen-kind": setScreenKind,
   "set-screen-title": setScreenTitle,
   "set-tabbar-items": setTabbarItems,
+  "set-wizard-app-idea": setWizardAppIdea,
+  "set-wizard-auth": setWizardAuth,
+  "set-wizard-nav-pattern": setWizardNavPattern,
+  "set-wizard-offline-sync": setWizardOfflineSync,
+  "set-wizard-primary-user": setWizardPrimaryUser,
+  "set-wizard-screens": setWizardScreens,
+  "set-wizard-target-platforms": setWizardTargetPlatforms,
   "set-variant-null": setVariantNull,
   "set-variant-tree": setVariantTree,
   "set-variant-when": setVariantWhen,
