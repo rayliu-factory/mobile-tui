@@ -3,6 +3,7 @@
 //
 // Fixtures: fixtures/habit-tracker.spec.md — has screens with component trees.
 import { describe, expect, it } from "vitest";
+import type { ScreenId } from "../../primitives/ids.ts";
 import type { JsonPointer } from "../../primitives/path.ts";
 import { parseSpecFile } from "../../serialize/index.ts";
 import { moveComponent } from "./move-component.ts";
@@ -25,7 +26,7 @@ describe("moveComponent command (D-54, D-62)", () => {
     const firstNode = origTree[0];
 
     const args = {
-      screenId: "home",
+      screenId: "home" as ScreenId,
       variantKind: "content" as const,
       fromPath: "/0" as JsonPointer,
       toParentPath: "" as JsonPointer,
@@ -56,7 +57,7 @@ describe("moveComponent command (D-54, D-62)", () => {
     const lastNode = origTree[origLength - 1];
 
     const args = {
-      screenId: "home",
+      screenId: "home" as ScreenId,
       variantKind: "content" as const,
       fromPath: `/${origLength - 1}` as JsonPointer,
       toParentPath: "" as JsonPointer,
@@ -91,7 +92,7 @@ describe("moveComponent command (D-54, D-62)", () => {
     const secondNode = origTree[1];
 
     const args = {
-      screenId: "home",
+      screenId: "home" as ScreenId,
       variantKind: "content" as const,
       fromPath: "/1" as JsonPointer,
       toParentPath: "" as JsonPointer,

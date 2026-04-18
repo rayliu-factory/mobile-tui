@@ -4,6 +4,8 @@
 // Fixtures: fixtures/habit-tracker.spec.md — has screens with component trees.
 // Each test re-parses the fixture to reset astHandle state.
 import { describe, expect, it } from "vitest";
+import type { ScreenId } from "../../primitives/ids.ts";
+import type { JsonPointer } from "../../primitives/path.ts";
 import { parseSpecFile } from "../../serialize/index.ts";
 import { addComponent } from "./add-component.ts";
 
@@ -21,9 +23,9 @@ describe("addComponent command (D-55, D-62)", () => {
   it("fixture 1: add Text leaf to content variant root (append)", async () => {
     const before = await loadFixture();
     const args = {
-      screenId: "home",
+      screenId: "home" as ScreenId,
       variantKind: "content" as const,
-      parentPath: "" as `/${string}` & { readonly __brand: "JsonPointer" },
+      parentPath: "" as JsonPointer,
       node: { kind: "Text" as const, text: "Hello World" },
     };
 
@@ -49,9 +51,9 @@ describe("addComponent command (D-55, D-62)", () => {
   it("fixture 2: add Column container at specific index", async () => {
     const before = await loadFixture();
     const args = {
-      screenId: "home",
+      screenId: "home" as ScreenId,
       variantKind: "content" as const,
-      parentPath: "" as `/${string}` & { readonly __brand: "JsonPointer" },
+      parentPath: "" as JsonPointer,
       index: 0,
       node: {
         kind: "Column" as const,
@@ -79,9 +81,9 @@ describe("addComponent command (D-55, D-62)", () => {
   it("fixture 3: add Icon to empty variant tree", async () => {
     const before = await loadFixture();
     const args = {
-      screenId: "home",
+      screenId: "home" as ScreenId,
       variantKind: "empty" as const,
-      parentPath: "" as `/${string}` & { readonly __brand: "JsonPointer" },
+      parentPath: "" as JsonPointer,
       node: { kind: "Icon" as const, name: "star" },
     };
 

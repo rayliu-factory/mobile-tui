@@ -3,6 +3,7 @@
 //
 // Fixtures: fixtures/habit-tracker.spec.md — has screens with component trees.
 import { describe, expect, it } from "vitest";
+import type { ScreenId } from "../../primitives/ids.ts";
 import type { JsonPointer } from "../../primitives/path.ts";
 import { parseSpecFile } from "../../serialize/index.ts";
 import { reorderComponent } from "./reorder-component.ts";
@@ -28,7 +29,7 @@ describe("reorderComponent command (D-54, D-62)", () => {
     if (origLength < 2) return;
 
     const args = {
-      screenId: "home",
+      screenId: "home" as ScreenId,
       variantKind: "content" as const,
       parentPath: "" as JsonPointer,
       fromIndex: 0,
@@ -65,7 +66,7 @@ describe("reorderComponent command (D-54, D-62)", () => {
     if (origLength < 2) return;
 
     const args = {
-      screenId: "home",
+      screenId: "home" as ScreenId,
       variantKind: "content" as const,
       parentPath: "" as JsonPointer,
       fromIndex: 0,
@@ -97,7 +98,7 @@ describe("reorderComponent command (D-54, D-62)", () => {
     const origLength = origTree.length;
 
     const args = {
-      screenId: "home",
+      screenId: "home" as ScreenId,
       variantKind: "content" as const,
       parentPath: "" as JsonPointer,
       fromIndex: 0,

@@ -3,6 +3,7 @@
 //
 // Fixtures: fixtures/habit-tracker.spec.md — has screens with component trees.
 import { describe, expect, it } from "vitest";
+import type { ScreenId } from "../../primitives/ids.ts";
 import type { JsonPointer } from "../../primitives/path.ts";
 import { parseSpecFile } from "../../serialize/index.ts";
 import { removeComponent } from "./remove-component.ts";
@@ -25,7 +26,7 @@ describe("removeComponent command (D-55, D-62, T-04-14)", () => {
     const firstNode = origTree[0];
 
     const args = {
-      screenId: "home",
+      screenId: "home" as ScreenId,
       variantKind: "content" as const,
       path: "/0" as JsonPointer,
     };
@@ -51,7 +52,7 @@ describe("removeComponent command (D-55, D-62, T-04-14)", () => {
     expect(after2).toEqual(after1);
   });
 
-  it("fixture 2: remove second node (Text) from empty variant", async () => {
+  it("fixture 2: remove node from empty variant", async () => {
     const before = await loadFixture();
     const emptyTree = before.spec.screens[0]?.variants.empty?.tree ?? [];
 
@@ -59,7 +60,7 @@ describe("removeComponent command (D-55, D-62, T-04-14)", () => {
     expect(emptyTree.length).toBeGreaterThan(0);
 
     const args = {
-      screenId: "home",
+      screenId: "home" as ScreenId,
       variantKind: "empty" as const,
       path: "/0" as JsonPointer,
     };
@@ -82,13 +83,13 @@ describe("removeComponent command (D-55, D-62, T-04-14)", () => {
     expect(after2).toEqual(after1);
   });
 
-  it("fixture 3: remove last node appended from content variant", async () => {
+  it("fixture 3: remove last node from content variant", async () => {
     const before = await loadFixture();
     const origTree = before.spec.screens[0]?.variants.content.tree ?? [];
     const lastIdx = origTree.length - 1;
 
     const args = {
-      screenId: "home",
+      screenId: "home" as ScreenId,
       variantKind: "content" as const,
       path: `/${lastIdx}` as JsonPointer,
     };
