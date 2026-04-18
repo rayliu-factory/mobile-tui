@@ -41,7 +41,7 @@ Phase 1 (Model L1/L2)
 - [x] **Phase 2: Serialization & Round-Trip** — Byte-identical round-trip on no-op save via `eemeli/yaml` Document-AST diff-and-apply, HTML-comment-anchored markdown body, ~20 golden fixtures in CI.
 - [x] **Phase 3: Wireframe Renderer & Dogfood Gate** — Pure-function renderer producing ~40-line ASCII wireframes per screen and state variant; 20 reference wireframes pasted into a real PR before TUI work begins.
 - [x] **Phase 4: Editor Store, Commands & Undo** — Single reactive store with named undoable commands, 200-step history, write-through debounced autosave, live diagnostics, and a headless `cli-edit` harness. ✓ 2026-04-18
-- [ ] **Phase 5: Canvas TUI Shell** — 3-pane keyboard-driven canvas with focus FSM, command palette, persistent help line, save indicator, and `ctx.ui.custom()`-scoped rendering.
+- [x] **Phase 5: Canvas TUI Shell** — 3-pane keyboard-driven canvas with focus FSM, command palette, persistent help line, save indicator, and `ctx.ui.custom()`-scoped rendering. ✓ 2026-04-19
 - [ ] **Phase 6: Wizard & Graduation** — 8 linear steps layered on the canvas store; re-entry edits in place; mode-flip to canvas with no reset.
 - [ ] **Phase 7: Maestro Emitter** — Pure emitter from `TestFlow` + nav graph to `<flow>.ios.yaml` / `<flow>.android.yaml`, sigil-gated with no coordinate fallbacks, wired to `:emit maestro`.
 - [ ] **Phase 8: LLM Handoff Commands** — `:yank wireframe`, `:prompt screen …`, `:extract --screen`, with semantic-token-based prompt scaffolds under 2k tokens.
@@ -170,12 +170,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Wave 0 scaffold: src/canvas/ directory tree stubs + 4 test file skeletons
-- [ ] 05-02-PLAN.md — Wave 2 utilities: focus-fsm, help-line, save-indicator, HorizontalLayout compositor
-- [ ] 05-03-PLAN.md — Wave 2 panes: ScreensListPane (SelectList) + WireframePreviewPane (read-only)
-- [ ] 05-04-PLAN.md — Wave 3 pane: PropertyInspectorPane (Focusable, Input, field editing, D-70/71/72)
-- [ ] 05-05-PLAN.md — Wave 3 palette: CommandPalette overlay (filter mode + arg-prompt FSM, D-74/75/76)
-- [ ] 05-06-PLAN.md — Wave 4 assembly: RootCanvas wiring + scripts/canvas.ts CLI entry + full integration test
+- [x] 05-01-PLAN.md — Wave 0 scaffold: src/canvas/ directory tree stubs + 4 test file skeletons
+- [x] 05-02-PLAN.md — Wave 2 utilities: focus-fsm, help-line, save-indicator, HorizontalLayout compositor
+- [x] 05-03-PLAN.md — Wave 2 panes: ScreensListPane (SelectList) + WireframePreviewPane (read-only)
+- [x] 05-04-PLAN.md — Wave 3 pane: PropertyInspectorPane (Focusable, Input, field editing, D-70/71/72)
+- [x] 05-05-PLAN.md — Wave 3 palette: CommandPalette overlay (filter mode + arg-prompt FSM, D-74/75/76)
+- [x] 05-06-PLAN.md — Wave 4 assembly: RootCanvas wiring + scripts/canvas.ts CLI entry + full integration test
 
 **UI hint**: yes
 
