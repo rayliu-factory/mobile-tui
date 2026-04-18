@@ -6,9 +6,9 @@
 // `vi.useFakeTimers()`. vitest 4.x replaces setTimeout/clearTimeout
 // globally within the test scope. Call `vi.useRealTimers()` in afterEach.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createAutosave } from "../src/editor/autosave.ts";
 import type { Autosave } from "../src/editor/autosave.ts";
-import type { Snapshot, Store, StoreState } from "../src/editor/types.ts";
+import { createAutosave } from "../src/editor/autosave.ts";
+import type { ApplyResult, Snapshot, Store, StoreState } from "../src/editor/types.ts";
 import type { Spec } from "../src/model/index.ts";
 import type { AstHandle } from "../src/serialize/ast-handle.ts";
 import type { WriteResult } from "../src/serialize/write.ts";
@@ -30,7 +30,7 @@ function makeStubStore(): Store & { _trigger: () => void } {
       subscribers.add(fn);
       return () => subscribers.delete(fn);
     },
-    apply: async (_: string, __: unknown): Promise<ReturnType<Store["apply"]>> => {
+    apply: (_: string, __: unknown): Promise<ApplyResult> => {
       throw new Error("stub: not implemented");
     },
     undo: async () => null,
