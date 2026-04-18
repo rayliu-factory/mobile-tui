@@ -29,7 +29,11 @@ import type { WriteResult } from "../serialize/write.ts";
 export interface Command<T extends z.ZodObject<any>> {
   name: string;
   argsSchema: T;
-  apply(spec: Spec, astHandle: AstHandle, args: z.infer<T>): { spec: Spec; inverseArgs: unknown };
+  apply(
+    spec: Spec,
+    astHandle: AstHandle,
+    args: z.infer<T>,
+  ): { spec: Spec; inverseArgs: unknown; diagnostics?: Diagnostic[] };
   invert(spec: Spec, astHandle: AstHandle, inverseArgs: unknown): { spec: Spec };
 }
 

@@ -134,10 +134,17 @@ export function createStore(
     }
 
     // Step 4: apply command (mutates spec + astHandle.doc per D-62)
-    const { spec: newSpec, inverseArgs } = command.apply(spec, astHandle, parsed.data);
+    const {
+      spec: newSpec,
+      inverseArgs,
+      diagnostics: cmdDiag,
+    } = command.apply(spec, astHandle, parsed.data);
 
     // Step 5: validate new spec (does NOT block apply — only save-gate blocks)
-    const { diagnostics: newDiag } = validateSpec(newSpec);
+    // Merge command-level diagnostics (e.g. EDITOR_REF_CASCADE_INCOMPLETE) with
+    // validateSpec results so callers see the full picture in one list.
+    const { diagnostics: specDiag } = validateSpec(newSpec);
+    const newDiag = [...(cmdDiag ?? []), ...specDiag];
 
     // Step 6: undo/redo stack discipline (D-64)
     pushUndo(undoStack, { commandName, args, inverseArgs });

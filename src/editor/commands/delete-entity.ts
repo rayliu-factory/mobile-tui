@@ -17,7 +17,12 @@
 // THREAT T-04-18: EDITOR_REF_CASCADE_INCOMPLETE emitted for orphan Field.of + Action.submit refs.
 import { z } from "zod";
 import type { Entity, Relationship } from "../../model/data.ts";
+import type { Spec } from "../../model/index.ts";
+import type { Diagnostic } from "../../primitives/diagnostic.ts";
+import { info } from "../../primitives/diagnostic.ts";
+import type { JsonPointer } from "../../primitives/path.ts";
 import { EntityNameSchema } from "../../primitives/ids.ts";
+import { EDITOR_CODES } from "../diagnostics.ts";
 import type { Command } from "../types.ts";
 
 export const deleteEntityArgs = z.object({
@@ -36,6 +41,35 @@ interface DeleteEntityInverse {
   entityJSON: Entity;
   entityIndex: number;
   removedRelationships: RemovedRelationship[];
+}
+
+function collectOrphanEntityRefs(spec: Spec, deletedName: string): Diagnostic[] {
+  const diags: Diagnostic[] = [];
+  for (const entity of spec.data.entities) {
+    for (const field of entity.fields) {
+      if (field.type === "reference" && field.of === deletedName) {
+        diags.push(
+          info(
+            EDITOR_CODES.EDITOR_REF_CASCADE_INCOMPLETE,
+            `/data/entities/${entity.name}/fields/${field.name}` as JsonPointer,
+            `Field "${entity.name}.${field.name}" references deleted entity "${deletedName}"`,
+          ),
+        );
+      }
+    }
+  }
+  for (const [actionId, action] of Object.entries(spec.actions)) {
+    if (action.kind === "submit" && action.entity === deletedName) {
+      diags.push(
+        info(
+          EDITOR_CODES.EDITOR_REF_CASCADE_INCOMPLETE,
+          `/actions/${actionId}` as JsonPointer,
+          `Action "${actionId}" submits to deleted entity "${deletedName}"`,
+        ),
+      );
+    }
+  }
+  return diags;
 }
 
 export const deleteEntity: Command<typeof deleteEntityArgs> = {
@@ -87,7 +121,8 @@ export const deleteEntity: Command<typeof deleteEntityArgs> = {
     };
 
     const inverseArgs: DeleteEntityInverse = { entityJSON, entityIndex, removedRelationships };
-    return { spec: newSpec, inverseArgs };
+    const diagnostics = collectOrphanEntityRefs(newSpec, args.name);
+    return { spec: newSpec, inverseArgs, diagnostics };
   },
 
   invert(spec, astHandle, inverseArgs) {
