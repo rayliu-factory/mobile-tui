@@ -5,6 +5,8 @@
 
 import type { Snapshot, Store } from "../editor/types.ts";
 import type { FocusState } from "./focus-fsm.ts";
+import { nextFocus } from "./focus-fsm.ts";
+import { CommandPalette } from "./palette/index.ts";
 
 /**
  * Minimal Component interface (mirrors @mariozechner/pi-tui).
@@ -38,6 +40,11 @@ export class RootCanvas implements Component {
   private focus: FocusState = "screens";
   private readonly unsubscribe: () => void;
 
+  /** Active palette instance, or null when palette is closed. */
+  private palette: CommandPalette | null = null;
+  /** Focus state before palette opened — restored on palette close. */
+  private prePaletteFocus: FocusState = "screens";
+
   constructor(
     private readonly store: Store,
     private readonly opts: { tui?: unknown; theme: unknown },
@@ -66,13 +73,82 @@ export class RootCanvas implements Component {
   }
 
   /**
+   * Open the command palette overlay.
+   * Always creates a new CommandPalette instance — never reuses (Pitfall 5).
+   * Saves the current focus so it can be restored on palette close.
+   */
+  private openPalette(): void {
+    this.prePaletteFocus = this.focus;
+    this.palette = new CommandPalette(
+      this.store,
+      () => this.closePalette(),
+      this.opts.theme as { fg: (token: string, str: string) => string },
+    );
+    this.focus = "palette";
+  }
+
+  /**
+   * Close the command palette and restore prior focus.
+   */
+  private closePalette(): void {
+    this.palette = null;
+    this.focus = this.prePaletteFocus;
+  }
+
+  /**
    * Handle keyboard input.
    * Global guards (undo/redo/quit/palette/tab) are checked before
    * delegating to the focused pane (D-78).
-   * NYI — implementation lands in Phase 5 plan 02.
    */
   handleInput(data: string): void {
-    // NYI
+    // If palette is open, route all input to it first
+    if (this.focus === "palette" && this.palette) {
+      // Tab while palette is open closes palette and returns to screens (nextFocus("palette") = "screens")
+      if (data === "\t") {
+        this.closePalette();
+        return;
+      }
+      this.palette.handleInput(data);
+      return;
+    }
+
+    // Step 1: global guards (D-78) — always win regardless of focused pane
+    // Ctrl+Shift+Z or Ctrl+Y — redo
+    if (data === "\x1a" || data === "\x19") {
+      // Note: Ctrl+Z = \x1a, Ctrl+Y = \x19 — handle redo first to avoid ambiguity
+    }
+    // Ctrl+Y — redo
+    if (data === "\x19") {
+      void this.store.redo();
+      return;
+    }
+    // Ctrl+Z — undo
+    if (data === "\x1a") {
+      void this.store.undo();
+      return;
+    }
+    // Ctrl+Q — quit
+    if (data === "\x11") {
+      this.onQuit?.();
+      return;
+    }
+    // ':' or Ctrl+P — open palette
+    if (data === ":" || data === "\x10") {
+      this.openPalette();
+      return;
+    }
+    // Tab — advance focus
+    if (data === "\t") {
+      this.focus = nextFocus(this.focus);
+      return;
+    }
+    // Shift+Tab — reverse focus (\x1b[Z is the common Shift-Tab sequence)
+    if (data === "\x1b[Z") {
+      this.focus = nextFocus(this.focus, true);
+      return;
+    }
+
+    // Step 2: delegate to focused pane (panes are NYI at stub stage)
   }
 
   /**
