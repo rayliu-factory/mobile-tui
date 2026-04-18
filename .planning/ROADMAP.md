@@ -40,7 +40,7 @@ Phase 1 (Model L1/L2)
 - [ ] **Phase 1: Spec Model & Invariants** — Lock the framework-agnostic Spec shape, Zod schemas, closed component catalog, and `validateSpec()` contract. Headless fixtures prove the model.
 - [x] **Phase 2: Serialization & Round-Trip** — Byte-identical round-trip on no-op save via `eemeli/yaml` Document-AST diff-and-apply, HTML-comment-anchored markdown body, ~20 golden fixtures in CI.
 - [x] **Phase 3: Wireframe Renderer & Dogfood Gate** — Pure-function renderer producing ~40-line ASCII wireframes per screen and state variant; 20 reference wireframes pasted into a real PR before TUI work begins.
-- [ ] **Phase 4: Editor Store, Commands & Undo** — Single reactive store with named undoable commands, 200-step history, write-through debounced autosave, live diagnostics, and a headless `cli-edit` harness.
+- [x] **Phase 4: Editor Store, Commands & Undo** — Single reactive store with named undoable commands, 200-step history, write-through debounced autosave, live diagnostics, and a headless `cli-edit` harness. ✓ 2026-04-18
 - [ ] **Phase 5: Canvas TUI Shell** — 3-pane keyboard-driven canvas with focus FSM, command palette, persistent help line, save indicator, and `ctx.ui.custom()`-scoped rendering.
 - [ ] **Phase 6: Wizard & Graduation** — 8 linear steps layered on the canvas store; re-entry edits in place; mode-flip to canvas with no reset.
 - [ ] **Phase 7: Maestro Emitter** — Pure emitter from `TestFlow` + nav graph to `<flow>.ios.yaml` / `<flow>.android.yaml`, sigil-gated with no coordinate fallbacks, wired to `:emit maestro`.
