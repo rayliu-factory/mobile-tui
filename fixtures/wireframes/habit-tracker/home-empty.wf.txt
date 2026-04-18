@@ -1,0 +1,3 @@
++-- screen: ...  variant: empty  when collection /Hab... --+
+| No habits yet -- tap + to add one                        |
++----------------------------------------------------------+

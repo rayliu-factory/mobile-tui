@@ -1,0 +1,19 @@
++-- screen: inbox  variant: content -----------------------+
+|   Inbox                                                  |
+| -------------------------------------------------------- |
+| New task: ______________________________________________ |
+|                                                          |
+| < all | active | done >                                  |
+|                                                          |
+| +------------------------------------------------------+ |
+| | Task Title                                           | |
+| +------------------------------------------------------+ |
+|    (list bound to /Task/title)                           |
+| -------------------------------------------------------- |
+| [ Inbox ] | [ Projects ] | [ Settings ]                  |
++----------------------------------------------------------+
+
+acceptance:                                                 
+- User sees a filtered list of tasks                        
+- User adds a new task via the text field                   
+- User removes a task from the list                         

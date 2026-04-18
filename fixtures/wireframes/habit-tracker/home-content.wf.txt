@@ -1,0 +1,15 @@
++-- screen: home  variant: content ------------------------+
+|   My Habits [[ + ]]                                      |
+| -------------------------------------------------------- |
+| +------------------------------------------------------+ |
+| | +--------------------------------------------------+ | |
+| | | Habit Title             [ ] Done                 | | |
+| | +--------------------------------------------------+ | |
+| +------------------------------------------------------+ |
+|    (list bound to /Habit)                                |
++----------------------------------------------------------+
+
+acceptance:                                                 
+- User sees a list of habits with their daily-complete state
+- Tapping a habit toggles its completion                    
+- Tapping a habit row opens the detail modal                
