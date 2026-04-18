@@ -2,23 +2,30 @@
 import { describe, expect, it } from "vitest";
 import { renderImage } from "./image.ts";
 
+function requireAt(lines: string[], i: number): string {
+  const v = lines[i];
+  if (v === undefined) throw new Error(`expected line index ${i}`);
+  return v;
+}
+
 describe("renderImage (D-Claude, RESEARCH §Component Emitter Details §Image)", () => {
   it("default 3-line box at width 60 — alt visible", () => {
     const r = renderImage({ kind: "Image", source: "/a.png", alt: "icon" }, 60);
     expect(r).toHaveLength(3);
     expect(r.every((l) => l.length === 60)).toBe(true);
     // Top border starts with `+--IMG`; bottom border starts with `+---`.
-    expect(r[0].startsWith("+--IMG")).toBe(true);
-    expect(r[1]).toContain("icon");
-    expect(r[2].startsWith("+---")).toBe(true);
+    expect(requireAt(r, 0).startsWith("+--IMG")).toBe(true);
+    expect(requireAt(r, 1)).toContain("icon");
+    expect(requireAt(r, 2).startsWith("+---")).toBe(true);
     expect(r).toMatchSnapshot();
   });
 
   it("width < 8 falls back to inline `[img:alt]`", () => {
     const r = renderImage({ kind: "Image", source: "/a.png", alt: "x" }, 6);
     expect(r).toHaveLength(1);
-    expect(r[0].length).toBe(6);
-    expect(r[0].startsWith("[img:")).toBe(true);
+    const line = requireAt(r, 0);
+    expect(line.length).toBe(6);
+    expect(line.startsWith("[img:")).toBe(true);
   });
 
   it("empty alt falls back to `(no alt)` inline defensive literal", () => {
@@ -26,9 +33,10 @@ describe("renderImage (D-Claude, RESEARCH §Component Emitter Details §Image)",
     // Plan 03-04 <behavior>: render `(no alt)` inline, single line, padded to width.
     const r = renderImage({ kind: "Image", source: "/a.png", alt: "" }, 60);
     expect(r).toHaveLength(1);
-    expect(r[0]).toHaveLength(60);
-    expect(r[0]).toContain("(no alt)");
-    expect(r[0].startsWith("(no alt)")).toBe(true);
+    const line = requireAt(r, 0);
+    expect(line).toHaveLength(60);
+    expect(line).toContain("(no alt)");
+    expect(line.startsWith("(no alt)")).toBe(true);
   });
 
   it("rectangular contract: every line has length === width at varied widths", () => {

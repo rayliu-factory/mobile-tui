@@ -2,18 +2,24 @@
 import { describe, expect, it } from "vitest";
 import { renderDivider } from "./divider.ts";
 
+function firstLine(lines: string[]): string {
+  const [head] = lines;
+  if (head === undefined) throw new Error("expected at least 1 line");
+  return head;
+}
+
 describe("renderDivider (D-36)", () => {
   it("returns a single line of dashes matching width", () => {
     const result = renderDivider({ kind: "Divider" }, 60);
     expect(result).toHaveLength(1);
-    expect(result[0]).toBe("-".repeat(60));
+    expect(firstLine(result)).toBe("-".repeat(60));
     expect(result).toMatchSnapshot();
   });
 
   it("honors smaller widths", () => {
     const result = renderDivider({ kind: "Divider" }, 20);
     expect(result).toHaveLength(1);
-    expect(result[0]).toBe("-".repeat(20));
+    expect(firstLine(result)).toBe("-".repeat(20));
   });
 
   it("is deterministic (byte-equal on repeated calls)", () => {

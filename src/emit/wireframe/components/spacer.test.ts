@@ -2,11 +2,17 @@
 import { describe, expect, it } from "vitest";
 import { renderSpacer } from "./spacer.ts";
 
+function firstLine(lines: string[]): string {
+  const [head] = lines;
+  if (head === undefined) throw new Error("expected at least 1 line");
+  return head;
+}
+
 describe("renderSpacer (D-36)", () => {
   it("size=sm → 1 blank line at width", () => {
     const r = renderSpacer({ kind: "Spacer", size: "sm" }, 60);
     expect(r).toHaveLength(1);
-    expect(r[0]).toBe(" ".repeat(60));
+    expect(firstLine(r)).toBe(" ".repeat(60));
     expect(r).toMatchSnapshot();
   });
 
