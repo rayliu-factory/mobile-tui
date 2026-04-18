@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderSheet (D-36) > emits \`+-- Sheet -----+\` labeled top border + child body + bottom border 1`] = `
+[
+  "+-- Sheet -------------------------------------------------+",
+  "| option 1                                                 |",
+  "| option 2                                                 |",
+  "+----------------------------------------------------------+",
+]
+`;

@@ -6,10 +6,7 @@ import { renderModal } from "./modal.ts";
 
 describe("renderModal (D-36)", () => {
   it("emits `+-- Modal -----+` labeled top border + child body + bottom border", () => {
-    const r = renderModal(
-      { kind: "Modal", child: { kind: "Text", text: "confirm?" } },
-      60,
-    );
+    const r = renderModal({ kind: "Modal", child: { kind: "Text", text: "confirm?" } }, 60);
     expect(r.length).toBeGreaterThanOrEqual(3);
     expect(r[0]).toHaveLength(60);
     expect(r[0]?.startsWith("+-- Modal ")).toBe(true);
@@ -57,23 +54,14 @@ describe("renderModal (D-36)", () => {
   it("rectangular contract holds across widths", () => {
     const widths = [20, 40, 60];
     for (const w of widths) {
-      const r = renderModal(
-        { kind: "Modal", child: { kind: "Text", text: "x" } },
-        w,
-      );
+      const r = renderModal({ kind: "Modal", child: { kind: "Text", text: "x" } }, w);
       expect(r.every((l) => l.length === w)).toBe(true);
     }
   });
 
   it("is deterministic (byte-equal on repeated calls)", () => {
-    const a = renderModal(
-      { kind: "Modal", child: { kind: "Text", text: "x" } },
-      40,
-    );
-    const b = renderModal(
-      { kind: "Modal", child: { kind: "Text", text: "x" } },
-      40,
-    );
+    const a = renderModal({ kind: "Modal", child: { kind: "Text", text: "x" } }, 40);
+    const b = renderModal({ kind: "Modal", child: { kind: "Text", text: "x" } }, 40);
     expect(a).toEqual(b);
   });
 });

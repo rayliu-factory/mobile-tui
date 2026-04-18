@@ -30,10 +30,7 @@ describe("renderSheet (D-36)", () => {
   });
 
   it("wraps a single Text child", () => {
-    const r = renderSheet(
-      { kind: "Sheet", child: { kind: "Text", text: "choose" } },
-      60,
-    );
+    const r = renderSheet({ kind: "Sheet", child: { kind: "Text", text: "choose" } }, 60);
     expect(r.length).toBeGreaterThanOrEqual(3);
     expect(r[0]?.startsWith("+-- Sheet ")).toBe(true);
     expect(r.every((l) => l.length === 60)).toBe(true);
@@ -42,23 +39,14 @@ describe("renderSheet (D-36)", () => {
   it("rectangular contract holds across widths", () => {
     const widths = [20, 40, 60];
     for (const w of widths) {
-      const r = renderSheet(
-        { kind: "Sheet", child: { kind: "Text", text: "x" } },
-        w,
-      );
+      const r = renderSheet({ kind: "Sheet", child: { kind: "Text", text: "x" } }, w);
       expect(r.every((l) => l.length === w)).toBe(true);
     }
   });
 
   it("is deterministic (byte-equal on repeated calls)", () => {
-    const a = renderSheet(
-      { kind: "Sheet", child: { kind: "Text", text: "x" } },
-      40,
-    );
-    const b = renderSheet(
-      { kind: "Sheet", child: { kind: "Text", text: "x" } },
-      40,
-    );
+    const a = renderSheet({ kind: "Sheet", child: { kind: "Text", text: "x" } }, 40);
+    const b = renderSheet({ kind: "Sheet", child: { kind: "Text", text: "x" } }, 40);
     expect(a).toEqual(b);
   });
 });

@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderModal (D-36) > emits \`+-- Modal -----+\` labeled top border + child body + bottom border 1`] = `
+[
+  "+-- Modal -------------------------------------------------+",
+  "| confirm?                                                 |",
+  "+----------------------------------------------------------+",
+]
+`;
