@@ -43,6 +43,8 @@ Phase 1 (Model L1/L2)
 - [x] **Phase 4: Editor Store, Commands & Undo** — Single reactive store with named undoable commands, 200-step history, write-through debounced autosave, live diagnostics, and a headless `cli-edit` harness. ✓ 2026-04-18
 - [x] **Phase 5: Canvas TUI Shell** — 3-pane keyboard-driven canvas with focus FSM, command palette, persistent help line, save indicator, and `ctx.ui.custom()`-scoped rendering. ✓ 2026-04-19
 - [x] **Phase 6: Wizard & Graduation** — 8 linear steps layered on the canvas store; re-entry edits in place; mode-flip to canvas with no reset. ✓ 2026-04-19
+- [ ] **Phase 6.1: Functional Integration Fixes** — Wire runMigrations into parseSpecFile, persist DataStep entities via store.apply, instantiate createAutosave in both entry scripts.
+- [ ] **Phase 6.2: Documentation & Traceability Repair** — Produce Phase 3 VERIFICATION.md (audit blocker), update stale REQUIREMENTS.md checkboxes for Phases 4–6, finalize draft VALIDATION files.
 - [ ] **Phase 7: Maestro Emitter** — Pure emitter from `TestFlow` + nav graph to `<flow>.ios.yaml` / `<flow>.android.yaml`, sigil-gated with no coordinate fallbacks, wired to `:emit maestro`.
 - [ ] **Phase 8: LLM Handoff Commands** — `:yank wireframe`, `:prompt screen …`, `:extract --screen`, with semantic-token-based prompt scaffolds under 2k tokens.
 - [ ] **Phase 9: pi.dev Integration & Packaging** — Thin L7 glue: `/spec` command, shortcuts, session lifecycle, file-mutation queue, `tsup` ESM+dts build, README, `pi install npm:mobile-tui` verified on two pi versions.
@@ -205,6 +207,43 @@ Plans:
 - [ ] 06-05-PLAN.md — SpecPreviewPane (YAML display pane) + calcWizardPaneWidths (50/50 horizontal split)
 - [ ] 06-06-PLAN.md — WizardRoot assembly + scripts/wizard.ts CLI entry + graduation + 4 test files unskipped
 
+### Phase 6.1: Functional Integration Fixes
+
+**Goal**: Close the three functional integration gaps identified in the v1 milestone audit — migration pipeline, DataStep persistence, and autosave wiring — so no user-visible data is silently discarded.
+
+**Depends on**: Phases 1–6 (fixes integration between existing phases).
+
+**Requirements**: SERDE-08 (migration wire-up), WIZARD-02, WIZARD-03 (DataStep persistence), SERDE-06 / EDITOR-04 / EDITOR-05 (autosave wiring)
+
+**Gap Closure:** Closes gaps from v1 milestone audit (2026-04-19)
+
+**Success Criteria** (what must be TRUE):
+  1. `parseSpecFile` calls `runMigrations` before `validateSpec` — a spec with `schema: mobile-tui/0` migrates successfully instead of failing validation.
+  2. Advancing past the DataStep in wizard mode calls `store.apply("add-entity", ...)` for each named entity; canvas sees non-empty `spec.data.entities` after graduation.
+  3. `createAutosave(store, resolvedPath)` is instantiated in both `scripts/canvas.ts` and `scripts/wizard.ts`; `autosave.dispose()` is called before `store.flush()` on quit.
+  4. The `autosave-on-edit` and `wizard-data-persistence` E2E flows are verified in tests.
+
+**Plans**: TBD
+
+### Phase 6.2: Documentation & Traceability Repair
+
+**Goal**: Resolve the Phase 3 unverified-phase blocker and bring all documentation artifacts into sync with the verified implementation state of Phases 4–6.
+
+**Depends on**: Phases 3–6 (read-only; no code changes).
+
+**Requirements**: WIREFRAME-01..06 (Phase 3 VERIFICATION.md), EDITOR-01..06 (stale traceability), CANVAS-01..06 (stale traceability), WIZARD-01..05 (stale traceability)
+
+**Gap Closure:** Closes Phase 3 unverified-phase blocker; resolves stale REQUIREMENTS.md traceability for Phases 4–6
+
+**Success Criteria** (what must be TRUE):
+  1. `03-VERIFICATION.md` exists and all WIREFRAME-01..06 requirements are marked SATISFIED.
+  2. REQUIREMENTS.md checkboxes for EDITOR-01..06, CANVAS-01..06, WIZARD-01..05 are checked (`[x]`).
+  3. Traceability table Status column shows Complete for all Phase 4, 5, 6 requirements.
+  4. `02-VALIDATION.md` has `nyquist_compliant: true` and `status: final`.
+  5. `05-VALIDATION.md` has `status: final`.
+
+**Plans**: TBD
+
 ### Phase 7: Maestro Emitter
 
 **Goal**: Every user journey in the spec becomes two executable Maestro flow files (iOS + Android), each selecting via `test:` sigils — runnable against a real device without edits.
@@ -265,7 +304,9 @@ Plans:
 | 3. Wireframe Renderer & Dogfood Gate | 9/9 | Complete | 2026-04-18 |
 | 4. Editor Store, Commands & Undo | 7/7 | Complete | 2026-04-18 |
 | 5. Canvas TUI Shell | 0/6 | Planned | — |
-| 6. Wizard & Graduation | 0/6 | Planned | — |
+| 6. Wizard & Graduation | 6/6 | Complete | 2026-04-19 |
+| 6.1. Functional Integration Fixes | 0/? | Not started | — |
+| 6.2. Documentation & Traceability Repair | 0/? | Not started | — |
 | 7. Maestro Emitter | 0/? | Not started | — |
 | 8. LLM Handoff Commands | 0/? | Not started | — |
 | 9. pi.dev Integration & Packaging | 0/? | Not started | — |
@@ -303,4 +344,4 @@ No orphaned requirements. No duplicated mappings.
 
 ---
 
-*Last updated: 2026-04-17 after initial roadmap creation.*
+*Last updated: 2026-04-19 after gap closure phases 6.1 and 6.2 added.*

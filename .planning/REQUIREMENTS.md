@@ -40,29 +40,29 @@ All v1 requirements are hypotheses until shipped and validated.
 
 ### Editor store (EDITOR)
 
-- [ ] **EDITOR-01**: The editor exposes a reactive store over the Spec that both wizard and canvas subscribe to — a single source of truth with no per-shell copies
-- [ ] **EDITOR-02**: Every state mutation is a named command with `apply(state) → newState` and `invert(state) → inverse` shape, one file per command, exhaustively tested
-- [ ] **EDITOR-03**: An undo/redo stack of at least 200 steps, traversable via `u` / `Ctrl+r` in both shells
+- [x] **EDITOR-01**: The editor exposes a reactive store over the Spec that both wizard and canvas subscribe to — a single source of truth with no per-shell copies
+- [x] **EDITOR-02**: Every state mutation is a named command with `apply(state) → newState` and `invert(state) → inverse` shape, one file per command, exhaustively tested
+- [x] **EDITOR-03**: An undo/redo stack of at least 200 steps, traversable via `u` / `Ctrl+r` in both shells
 - [ ] **EDITOR-04**: After every successful apply, the store debounces a write-through save via the serializer — there is no "save" button and no "unsaved" state
 - [ ] **EDITOR-05**: After every apply, invariants are re-validated and diagnostics are published to subscribers for inline display
-- [ ] **EDITOR-06**: A headless `cli-edit` script can apply any command against a spec file without the TUI, so commands are scriptable and test-harnessable
+- [x] **EDITOR-06**: A headless `cli-edit` script can apply any command against a spec file without the TUI, so commands are scriptable and test-harnessable
 
 ### Wizard mode (WIZARD)
 
-- [ ] **WIZARD-01**: The wizard walks the user through 8 fixed linear steps: app idea → primary user → navigation pattern → screens → auth → data → offline/sync → target platforms (no branching in v1)
+- [x] **WIZARD-01**: The wizard walks the user through 8 fixed linear steps: app idea → primary user → navigation pattern → screens → auth → data → offline/sync → target platforms (no branching in v1)
 - [ ] **WIZARD-02**: Every step saves its answers to the spec file immediately on advance; the user can quit at any step without losing work
 - [ ] **WIZARD-03**: From any step, the user can jump back to an earlier step (linear step list with position indicator) and can skip-to-canvas at any point
-- [ ] **WIZARD-04**: When the wizard is re-entered against an existing spec, it edits in place rather than restarting — unfinished steps surface as `TODO` markers, finished steps show their saved answer
-- [ ] **WIZARD-05**: Wizard uses the same keybinding table and command palette as canvas; moving from wizard to canvas is a mode flip with no reset
+- [x] **WIZARD-04**: When the wizard is re-entered against an existing spec, it edits in place rather than restarting — unfinished steps surface as `TODO` markers, finished steps show their saved answer
+- [x] **WIZARD-05**: Wizard uses the same keybinding table and command palette as canvas; moving from wizard to canvas is a mode flip with no reset
 
 ### Canvas mode (CANVAS)
 
-- [ ] **CANVAS-01**: Canvas shows a 3-pane layout: screens list (left) / editor (center) / wireframe preview (right); keyboard-only navigation with explicit focus FSM and no global keybindings
-- [ ] **CANVAS-02**: A command palette is always reachable via `:` or `Ctrl+P`; it lists every command the editor exposes and their current keybindings
-- [ ] **CANVAS-03**: A persistent single-line help line at the bottom of the TUI shows the 4-6 most relevant bindings for the current focus
-- [ ] **CANVAS-04**: A save indicator (`●` dirty → `✓` clean) reflects the debounced write-through state so the user always knows disk is in sync
-- [ ] **CANVAS-05**: Canvas is useful on its own against an existing spec file — it is not wizard-gated
-- [ ] **CANVAS-06**: Canvas renders only within the region granted by `ctx.ui.custom()`; no raw alt-buffer escape sequences, no fighting pi's own chrome
+- [x] **CANVAS-01**: Canvas shows a 3-pane layout: screens list (left) / editor (center) / wireframe preview (right); keyboard-only navigation with explicit focus FSM and no global keybindings
+- [x] **CANVAS-02**: A command palette is always reachable via `:` or `Ctrl+P`; it lists every command the editor exposes and their current keybindings
+- [x] **CANVAS-03**: A persistent single-line help line at the bottom of the TUI shows the 4-6 most relevant bindings for the current focus
+- [x] **CANVAS-04**: A save indicator (`●` dirty → `✓` clean) reflects the debounced write-through state so the user always knows disk is in sync
+- [x] **CANVAS-05**: Canvas is useful on its own against an existing spec file — it is not wizard-gated
+- [x] **CANVAS-06**: Canvas renders only within the region granted by `ctx.ui.custom()`; no raw alt-buffer escape sequences, no fighting pi's own chrome
 
 ### Maestro emitter (MAESTRO)
 
@@ -135,32 +135,32 @@ All v1 requirements are hypotheses until shipped and validated.
 | SERDE-03 | Phase 2 | Complete (Plan 02-04) |
 | SERDE-04 | Phase 2 | Complete (Plan 02-05) |
 | SERDE-05 | Phase 2 | Complete (Plan 02-05) |
-| SERDE-06 | Phase 2 | Complete (Plan 02-04 atomic primitive; debounce Phase 4) |
+| SERDE-06 | Phase 6.1 | Pending (autosave wiring gap) |
 | SERDE-07 | Phase 2 | Complete (Plan 02-04) |
-| SERDE-08 | Phase 1 | Complete |
+| SERDE-08 | Phase 6.1 | Pending |
 | WIREFRAME-01 | Phase 3 | Complete |
 | WIREFRAME-02 | Phase 3 | Complete |
 | WIREFRAME-03 | Phase 3 | Complete |
 | WIREFRAME-04 | Phase 3 | Complete |
 | WIREFRAME-05 | Phase 3 | Complete |
 | WIREFRAME-06 | Phase 3 | Complete |
-| EDITOR-01 | Phase 4 | Pending |
-| EDITOR-02 | Phase 4 | Pending |
-| EDITOR-03 | Phase 4 | Pending |
-| EDITOR-04 | Phase 4 | Pending |
-| EDITOR-05 | Phase 4 | Pending |
-| EDITOR-06 | Phase 4 | Pending |
-| WIZARD-01 | Phase 6 | Pending |
-| WIZARD-02 | Phase 6 | Pending |
-| WIZARD-03 | Phase 6 | Pending |
-| WIZARD-04 | Phase 6 | Pending |
-| WIZARD-05 | Phase 6 | Pending |
-| CANVAS-01 | Phase 5 | Pending |
-| CANVAS-02 | Phase 5 | Pending |
-| CANVAS-03 | Phase 5 | Pending |
-| CANVAS-04 | Phase 5 | Pending |
-| CANVAS-05 | Phase 5 | Pending |
-| CANVAS-06 | Phase 5 | Pending |
+| EDITOR-01 | Phase 4 | Complete |
+| EDITOR-02 | Phase 4 | Complete |
+| EDITOR-03 | Phase 4 | Complete |
+| EDITOR-04 | Phase 6.1 | Pending (autosave wiring gap) |
+| EDITOR-05 | Phase 6.1 | Pending (autosave wiring gap) |
+| EDITOR-06 | Phase 4 | Complete |
+| WIZARD-01 | Phase 6 | Complete |
+| WIZARD-02 | Phase 6.1 | Pending (DataStep persistence gap) |
+| WIZARD-03 | Phase 6.1 | Pending (DataStep persistence gap) |
+| WIZARD-04 | Phase 6 | Complete |
+| WIZARD-05 | Phase 6 | Complete |
+| CANVAS-01 | Phase 5 | Complete |
+| CANVAS-02 | Phase 5 | Complete |
+| CANVAS-03 | Phase 5 | Complete |
+| CANVAS-04 | Phase 5 | Complete |
+| CANVAS-05 | Phase 5 | Complete |
+| CANVAS-06 | Phase 5 | Complete |
 | MAESTRO-01 | Phase 7 | Pending |
 | MAESTRO-02 | Phase 7 | Pending |
 | MAESTRO-03 | Phase 7 | Pending |
@@ -182,4 +182,4 @@ All v1 requirements are hypotheses until shipped and validated.
 **Coverage**: 58 / 58 requirements mapped. No orphans. No duplicates.
 
 ---
-*Last updated: 2026-04-17 after roadmap creation.*
+*Last updated: 2026-04-19 after gap closure phases 6.1 and 6.2 added; EDITOR/CANVAS/WIZARD traceability corrected.*
