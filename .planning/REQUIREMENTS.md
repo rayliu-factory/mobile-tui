@@ -66,11 +66,11 @@ All v1 requirements are hypotheses until shipped and validated.
 
 ### Maestro emitter (MAESTRO)
 
-- [ ] **MAESTRO-01**: The Maestro emitter is a pure function from `Spec.TestFlow` + nav graph + interactions to YAML; it has no implicit IO
-- [ ] **MAESTRO-02**: Output is two files per flow: `<flow>.ios.yaml` and `<flow>.android.yaml` with platform-branched steps where needed
-- [ ] **MAESTRO-03**: Every interaction in the emitted flow selects via a `test:` sigil registered in the spec — coordinate taps and nth-child selectors are forbidden and cause emission to fail loudly
-- [ ] **MAESTRO-04**: Emission validates output via `maestro check-flow-syntax` when `MAESTRO_CLI=1` is set; otherwise emits without the external check but still enforces our own schema
-- [ ] **MAESTRO-05**: A `:emit maestro` command in canvas writes the YAML files next to the spec in a `./flows/` directory
+- [x] **MAESTRO-01**: The Maestro emitter is a pure function from `Spec.TestFlow` + nav graph + interactions to YAML; it has no implicit IO
+- [x] **MAESTRO-02**: Output is two files per flow: `<flow>.ios.yaml` and `<flow>.android.yaml` with platform-branched steps where needed
+- [x] **MAESTRO-03**: Every interaction in the emitted flow selects via a `test:` sigil registered in the spec — coordinate taps and nth-child selectors are forbidden and cause emission to fail loudly
+- [x] **MAESTRO-04**: Emission validates output via `maestro check-flow-syntax` when `MAESTRO_CLI=1` is set; otherwise emits without the external check but still enforces our own schema
+- [x] **MAESTRO-05**: A `:emit maestro` command in canvas writes the YAML files next to the spec in a `./flows/` directory
 
 ### LLM handoff (HANDOFF)
 
@@ -161,11 +161,11 @@ All v1 requirements are hypotheses until shipped and validated.
 | CANVAS-04 | Phase 5 | Complete |
 | CANVAS-05 | Phase 5 | Complete |
 | CANVAS-06 | Phase 5 | Complete |
-| MAESTRO-01 | Phase 7 | Pending |
-| MAESTRO-02 | Phase 7 | Pending |
-| MAESTRO-03 | Phase 7 | Pending |
-| MAESTRO-04 | Phase 7 | Pending |
-| MAESTRO-05 | Phase 7 | Pending |
+| MAESTRO-01 | Phase 7 | Complete |
+| MAESTRO-02 | Phase 7 | Complete |
+| MAESTRO-03 | Phase 7 | Complete |
+| MAESTRO-04 | Phase 7 | Complete |
+| MAESTRO-05 | Phase 7 | Complete |
 | HANDOFF-01 | Phase 8 | Pending |
 | HANDOFF-02 | Phase 8 | Pending |
 | HANDOFF-03 | Phase 8 | Pending |
