@@ -55,7 +55,9 @@ type CommandRegistry = Record<string, AnyCommand>;
 export function createStore(
   initial: { spec: Spec; astHandle: AstHandle; filePath: string },
   commands: CommandRegistry = COMMANDS,
+  deps: { withMutationQueue?: (absPath: string, fn: () => Promise<void>) => Promise<void> } = {},
 ): Store {
+  const queueWrap = deps.withMutationQueue ?? ((_absPath: string, fn: () => Promise<void>) => fn());
   // ── Internal closure state (D-53) ──────────────────────────────────────
   let spec = initial.spec;
   const astHandle = initial.astHandle;
@@ -265,7 +267,10 @@ export function createStore(
     },
 
     async flush(): Promise<WriteResult> {
-      const result = await writeSpecFile(filePath, spec, astHandle);
+      let result!: WriteResult;
+      await queueWrap(filePath, async () => {
+        result = await writeSpecFile(filePath, spec, astHandle);
+      });
       lastWriteResult = result;
       if (result.written) {
         dirty = false;
