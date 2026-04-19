@@ -27,11 +27,29 @@
 // with the five top-level fields declared below. Biome's formatter wraps the
 // chain onto multiple lines; the semantic expression is unchanged.
 import { z } from "zod";
+import { ActionIdSchema, ScreenIdSchema } from "../primitives/ids.ts";
 import { ActionsRegistrySchema } from "./action.ts";
 import { DataModelSchema } from "./data.ts";
 import { NavigationGraphSchema } from "./navigation.ts";
 import { ScreenSchema } from "./screen.ts";
 import { SCHEMA_VERSION } from "./version.ts";
+
+// Phase-7: TestFlow schemas — optional so existing specs without test_flows
+// continue to parse without errors (D-107 backward compat).
+// .strict() is retained on SpecSchema — test_flows is a named known key.
+export const TestFlowStepSchema = z.object({
+  screen: ScreenIdSchema,
+  action: ActionIdSchema,
+  platform: z.enum(["ios", "android", "both"]).default("both"),
+});
+
+export const TestFlowSchema = z.object({
+  name: z.string().min(1),
+  steps: z.array(TestFlowStepSchema).min(1),
+});
+
+export type TestFlow = z.infer<typeof TestFlowSchema>;
+export type TestFlowStep = z.infer<typeof TestFlowStepSchema>;
 
 // Phase-6: Wizard intake fields — all optional so existing specs that lack
 // wizard fields continue to parse without errors (WIZARD-01 backward compat).
@@ -78,6 +96,10 @@ export const SpecSchema = z
     // Phase-6 wizard fields — all optional for backward compat (WIZARD-01).
     // Spread WizardMetaSchema.shape so .strict() sees them as known keys.
     ...WizardMetaSchema.shape,
+
+    // Phase-7: test_flows — optional for backward compat (D-107).
+    // Named key so .strict() sees it as known (T-7-02-01 mitigation).
+    test_flows: z.array(TestFlowSchema).optional(),
   })
   // .strict() — HARD boundary per Plan 05 + RESEARCH §Anti-Patterns. Phase 2
   // relaxes via an _unknown: bucket in the SERIALIZER, not here. See comment

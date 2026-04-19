@@ -404,5 +404,32 @@ export function crossReferencePass(spec: Spec): Diagnostic[] {
     }
   }
 
+  // Phase-7: validate test_flows[] screen + action references (MAESTRO-03 structural check)
+  // T-7-02-02 mitigation: bad refs produce error diagnostics that block emission.
+  for (let fi = 0; fi < (spec.test_flows ?? []).length; fi++) {
+    const flow = spec.test_flows?.[fi];
+    if (!flow) continue;
+    for (let si = 0; si < flow.steps.length; si++) {
+      const step = flow.steps[si];
+      if (!step) continue;
+      if (!declaredScreens.has(step.screen)) {
+        diagnostics.push({
+          code: "MAESTRO_UNRESOLVED_SCREEN",
+          severity: "error",
+          path: pathToJsonPointer(["test_flows", fi, "steps", si, "screen"]),
+          message: `test_flow step.screen "${step.screen}" not declared in screens`,
+        });
+      }
+      if (!declaredActions.has(step.action)) {
+        diagnostics.push({
+          code: "MAESTRO_UNRESOLVED_ACTION",
+          severity: "error",
+          path: pathToJsonPointer(["test_flows", fi, "steps", si, "action"]),
+          message: `test_flow step.action "${step.action}" not declared in actions`,
+        });
+      }
+    }
+  }
+
   return diagnostics;
 }
