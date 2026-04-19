@@ -16,6 +16,9 @@ import { parseSpecFile } from "../src/serialize/index.ts";
 
 describe("malformed fixture — cross-ref diagnostics (Stage B)", () => {
   const CROSSREF_CODES = [
+    "SPEC_DUPLICATE_SCREEN_ID",
+    "SPEC_DUPLICATE_ENTITY_NAME",
+    "SPEC_UNRESOLVED_SCREEN",
     "SPEC_UNRESOLVED_ACTION",
     "SPEC_JSONPTR_UNRESOLVED",
     "SPEC_TESTID_COLLISION",

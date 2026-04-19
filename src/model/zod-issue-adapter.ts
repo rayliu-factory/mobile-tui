@@ -42,6 +42,7 @@ export const ZOD_CODE_MAP: Readonly<Record<string, string>> = {
   invalid_format: "SPEC_INVALID_FORMAT",
   invalid_string: "SPEC_INVALID_STRING",
   custom: "SPEC_CUSTOM_VALIDATION",
+  invalid_key: "SPEC_INVALID_KEY",
 };
 
 /**

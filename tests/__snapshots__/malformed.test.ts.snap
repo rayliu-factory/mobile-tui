@@ -9,6 +9,18 @@ exports[`malformed fixture — cross-ref diagnostics (Stage B) > snapshots the f
     "severity": "error",
   },
   {
+    "code": "SPEC_DUPLICATE_ENTITY_NAME",
+    "message": "entity name "Habit" already declared at /data/entities/0/name",
+    "path": "/data/entities/1/name",
+    "severity": "error",
+  },
+  {
+    "code": "SPEC_DUPLICATE_SCREEN_ID",
+    "message": "screen id "home" already declared at /screens/0/id",
+    "path": "/screens/2/id",
+    "severity": "error",
+  },
+  {
     "code": "SPEC_JSONPTR_UNRESOLVED",
     "message": "mutate.target "/GhostEntity/field" does not resolve under data model (/Entity/field prefix required)",
     "path": "/actions/mutate_ghost/target",
@@ -28,12 +40,6 @@ exports[`malformed fixture — cross-ref diagnostics (Stage B) > snapshots the f
   },
   {
     "code": "SPEC_UNRESOLVED_ACTION",
-    "message": "navigate.screen "ghost_screen" not declared in screens",
-    "path": "/actions/go_nowhere/screen",
-    "severity": "error",
-  },
-  {
-    "code": "SPEC_UNRESOLVED_ACTION",
     "message": "submit.entity "GhostEntity" not declared in data.entities",
     "path": "/actions/submit_nothing/entity",
     "severity": "error",
@@ -42,6 +48,12 @@ exports[`malformed fixture — cross-ref diagnostics (Stage B) > snapshots the f
     "code": "SPEC_UNRESOLVED_ACTION",
     "message": "action "ghost_action" referenced but not declared in actions registry",
     "path": "/screens/0/variants/content/tree/0/children/0/action",
+    "severity": "error",
+  },
+  {
+    "code": "SPEC_UNRESOLVED_SCREEN",
+    "message": "navigate.screen "ghost_screen" not declared in screens",
+    "path": "/actions/go_nowhere/screen",
     "severity": "error",
   },
 ]

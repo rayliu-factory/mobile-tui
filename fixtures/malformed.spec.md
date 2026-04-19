@@ -36,6 +36,18 @@ screens:
       loading: null
       error: null
 
+  - id: home
+    title: Duplicate Home
+    kind: regular
+    back_behavior: pop
+    variants:
+      content:
+        kind: content
+        tree: []
+      empty: null
+      loading: null
+      error: null
+
 actions:
   dismiss_this:
     kind: dismiss
@@ -60,6 +72,10 @@ data:
       fields:
         - name: title
           type: string
+    - name: Habit
+      fields:
+        - name: count
+          type: number
 
 navigation:
   root: home
@@ -77,7 +93,10 @@ Deliberately-malformed fixture. Stage A passes; Stage B (cross-reference) emits
 every SPEC_* cross-ref diagnostic code used by validateSpec().
 
 Expected diagnostics (at least one occurrence each):
-- SPEC_UNRESOLVED_ACTION (ghost_action sigil, go_nowhere.screen, submit_nothing.entity)
+- SPEC_DUPLICATE_SCREEN_ID (id: home declared twice)
+- SPEC_DUPLICATE_ENTITY_NAME (name: Habit declared twice)
+- SPEC_UNRESOLVED_SCREEN (go_nowhere.screen, navigation root/edge checks)
+- SPEC_UNRESOLVED_ACTION (ghost_action sigil, submit_nothing.entity, nav.edge.trigger)
 - SPEC_JSONPTR_UNRESOLVED (mutate_ghost.target)
 - SPEC_TESTID_COLLISION (nested shared_id)
 - SPEC_MISSING_BACK_BEHAVIOR (broken_detail)
