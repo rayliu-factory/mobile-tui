@@ -21,6 +21,7 @@ import path from "node:path";
 import { promises as fs } from "node:fs";
 import YAML from "yaml";
 import { createStore } from "../src/editor/index.ts";
+import { createAutosave } from "../src/editor/autosave.ts";
 import { RootCanvas } from "../src/canvas/root.ts";
 import { parseSpecFile } from "../src/serialize/index.ts";
 import { WizardRoot } from "../src/wizard/root.ts";
@@ -63,6 +64,7 @@ async function main(): Promise<void> {
     astHandle: parseResult.astHandle!,
     filePath: resolvedPath,
   });
+  const autosave = createAutosave(store, resolvedPath);
 
   // Phase 6 headless verify — Phase 9 replaces with ctx.ui.custom(wizardRoot)
   // The mockTheme passes strings through without ANSI codes (headless mode)
@@ -73,6 +75,7 @@ async function main(): Promise<void> {
   wizardRoot.onGraduate = () => {
     const canvasRoot = new RootCanvas(store, { theme: mockTheme });
     canvasRoot.onQuit = async () => {
+      autosave.dispose();
       await store.flush();
     };
     // Phase 9: ctx.ui.custom(canvasRoot) — headless: render once
@@ -81,6 +84,7 @@ async function main(): Promise<void> {
   };
 
   wizardRoot.onQuit = async () => {
+    autosave.dispose();
     await store.flush();
   };
 
@@ -93,6 +97,7 @@ async function main(): Promise<void> {
   }
 
   // Flush the store (no-op since we made no edits, but required by D-87)
+  autosave.dispose();
   await store.flush();
 
   process.exitCode = 0;

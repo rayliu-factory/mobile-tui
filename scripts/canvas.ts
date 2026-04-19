@@ -16,6 +16,7 @@
 // T-04-24 pattern: main().catch writes only err.message (not stack).
 
 import { createStore } from "../src/editor/index.ts";
+import { createAutosave } from "../src/editor/autosave.ts";
 import { RootCanvas } from "../src/canvas/root.ts";
 import { parseSpecFile } from "../src/serialize/index.ts";
 
@@ -45,6 +46,7 @@ async function main(): Promise<void> {
     astHandle: parseResult.astHandle!,
     filePath: specPath,
   });
+  const autosave = createAutosave(store, specPath);
 
   // Phase 5 headless verify — Phase 9 replaces with ctx.ui.custom(rootCanvas)
   // The mockTheme passes strings through without ANSI codes (headless mode)
@@ -59,6 +61,7 @@ async function main(): Promise<void> {
   }
 
   // Flush the store (no-op in Phase 5 since we made no edits, but required by D-87)
+  autosave.dispose();
   await store.flush();
 
   process.exitCode = 0;
