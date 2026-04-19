@@ -176,7 +176,7 @@ export class FormPane implements Component {
         this.error = "Please enter a platform (ios / android / both).";
         return;
       }
-      applyArgs = { values: platforms };
+      applyArgs = { value: platforms };
     } else {
       if (this.inputValue.trim().length === 0) {
         this.error = "Please enter a value before continuing.";
