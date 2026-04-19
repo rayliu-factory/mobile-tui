@@ -43,7 +43,7 @@ async function main(): Promise<void> {
   } catch {
     // File does not exist — write seed spec
     const seedSpec = createSeedSpec();
-    const seedYaml = `---\n${YAML.stringify(seedSpec)}---\n`;
+    const seedYaml = `---\n${YAML.stringify(seedSpec)}---\n\n`;
     await fs.writeFile(resolvedPath, seedYaml, "utf-8");
   }
 
