@@ -4,6 +4,9 @@
 // Implementation lands in Phase 5 plans 02–06.
 
 import { runEmitMaestro } from "../editor/commands/emit-maestro.ts";
+import { extractScreenCommand, runExtractScreen } from "../editor/commands/extract-screen.ts";
+import { promptScreenCommand, runPromptScreen } from "../editor/commands/prompt-screen.ts";
+import { yankWireframeCommand, runYankWireframe } from "../editor/commands/yank-wireframe.ts";
 import type { Snapshot, Store } from "../editor/types.ts";
 import type { FocusState } from "./focus-fsm.ts";
 import { nextFocus } from "./focus-fsm.ts";
@@ -129,6 +132,13 @@ export class RootCanvas implements Component {
     this._unsubscribe = store.subscribe((snap) => {
       this.onSnapshot(snap);
     });
+
+    // Wire side-effect command result callbacks so palette-invoked commands
+    // surface results on the status line via emitStatus (D-211).
+    yankWireframeCommand._onResult = (r) => this.notifySideEffectResult(r);
+    promptScreenCommand._onResult = (r) => this.notifySideEffectResult(r);
+    extractScreenCommand._onResult = (r) => this.notifySideEffectResult(r);
+    extractScreenCommand._specFilePath = store.getState().filePath;
   }
 
   /**
@@ -211,6 +221,22 @@ export class RootCanvas implements Component {
   }
 
   /**
+   * Called by COMMANDS apply() for side-effect commands (yank-wireframe, prompt-screen,
+   * extract-screen) to surface runner results on the status line (D-211).
+   * This is the bridge between store.apply() and the emitStatus TUI pattern.
+   */
+  public notifySideEffectResult(result: { ok: boolean; message: string }): void {
+    if (this.emitStatusTimer !== null) clearTimeout(this.emitStatusTimer);
+    this.emitStatus = { message: result.message, ok: result.ok };
+    this.tui?.requestRender();
+    this.emitStatusTimer = setTimeout(() => {
+      this.emitStatus = null;
+      this.emitStatusTimer = null;
+      this.tui?.requestRender();
+    }, 3000);
+  }
+
+  /**
    * Trigger Maestro emission as a side-effect action (D-113 / D-114).
    * NOT via store.apply — emit-maestro is not a spec-mutating Command<T>.
    * Writes flow files, shows status in header, auto-clears after 3s.
@@ -223,6 +249,48 @@ export class RootCanvas implements Component {
       this.emitStatus = { message: result.message, ok: result.ok };
       this.tui?.requestRender();
       // Auto-clear after 3s (D-114)
+      this.emitStatusTimer = setTimeout(() => {
+        this.emitStatus = null;
+        this.emitStatusTimer = null;
+        this.tui?.requestRender();
+      }, 3000);
+    });
+  }
+
+  private triggerYankWireframe(screenId: string): void {
+    const state = this.store.getState();
+    void runYankWireframe(state.spec, screenId).then((result) => {
+      if (this.emitStatusTimer !== null) clearTimeout(this.emitStatusTimer);
+      this.emitStatus = { message: result.message, ok: result.ok };
+      this.tui?.requestRender();
+      this.emitStatusTimer = setTimeout(() => {
+        this.emitStatus = null;
+        this.emitStatusTimer = null;
+        this.tui?.requestRender();
+      }, 3000);
+    });
+  }
+
+  private triggerPromptScreen(screenId: string, target: "swiftui" | "compose" | "tests"): void {
+    const state = this.store.getState();
+    void runPromptScreen(state.spec, screenId, target).then((result) => {
+      if (this.emitStatusTimer !== null) clearTimeout(this.emitStatusTimer);
+      this.emitStatus = { message: result.message, ok: result.ok };
+      this.tui?.requestRender();
+      this.emitStatusTimer = setTimeout(() => {
+        this.emitStatus = null;
+        this.emitStatusTimer = null;
+        this.tui?.requestRender();
+      }, 3000);
+    });
+  }
+
+  private triggerExtractScreen(screenId: string, target: "swiftui" | "compose" | "tests"): void {
+    const state = this.store.getState();
+    void runExtractScreen(state.spec, state.filePath, screenId, target).then((result) => {
+      if (this.emitStatusTimer !== null) clearTimeout(this.emitStatusTimer);
+      this.emitStatus = { message: result.message, ok: result.ok };
+      this.tui?.requestRender();
       this.emitStatusTimer = setTimeout(() => {
         this.emitStatus = null;
         this.emitStatusTimer = null;
@@ -277,6 +345,23 @@ export class RootCanvas implements Component {
     // Ctrl+E — emit maestro flows (D-113 / D-114)
     if (data === "\x05") {
       this.triggerEmitMaestro();
+      return;
+    }
+    // Ctrl+W (\x17) — yank wireframe for active screen (D-208 direct key binding path)
+    if (data === "\x17") {
+      const screenId = this.activeScreenId ?? "";
+      if (screenId) {
+        this.triggerYankWireframe(screenId);
+      } else {
+        if (this.emitStatusTimer !== null) clearTimeout(this.emitStatusTimer);
+        this.emitStatus = { message: "No screen selected", ok: false };
+        this.tui?.requestRender();
+        this.emitStatusTimer = setTimeout(() => {
+          this.emitStatus = null;
+          this.emitStatusTimer = null;
+          this.tui?.requestRender();
+        }, 3000);
+      }
       return;
     }
     // Tab — advance focus
