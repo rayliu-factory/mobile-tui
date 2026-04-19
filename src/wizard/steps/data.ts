@@ -36,6 +36,13 @@ export class DataStep {
       return { kind: "consumed" };
     }
     if (data === "\t") {
+      // Auto-commit pending input before advancing — prevents silent data loss
+      // if user typed a name but forgot to press Enter before Tab.
+      const trimmed = this.inputValue.trim();
+      if (trimmed.length > 0) {
+        this.items.push(trimmed);
+        this.inputValue = "";
+      }
       // No min-1 validation for data — data entities are optional
       return { kind: "advance", args: this.items };
     }

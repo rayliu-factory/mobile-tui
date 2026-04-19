@@ -40,6 +40,13 @@ export class ScreensStep {
       return { kind: "consumed" };
     }
     if (data === "\t") {
+      // Auto-commit pending input before advancing — prevents silent data loss
+      // if user typed a name but forgot to press Enter before Tab.
+      const trimmed = this.inputValue.trim();
+      if (trimmed.length > 0) {
+        this.items.push(trimmed);
+        this.inputValue = "";
+      }
       if (this.items.length === 0) {
         this.error = "At least one screen is required."; // D-94 exact copy
         return { kind: "consumed" };
