@@ -101,4 +101,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-17 after initialization*
+*Last updated: 2026-04-19 — Phase 6.1 complete: migration pipeline wired, DataStep entity persistence fixed, autosave instantiated in both entry scripts*

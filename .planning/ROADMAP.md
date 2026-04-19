@@ -43,7 +43,7 @@ Phase 1 (Model L1/L2)
 - [x] **Phase 4: Editor Store, Commands & Undo** — Single reactive store with named undoable commands, 200-step history, write-through debounced autosave, live diagnostics, and a headless `cli-edit` harness. ✓ 2026-04-18
 - [x] **Phase 5: Canvas TUI Shell** — 3-pane keyboard-driven canvas with focus FSM, command palette, persistent help line, save indicator, and `ctx.ui.custom()`-scoped rendering. ✓ 2026-04-19
 - [x] **Phase 6: Wizard & Graduation** — 8 linear steps layered on the canvas store; re-entry edits in place; mode-flip to canvas with no reset. ✓ 2026-04-19
-- [ ] **Phase 6.1: Functional Integration Fixes** — Wire runMigrations into parseSpecFile, persist DataStep entities via store.apply, instantiate createAutosave in both entry scripts.
+- [x] **Phase 6.1: Functional Integration Fixes** — Wire runMigrations into parseSpecFile, persist DataStep entities via store.apply, instantiate createAutosave in both entry scripts. ✓ 2026-04-19
 - [ ] **Phase 6.2: Documentation & Traceability Repair** — Produce Phase 3 VERIFICATION.md (audit blocker), update stale REQUIREMENTS.md checkboxes for Phases 4–6, finalize draft VALIDATION files.
 - [ ] **Phase 7: Maestro Emitter** — Pure emitter from `TestFlow` + nav graph to `<flow>.ios.yaml` / `<flow>.android.yaml`, sigil-gated with no coordinate fallbacks, wired to `:emit maestro`.
 - [ ] **Phase 8: LLM Handoff Commands** — `:yank wireframe`, `:prompt screen …`, `:extract --screen`, with semantic-token-based prompt scaffolds under 2k tokens.
@@ -226,8 +226,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 06.1-01-PLAN.md — Wire runMigrations into parseSpecFile + instantiate createAutosave in canvas.ts and wizard.ts
-- [ ] 06.1-02-PLAN.md — Persist DataStep entity names via store.apply("add-entity") on advance
+- [x] 06.1-01-PLAN.md — Wire runMigrations into parseSpecFile + instantiate createAutosave in canvas.ts and wizard.ts
+- [x] 06.1-02-PLAN.md — Persist DataStep entity names via store.apply("add-entity") on advance
 
 ### Phase 6.2: Documentation & Traceability Repair
 
@@ -309,7 +309,7 @@ Plans:
 | 4. Editor Store, Commands & Undo | 7/7 | Complete | 2026-04-18 |
 | 5. Canvas TUI Shell | 0/6 | Planned | — |
 | 6. Wizard & Graduation | 6/6 | Complete | 2026-04-19 |
-| 6.1. Functional Integration Fixes | 0/? | Not started | — |
+| 6.1. Functional Integration Fixes | 2/2 | Complete | 2026-04-19 |
 | 6.2. Documentation & Traceability Repair | 0/? | Not started | — |
 | 7. Maestro Emitter | 0/? | Not started | — |
 | 8. LLM Handoff Commands | 0/? | Not started | — |
