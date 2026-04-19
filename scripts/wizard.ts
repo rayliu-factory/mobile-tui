@@ -51,7 +51,7 @@ async function main(): Promise<void> {
   // Parse the spec file
   const parseResult = await parseSpecFile(resolvedPath);
 
-  if (!parseResult.spec) {
+  if (!parseResult.spec || !parseResult.astHandle) {
     for (const d of parseResult.diagnostics) {
       process.stderr.write(`${d.severity} ${d.path}: ${d.message}\n`);
     }
@@ -61,7 +61,7 @@ async function main(): Promise<void> {
   // Construct the store
   const store = createStore({
     spec: parseResult.spec,
-    astHandle: parseResult.astHandle!,
+    astHandle: parseResult.astHandle,
     filePath: resolvedPath,
   });
   const autosave = createAutosave(store, resolvedPath);
