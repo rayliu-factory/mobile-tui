@@ -86,7 +86,7 @@ describe("unknown.ts — partitionTopLevel", () => {
     );
   });
 
-  it("partitions a real Phase-1 fixture with 5 known + 0 unknown", () => {
+  it("partitions a real Phase-1 fixture with 5 known + test_flows as unknown (Phase-7 field pending schema)", () => {
     const raw = readFileSync(resolve("fixtures/habit-tracker.spec.md"), "utf8");
     // Grab just the frontmatter slice (between ---s)
     const match = raw.match(/^---\n([\s\S]*?)\n---/);
@@ -106,6 +106,8 @@ describe("unknown.ts — partitionTopLevel", () => {
       "schema",
       "screens",
     ]);
-    expect(unknownKeys).toEqual([]);
+    // test_flows is added to fixtures in Phase-7 Wave 0 but added to KNOWN_TOP_LEVEL_KEYS
+    // in Phase-7 Plan 02 (schema extension). Until then it is an unknown passthrough key.
+    expect(unknownKeys).toEqual(["test_flows"]);
   });
 });

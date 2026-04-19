@@ -180,6 +180,32 @@ navigation:
       to: home
       trigger: save_habit
       transition: replace
+
+test_flows:
+  - name: add_habit_flow
+    steps:
+      - screen: home
+        action: add_habit
+        platform: both
+      - screen: home
+        action: open_detail
+        platform: both
+      - screen: detail_modal
+        action: close_modal
+        platform: both
+  - name: toggle_done_flow
+    steps:
+      - screen: home
+        action: toggle_done
+        platform: both
+  - name: ios_permission_flow
+    steps:
+      - screen: home
+        action: add_habit
+        platform: ios
+      - screen: home
+        action: toggle_done
+        platform: android
 ---
 
 <!-- Phase 1 fixture: triple-form YAML; sigil parser lands in Phase 2 -->

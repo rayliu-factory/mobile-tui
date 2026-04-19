@@ -206,6 +206,26 @@ navigation:
       to: settings
       trigger: go_settings
       transition: push
+
+test_flows:
+  - name: add_todo_flow
+    steps:
+      - screen: inbox
+        action: add_task
+        platform: both
+  - name: dismiss_settings_flow
+    steps:
+      - screen: inbox
+        action: go_settings
+        platform: both
+      - screen: settings
+        action: dismiss_settings
+        platform: both
+  - name: custom_action_flow
+    steps:
+      - screen: settings
+        action: export_data
+        platform: both
 ---
 
 <!-- Phase 1 fixture: triple-form YAML; sigil parser lands in Phase 2 -->
