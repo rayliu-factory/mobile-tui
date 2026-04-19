@@ -48,7 +48,7 @@ Phase 1 (Model L1/L2)
 - [x] **Phase 7: Maestro Emitter** — Pure emitter from `TestFlow` + nav graph to `<flow>.ios.yaml` / `<flow>.android.yaml`, sigil-gated with no coordinate fallbacks, wired to `:emit maestro`. ✓ 2026-04-19
 - [x] **Phase 7.1: Maestro Emitter Hardening & Traceability** — Fix execFileSync timeout risk, testID unsafe cast, MAESTRO_UNRESOLVED_ACTION diagnostic naming, and update REQUIREMENTS.md MAESTRO-01..05 checkboxes. ✓ 2026-04-20
 - [ ] **Phase 7.2: Nyquist Validation for Gap-Closure Phases** — Produce VALIDATION.md for Phases 6.1 and 6.2 (gap-closure phases that shipped without formal Nyquist compliance records).
-- [ ] **Phase 7.3: Spec Model Diagnostic Completeness** — Add missing diagnostics from Phase 1 advisory review: duplicate screen-id, duplicate entity-name, RFC-6901 escape handling in resolveJsonPointerPrefix, migration runner contract alignment.
+- [x] **Phase 7.3: Spec Model Diagnostic Completeness** — Add missing diagnostics from Phase 1 advisory review: duplicate screen-id, duplicate entity-name, RFC-6901 escape handling in resolveJsonPointerPrefix, migration runner contract alignment. ✓ 2026-04-20
 - [ ] **Phase 8: LLM Handoff Commands** — `:yank wireframe`, `:prompt screen …`, `:extract --screen`, with semantic-token-based prompt scaffolds under 2k tokens.
 - [ ] **Phase 9: pi.dev Integration & Packaging** — Thin L7 glue: `/spec` command, shortcuts, session lifecycle, file-mutation queue, `tsup` ESM+dts build, README, `pi install npm:mobile-tui` verified on two pi versions.
 
@@ -332,8 +332,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 07.3-01-PLAN.md — cross-reference.ts WR-01/WR-02/WR-03/IN-01/IN-02/IN-03/IN-04/IN-06: duplicate-ID diagnostics, RFC 6901 decode, nav-code rename, zod mapping, comments
-- [ ] 07.3-02-PLAN.md — migrations/index.ts IN-05: never-throw runMigrations return type + parse.ts call-site update + full suite gate
+- [x] 07.3-01-PLAN.md — cross-reference.ts WR-01/WR-02/WR-03/IN-01/IN-02/IN-03/IN-04/IN-06: duplicate-ID diagnostics, RFC 6901 decode, nav-code rename, zod mapping, comments
+- [x] 07.3-02-PLAN.md — migrations/index.ts IN-05: never-throw runMigrations return type + parse.ts call-site update + full suite gate
 
 ### Phase 8: LLM Handoff Commands
 
@@ -384,7 +384,7 @@ Plans:
 | 7. Maestro Emitter | 5/5 | Complete | 2026-04-19 |
 | 7.1. Maestro Emitter Hardening & Traceability | 1/1 | Complete | 2026-04-20 |
 | 7.2. Nyquist Validation for Gap-Closure Phases | 0/? | Not started | — |
-| 7.3. Spec Model Diagnostic Completeness | 0/2 | Not started | — |
+| 7.3. Spec Model Diagnostic Completeness | 2/2 | Complete | 2026-04-20 |
 | 8. LLM Handoff Commands | 0/? | Not started | — |
 | 9. pi.dev Integration & Packaging | 0/? | Not started | — |
 

@@ -101,4 +101,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-20 — Phase 7.2 complete: retroactive Nyquist VALIDATION.md records created for phases 6.1 and 6.2; both files have nyquist_compliant: true, status: final, wave_0_complete: true; verification score 4/4
+*Last updated: 2026-04-20 — Phase 7.3 complete: all 9 Phase 1 advisory items closed (WR-01/02/03 duplicate-ID detection + RFC 6901 decode, IN-01..IN-06 Zod mapping/comments/nav-code rename, IN-05 runMigrations never-throw contract); 984 tests pass; tsc clean.
