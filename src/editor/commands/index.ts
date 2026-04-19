@@ -13,6 +13,9 @@
 //
 // DO NOT use `export *` — adding a public name is a deliberate edit here.
 import { addAction } from "./add-action.ts";
+import { extractScreenCommand } from "./extract-screen.ts";
+import { promptScreenCommand } from "./prompt-screen.ts";
+import { yankWireframeCommand } from "./yank-wireframe.ts";
 import { addComponent } from "./add-component.ts";
 import { addEntity } from "./add-entity.ts";
 import { addField } from "./add-field.ts";
@@ -96,6 +99,9 @@ export const COMMANDS = {
   "set-variant-tree": setVariantTree,
   "set-variant-when": setVariantWhen,
   "update-nav-edge": updateNavEdge,
+  "extract-screen": extractScreenCommand,
+  "prompt-screen": promptScreenCommand,
+  "yank-wireframe": yankWireframeCommand,
 } as const;
 
 export const COMMAND_NAMES = Object.keys(COMMANDS) as Array<keyof typeof COMMANDS>;
