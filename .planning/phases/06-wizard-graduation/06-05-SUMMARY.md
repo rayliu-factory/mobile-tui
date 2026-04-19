@@ -122,3 +122,18 @@ None — SpecPreviewPane is display-only (T-06-12: no sensitive surface, not wri
 ---
 *Phase: 06-wizard-graduation*
 *Completed: 2026-04-19*
+
+## Self-Check: PASSED
+
+| Check | Result |
+|-------|--------|
+| src/wizard/panes/spec-preview.ts exists | FOUND |
+| src/wizard/panes/spec-preview.test.ts exists | FOUND |
+| src/canvas/horizontal-layout.ts exists | FOUND |
+| src/canvas/horizontal-layout.calcWizardPaneWidths.test.ts exists | FOUND |
+| .planning/phases/06-wizard-graduation/06-05-SUMMARY.md exists | FOUND |
+| commit 042663e (RED spec-preview) | FOUND |
+| commit 04c6ada (GREEN spec-preview) | FOUND |
+| commit 748fd3f (RED calcWizardPaneWidths) | FOUND |
+| commit ede477d (GREEN calcWizardPaneWidths) | FOUND |
+| 894 tests pass, 0 failures | VERIFIED |
