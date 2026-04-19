@@ -3,6 +3,7 @@
 // Analog: src/editor/store.ts (subscribe + notify pattern).
 // Implementation lands in Phase 5 plans 02–06.
 
+import { runEmitMaestro } from "../editor/commands/emit-maestro.ts";
 import type { Snapshot, Store } from "../editor/types.ts";
 import type { FocusState } from "./focus-fsm.ts";
 import { nextFocus } from "./focus-fsm.ts";
@@ -86,6 +87,10 @@ export class RootCanvas implements Component {
   private paletteHandle: { hide(): void } | null = null;
   /** Focus state before palette opened — restored on palette close. */
   private prePaletteFocus: FocusState = "screens";
+
+  /** Emit status message for header line. Null when no recent emit. (D-114) */
+  private emitStatus: { message: string; ok: boolean } | null = null;
+  private emitStatusTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private readonly store: Store,
@@ -206,6 +211,27 @@ export class RootCanvas implements Component {
   }
 
   /**
+   * Trigger Maestro emission as a side-effect action (D-113 / D-114).
+   * NOT via store.apply — emit-maestro is not a spec-mutating Command<T>.
+   * Writes flow files, shows status in header, auto-clears after 3s.
+   */
+  private triggerEmitMaestro(): void {
+    const state = this.store.getState();
+    void runEmitMaestro(state.spec, state.filePath).then((result) => {
+      // Clear any pending auto-clear timer
+      if (this.emitStatusTimer !== null) clearTimeout(this.emitStatusTimer);
+      this.emitStatus = { message: result.message, ok: result.ok };
+      this.tui?.requestRender();
+      // Auto-clear after 3s (D-114)
+      this.emitStatusTimer = setTimeout(() => {
+        this.emitStatus = null;
+        this.emitStatusTimer = null;
+        this.tui?.requestRender();
+      }, 3000);
+    });
+  }
+
+  /**
    * Handle keyboard input.
    * Global guards (undo/redo/quit/palette/tab) are checked before
    * delegating to the focused pane (D-78).
@@ -246,6 +272,11 @@ export class RootCanvas implements Component {
     // ':' or Ctrl+P — open palette
     if (data === ":" || data === "\x10") {
       this.openPalette();
+      return;
+    }
+    // Ctrl+E — emit maestro flows (D-113 / D-114)
+    if (data === "\x05") {
+      this.triggerEmitMaestro();
       return;
     }
     // Tab — advance focus
@@ -329,16 +360,25 @@ export class RootCanvas implements Component {
 
   /**
    * Build the header line (D-85):
-   * "mobile-tui canvas" + padding + save indicator (right-aligned).
+   * "mobile-tui canvas" [emitStatus] + padding + save indicator (right-aligned).
+   * When emitStatus is non-null, the emit message is appended to the title (D-114).
    */
   private buildHeader(width: number): string {
-    const title = "mobile-tui canvas";
+    const titleBase = "mobile-tui canvas";
+    // Append emit status to title segment when present (D-114)
+    const emitIndicator =
+      this.emitStatus !== null
+        ? ` ${this.emitStatus.ok ? this.theme.fg("success", this.emitStatus.message) : this.theme.fg("error", this.emitStatus.message)}`
+        : "";
+    const title = titleBase + emitIndicator;
     const indicator = renderSaveIndicator(this.snapshot.dirty, this.theme);
-    // indicator may have ANSI codes; measure visible width
-    // Use RegExp constructor to avoid biome noControlCharactersInRegex on \x1b literals
+    // Strip ANSI codes to measure visible widths
+    // RegExp constructor required: regex literal would trigger noControlCharactersInRegex on \x1b
+    // biome-ignore lint/complexity/useRegexLiterals: must use constructor to avoid noControlCharactersInRegex
     const ansiSgr = new RegExp("\x1b\\[[0-9;]*m", "g");
     const indicatorVisible = indicator.replace(ansiSgr, "");
-    const titleVisible = visibleWidth(title);
+    const titleVisible =
+      visibleWidth(titleBase) + (this.emitStatus !== null ? 1 + this.emitStatus.message.length : 0);
     const padding = Math.max(0, width - titleVisible - indicatorVisible.length);
     return title + " ".repeat(padding) + indicator;
   }
