@@ -223,7 +223,11 @@ Plans:
   3. `createAutosave(store, resolvedPath)` is instantiated in both `scripts/canvas.ts` and `scripts/wizard.ts`; `autosave.dispose()` is called before `store.flush()` on quit.
   4. The `autosave-on-edit` and `wizard-data-persistence` E2E flows are verified in tests.
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 06.1-01-PLAN.md — Wire runMigrations into parseSpecFile + instantiate createAutosave in canvas.ts and wizard.ts
+- [ ] 06.1-02-PLAN.md — Persist DataStep entity names via store.apply("add-entity") on advance
 
 ### Phase 6.2: Documentation & Traceability Repair
 
