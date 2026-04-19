@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 7 COMPLETE — Maestro Emitter all 5 plans shipped (2026-04-19)
-last_updated: "2026-04-19T22:53:00.000Z"
+status: Phase 7.1 Plan 01 COMPLETE — MAESTRO-01..05 traceability closed (2026-04-20)
+last_updated: "2026-04-20T00:16:55.000Z"
 progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 44
-  completed_plans: 44
+  total_phases: 14
+  completed_phases: 10
+  total_plans: 52
+  completed_plans: 52
   percent: 100
 ---
 
@@ -25,10 +25,11 @@ Project memory. Updated at every phase transition and plan completion.
 
 ## Current Position
 
-Phase: 07 (maestro-emitter) — COMPLETE (2026-04-19)
-Plan: 5/5 plans complete
-**Milestone**: v1 — ALL PHASES COMPLETE
+Phase: 07.1 (maestro-emitter-hardening) — Plan 01 COMPLETE (2026-04-20)
+Plan: 1/1 complete
+**Milestone**: v1 — ALL PHASES COMPLETE + Phase 7.1 traceability closed
 **Phase**: 7 — Maestro Emitter — COMPLETE (2026-04-19). All 5 plans shipped. 5 MAESTRO requirements covered. Golden flow files committed. 968 pass / 1 skip.
+**Phase 7.1-01 status**: CLOSED. REQUIREMENTS.md MAESTRO-01..05 checkboxes flipped to [x]; traceability table rows updated Pending → Complete. WR-02 (timeout: 10_000) and WR-03 (typeof node.testID guard) confirmed present in source. All 5 diagnostic codes (MAESTRO_UNRESOLVED_SCREEN × 2, MAESTRO_UNRESOLVED_ACTION, MAESTRO_MISSING_TESTID, MAESTRO_SYNTAX_ERROR) confirmed as active emission sites — no orphans. Full suite: 968 pass / 1 skip / 0 fail. tsc --noEmit: 0 errors. Commit: 5083bba (REQUIREMENTS.md update).
 **Phase 7.05 status**: CLOSED. Golden Maestro flow files (6 YAML files across 3 flows × iOS+Android) committed to flows/ from habit-tracker fixture. Golden snapshot tests unskipped: byte-for-byte comparison of emitter output against committed files via readFile+toBe. Platform-divergence assertion validates ios_permission_flow.ios ≠ ios_permission_flow.android. VALIDATION.md finalized: nyquist_compliant: true, status: final, all 7 task rows green. Full suite: 968 pass / 1 skip (MAESTRO_CLI integration, intentionally skipped). Commits: 415a87c (golden flow files) → 3b6a2db (unskip tests + VALIDATION.md).
 **Plan 03-01 through 03-08 COMPLETE — full 18-kind emitter catalog + variants.render() top-level composer shipping. End-to-end renderable: `npx tsx scripts/render-wireframe.ts fixtures/habit-tracker.spec.md home` exits 0 with 23-line 4-variant wireframe. Plan 03-09 (dogfood gate — 20-file `.wf.txt` corpus + SHARED.md sidecar) remains.
 **Plan 03-08 status**: CLOSED. `src/emit/wireframe/variants.ts` replaces the Wave-0 NYI stub with a 5-step render() pipeline (~200 LOC): (1) locate screen in spec.screens by id → throws Error on miss (CLI-caller error per Phase-1 01-06), (2) screenIsRoot = (back_behavior === undefined) for D-37, (3) renderVariantBlock × 4 in fixed order content → empty → loading → error (D-39; null variants emit 1-line `+-- screen: X  variant: K  (N/A) --+` marker via dedicated `buildNullMarker` helper parallel to `buildVariantHeader` — chose a separate function over hack-through-existing-API because `(N/A)` is semantically orthogonal to `when`; same 3-stage overflow cascade), (4) acceptance footer via `renderAcceptance + wrapBullet` greedy word-wrap, under content block only per D-45 (plain text, no frame — cleanest paste-into-PR shape), (5) join with `\n\n` + trailing `\n`. `extractWhenExpr` extracts kind-specific trigger (`collection|async|field_error <pointer>`) for D-41 header-only placement. NavBar root-trim (D-37) CENTRALIZED here — emitter stays pure `(node, width) => string[]`; first `| < ` line in-place rewritten to `|   ` (column-preserving — NOT drop+right-pad, which would shift the closing `|` from col 59 → col 57 and break rectangular contract; inline refinement during Task 2 before GREEN commit). `opts.diagnostics` pass-through reserved; `[BROKEN LINK]` inline markers v1-deferred (documented in docblock; Plan 03-09 or follow-up). Tests landed: `variants.test.ts` 15 it()s across 6 describe blocks (D-39/D-40/D-41/D-45/D-37/determinism/throw-on-unknown/ASCII-baseline × 3 canonicals) + 1 golden snapshot for habit-tracker/home; `index.test.ts` pins the public barrel contract (PHONE_WIDTH === 60, render identity barrel === direct-variants.ts); `tests/wireframe-catalog.test.ts` unskipped the 03-01 placeholder (live 18-kind fingerprint-coverage via render() with structural containers Column/Row/ListItem/Spacer marked null + skipped); `tests/wireframe-ascii-baseline.test.ts` second describe block exercising render() × 3 canonicals × every screen. Full gate: 592 pass / 2 skip (baseline 568/3 → +24 active, -1 skip — placeholder went live); `npx tsc --noEmit` 0 errors; `npx biome check .` 1 info (pre-existing Phase-2 `write.ts:254` in deferred-items.md — unchanged). End-to-end CLI smoke test GREEN. No Rule-1/2/3/4 deviations from plan — executed exactly as written. One inline refinement of the trim mechanism (drop+pad → in-place replace) caught during snapshot review, fixed before GREEN commit landed. Commits: 1fd0c15 (test RED variants) → e6af655 (feat GREEN render() + helpers) → 41dfe2b (test unskip catalog + extend ASCII + barrel).

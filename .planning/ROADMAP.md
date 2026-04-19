@@ -46,7 +46,7 @@ Phase 1 (Model L1/L2)
 - [x] **Phase 6.1: Functional Integration Fixes** — Wire runMigrations into parseSpecFile, persist DataStep entities via store.apply, instantiate createAutosave in both entry scripts. ✓ 2026-04-19
 - [x] **Phase 6.2: Documentation & Traceability Repair** — Produce Phase 3 VERIFICATION.md (audit blocker), update stale REQUIREMENTS.md checkboxes for Phases 4–6, finalize draft VALIDATION files. ✓ 2026-04-19
 - [x] **Phase 7: Maestro Emitter** — Pure emitter from `TestFlow` + nav graph to `<flow>.ios.yaml` / `<flow>.android.yaml`, sigil-gated with no coordinate fallbacks, wired to `:emit maestro`. ✓ 2026-04-19
-- [ ] **Phase 7.1: Maestro Emitter Hardening & Traceability** — Fix execFileSync timeout risk, testID unsafe cast, MAESTRO_UNRESOLVED_ACTION diagnostic naming, and update REQUIREMENTS.md MAESTRO-01..05 checkboxes.
+- [x] **Phase 7.1: Maestro Emitter Hardening & Traceability** — Fix execFileSync timeout risk, testID unsafe cast, MAESTRO_UNRESOLVED_ACTION diagnostic naming, and update REQUIREMENTS.md MAESTRO-01..05 checkboxes. ✓ 2026-04-20
 - [ ] **Phase 7.2: Nyquist Validation for Gap-Closure Phases** — Produce VALIDATION.md for Phases 6.1 and 6.2 (gap-closure phases that shipped without formal Nyquist compliance records).
 - [ ] **Phase 7.3: Spec Model Diagnostic Completeness** — Add missing diagnostics from Phase 1 advisory review: duplicate screen-id, duplicate entity-name, RFC-6901 escape handling in resolveJsonPointerPrefix, migration runner contract alignment.
 - [ ] **Phase 8: LLM Handoff Commands** — `:yank wireframe`, `:prompt screen …`, `:extract --screen`, with semantic-token-based prompt scaffolds under 2k tokens.
@@ -296,7 +296,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 07.1-01-PLAN.md — Confirm WR-02/WR-03 fixes, audit diagnostic naming, update REQUIREMENTS.md MAESTRO-01..05 to [x] + Complete, full test suite gate
+- [x] 07.1-01-PLAN.md — Confirm WR-02/WR-03 fixes, audit diagnostic naming, update REQUIREMENTS.md MAESTRO-01..05 to [x] + Complete, full test suite gate
 
 ### Phase 7.2: Nyquist Validation for Gap-Closure Phases
 
@@ -375,7 +375,7 @@ Plans:
 | 6.1. Functional Integration Fixes | 2/2 | Complete | 2026-04-19 |
 | 6.2. Documentation & Traceability Repair | 2/2 | Complete | 2026-04-19 |
 | 7. Maestro Emitter | 5/5 | Complete | 2026-04-19 |
-| 7.1. Maestro Emitter Hardening & Traceability | 0/1 | Not started | — |
+| 7.1. Maestro Emitter Hardening & Traceability | 1/1 | Complete | 2026-04-20 |
 | 7.2. Nyquist Validation for Gap-Closure Phases | 0/? | Not started | — |
 | 7.3. Spec Model Diagnostic Completeness | 0/? | Not started | — |
 | 8. LLM Handoff Commands | 0/? | Not started | — |
