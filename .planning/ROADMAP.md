@@ -310,7 +310,10 @@ Plans:
   1. `.planning/phases/06.1-functional-integration-fixes/06.1-VALIDATION.md` exists with `nyquist_compliant: true` and `status: final`.
   2. `.planning/phases/06.2-documentation-traceability-repair/06.2-VALIDATION.md` exists with `nyquist_compliant: true` and `status: final`.
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 07.2-01-PLAN.md — Write 06.1-VALIDATION.md and 06.2-VALIDATION.md retroactive Nyquist compliance records
 
 ### Phase 7.3: Spec Model Diagnostic Completeness
 
