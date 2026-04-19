@@ -88,7 +88,7 @@ function buildNeighborsSection(spec: Spec, screenId: string, summaryOnly: boolea
     if (summaryOnly) return `- ${id}`;
     const edge =
       edges.find((e) => e.from === screenId && e.to === id) ??
-      edges.find((e) => e.to === id);
+      edges.find((e) => e.from === id && e.to === screenId); // reverse edge
     const transition = edge?.transition ?? "unknown";
     return `- **${id}** (${neighbor.title}) — transition: ${transition}`;
   });
