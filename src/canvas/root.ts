@@ -138,7 +138,12 @@ export class RootCanvas implements Component {
     yankWireframeCommand._onResult = (r) => this.notifySideEffectResult(r);
     promptScreenCommand._onResult = (r) => this.notifySideEffectResult(r);
     extractScreenCommand._onResult = (r) => this.notifySideEffectResult(r);
-    extractScreenCommand._specFilePath = store.getState().filePath;
+    // _specFilePath is a lazy getter closing over store so apply() always reads
+    // the live filePath rather than a value frozen at construction time (WR-02).
+    Object.defineProperty(extractScreenCommand, "_specFilePath", {
+      get: () => store.getState().filePath,
+      configurable: true,
+    });
   }
 
   /**
