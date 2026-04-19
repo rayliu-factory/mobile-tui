@@ -246,7 +246,11 @@ Plans:
   4. `02-VALIDATION.md` has `nyquist_compliant: true` and `status: final`.
   5. `05-VALIDATION.md` has `status: final`.
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 06.2-01-PLAN.md — Create 03-VERIFICATION.md synthesizing Phase 3 UAT + VALIDATION evidence for WIREFRAME-01..06
+- [ ] 06.2-02-PLAN.md — Update REQUIREMENTS.md checkboxes (EDITOR-04, EDITOR-05, WIZARD-02, WIZARD-03) and finalize 02-VALIDATION.md + 05-VALIDATION.md
 
 ### Phase 7: Maestro Emitter
 
