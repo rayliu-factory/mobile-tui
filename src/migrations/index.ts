@@ -1,10 +1,14 @@
 // src/migrations/index.ts
 // Migration chain runner per SERDE-08.
 //
-// Returns `unknown` — callers MUST re-validate the result with the target
-// version's schema via validateSpec(). This is deliberate per RESEARCH
-// Pitfall #7: typing chained heterogeneous transforms across string-literal
-// versions is painful and not worth it in Phase 1's one-migrator reality.
+// Returns `{ result: unknown; diagnostic: Diagnostic | null }` — never throws.
+// Returns a diagnostic instead of throwing — callers should check
+// `diagnostic !== null` to detect migration failure.
+// Callers MUST re-validate the result with the target version's schema via
+// validateSpec(). This is deliberate per RESEARCH Pitfall #7: typing chained
+// heterogeneous transforms across string-literal versions is painful and not
+// worth it in Phase 1's one-migrator reality.
+import type { Diagnostic } from "../primitives/diagnostic.ts";
 import { migrate as v1_to_v2 } from "./v1_to_v2.ts";
 
 // Grows as migrations land. Must be strictly ordered and contiguous by version.
@@ -16,8 +20,8 @@ export function runMigrations(
   spec: unknown,
   fromVersion: SpecVersion,
   toVersion: SpecVersion,
-): unknown {
-  if (fromVersion === toVersion) return spec;
+): { result: unknown; diagnostic: Diagnostic | null } {
+  if (fromVersion === toVersion) return { result: spec, diagnostic: null };
 
   let current: unknown = spec;
   let v: string = fromVersion;
@@ -25,7 +29,15 @@ export function runMigrations(
   while (v !== toVersion) {
     const step = MIGRATIONS.find((m) => m.from === v);
     if (!step) {
-      throw new Error(`No migration path from v${v} toward v${toVersion} in MIGRATIONS chain`);
+      return {
+        result: spec,
+        diagnostic: {
+          code: "SPEC_UNSUPPORTED_VERSION",
+          severity: "error",
+          path: "",
+          message: `No migration path from v${v} toward v${toVersion} in MIGRATIONS chain`,
+        },
+      };
     }
     // Cast to never is intentional — we're treating the input as opaque. The
     // migrator itself is typed at SpecV(N) → SpecV(N+1); the chain runner doesn't
@@ -34,5 +46,5 @@ export function runMigrations(
     v = step.to;
   }
 
-  return current;
+  return { result: current, diagnostic: null };
 }

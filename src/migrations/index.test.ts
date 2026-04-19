@@ -25,28 +25,39 @@ const minimalSpec = {
 
 describe("runMigrations — chain runner", () => {
   it("returns input unchanged for same-version case (1→1)", () => {
-    const result = runMigrations(minimalSpec, "1", "1");
+    const { result } = runMigrations(minimalSpec, "1", "1");
     expect(result).toBe(minimalSpec); // referential equality — no transform applied
   });
 
   it("returns input unchanged for same-version case (2→2)", () => {
-    const result = runMigrations(minimalSpec, "2", "2");
+    const { result } = runMigrations(minimalSpec, "2", "2");
     expect(result).toBe(minimalSpec);
   });
 
   it("no-op migration 1→2 returns structurally-identical spec (byte-identical JSON)", () => {
-    const result = runMigrations(minimalSpec, "1", "2");
+    const { result } = runMigrations(minimalSpec, "1", "2");
     expect(JSON.stringify(result)).toBe(JSON.stringify(minimalSpec));
   });
 
   it("passes through arbitrary input without inspection (empty-op body)", () => {
-    expect(runMigrations("arbitrary", "1", "2")).toBe("arbitrary");
-    expect(runMigrations(42, "1", "2")).toBe(42);
-    expect(runMigrations(null, "1", "2")).toBe(null);
+    expect(runMigrations("arbitrary", "1", "2").result).toBe("arbitrary");
+    expect(runMigrations(42, "1", "2").result).toBe(42);
+    expect(runMigrations(null, "1", "2").result).toBe(null);
   });
 
-  it("throws on missing migration path", () => {
-    expect(() => runMigrations(minimalSpec, "1", "99" as never)).toThrow(/No migration path/);
+  it("returns a diagnostic (never throws) on missing migration path", () => {
+    const { result, diagnostic } = runMigrations(minimalSpec, "1", "99" as never);
+    expect(diagnostic).not.toBeNull();
+    expect(diagnostic?.code).toBe("SPEC_UNSUPPORTED_VERSION");
+    expect(diagnostic?.severity).toBe("error");
+    expect(diagnostic?.message).toMatch(/No migration path/);
+    expect(result).toBe(minimalSpec); // original spec returned unchanged
+  });
+
+  it("never throws for any SpecVersion input", () => {
+    const out = runMigrations(minimalSpec, "1", "99" as never);
+    expect(out).toBeDefined();
+    expect(out.result).toBeDefined();
   });
 
   it("MIGRATIONS table has exactly one entry in Phase 1", () => {
@@ -57,7 +68,7 @@ describe("runMigrations — chain runner", () => {
 
 describe("Migration doesn't reopen closed-vocab escape hatches (T-01-03)", () => {
   it("migrated spec still validates — zero Stage-A diagnostics", () => {
-    const migrated = runMigrations(minimalSpec, "1", "2");
+    const { result: migrated } = runMigrations(minimalSpec, "1", "2");
     const result = validateSpec(migrated);
     // Every Stage-A diagnostic is structural — migrated output must not have any.
     // Cross-ref (Stage B) diagnostics may exist but those are content, not schema.
