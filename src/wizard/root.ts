@@ -18,7 +18,7 @@ import { truncateToWidth, visibleWidth } from "../canvas/tui-utils.ts";
 import { FormPane } from "./panes/form-pane.ts";
 import { SpecPreviewPane } from "./panes/spec-preview.ts";
 import { renderWizardHelpLine } from "./help-line.ts";
-import { firstUnansweredStep } from "./steps/index.ts";
+import { firstUnansweredStep, STEP_DEFINITIONS } from "./steps/index.ts";
 
 /**
  * Minimal TuiAPI interface for showOverlay — structural type alias to avoid
@@ -162,10 +162,17 @@ export class WizardRoot implements Component {
    * Updates spec preview and form pane step if spec changed.
    */
   private onSnapshot(snap: Snapshot): void {
+    const prevSpec = this.snapshot.spec;
     this.snapshot = snap;
     this.specPreview.update(snap);
-    // Always push snapshot to formPane so step indicator answers are updated (Pitfall 4)
-    this.formPane.setStep(this.stepCursor, snap.spec);
+    // Only reset form pane input when the spec value for the current step changed (WR-05).
+    // Avoids discarding in-progress user input on unrelated store updates (e.g. undo).
+    const stepDef = STEP_DEFINITIONS[this.stepCursor];
+    const prevVal = stepDef?.getPrePopulate(prevSpec);
+    const nextVal = stepDef?.getPrePopulate(snap.spec);
+    if (prevVal !== nextVal) {
+      this.formPane.setStep(this.stepCursor, snap.spec);
+    }
     this.tui?.requestRender();
   }
 
