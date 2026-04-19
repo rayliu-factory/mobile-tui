@@ -2,8 +2,12 @@
 // Covers: MAESTRO-01 (pure function, determinism), MAESTRO-02 (platform branching),
 //         MAESTRO-03 (missing testID loud failure), MAESTRO-04 (check-syntax gate),
 //         MAESTRO-05 SC5 (golden fixture output).
-import { resolve } from "node:path";
+import { execFileSync } from "node:child_process";
+import { mkdtemp, readdir, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { runEmitMaestro } from "../src/editor/commands/emit-maestro.ts";
 import { emitMaestroFlows } from "../src/emit/maestro/index.ts";
 import type { Spec } from "../src/model/index.ts";
 import type { ActionId, ScreenId } from "../src/primitives/ids.ts";
@@ -210,30 +214,99 @@ describe("missing testID — loud failure (MAESTRO-03)", () => {
   });
 });
 
+// Detect maestro CLI availability once at module level (guards MAESTRO_CLI integration test)
+const maestroAvailable = (() => {
+  try {
+    execFileSync("maestro", ["--version"], { stdio: "pipe" });
+    return true;
+  } catch {
+    return false;
+  }
+})();
+
 describe("maestro check-syntax gate (MAESTRO-04)", () => {
-  it.skip("runs maestro check-syntax on each emitted file when MAESTRO_CLI=1", async () => {
-    // This test requires MAESTRO_CLI=1 env var and maestro binary available
-    // Integration test — verifies that check-syntax is invoked for each flow file
-    const spec = await loadFixture("habit-tracker");
-    const result = emitMaestroFlows(spec);
-    expect(result.ok).toBe(true);
-    // When MAESTRO_CLI=1, each flow's YAML is validated via maestro check-syntax
-    // The test verifies the gate runs without error for valid flows
+  it.skipIf(!maestroAvailable)(
+    "runs maestro check-syntax on each emitted file when MAESTRO_CLI=1",
+    async () => {
+      const tmpDir = await mkdtemp(join(tmpdir(), "maestro-test-"));
+      try {
+        const specPath = join(tmpDir, "test.spec.md");
+        const spec = await loadFixture("habit-tracker");
+        const prevCLI = process.env.MAESTRO_CLI;
+        process.env.MAESTRO_CLI = "1";
+        try {
+          const result = await runEmitMaestro(spec, specPath);
+          // check-syntax should pass on valid emitted YAML
+          expect(result.ok).toBe(true);
+        } finally {
+          if (prevCLI === undefined) delete process.env.MAESTRO_CLI;
+          else process.env.MAESTRO_CLI = prevCLI;
+        }
+      } finally {
+        await rm(tmpDir, { recursive: true, force: true });
+      }
+    },
+  );
+
+  it("sanitizes dangerous flow names (path traversal prevention)", async () => {
+    const tmpDir = await mkdtemp(join(tmpdir(), "maestro-test-"));
+    try {
+      const specPath = join(tmpDir, "test.spec.md");
+      const spec = await loadFixture("habit-tracker");
+      // Patch test_flows to include a flow with a dangerous name (path traversal attempt)
+      const patchedSpec = {
+        ...spec,
+        test_flows: [
+          {
+            name: "../../../evil",
+            steps: spec.test_flows?.[0]?.steps ?? [],
+          },
+        ],
+      } as unknown as Spec;
+      const result = await runEmitMaestro(patchedSpec, specPath);
+      // If it succeeds, the file was written with sanitized name — no path traversal
+      if (result.ok) {
+        const files = await readdir(join(tmpDir, "flows"));
+        for (const f of files) {
+          expect(f).not.toContain("..");
+          expect(f).toMatch(/^[a-z0-9_]+\.(ios|android)\.yaml$/);
+        }
+      }
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true });
+    }
   });
 
-  it.skip("returns ok:false with MAESTRO_SYNTAX_ERROR diagnostic when check-syntax exits 1", async () => {
-    // Integration test — requires MAESTRO_CLI=1 and a flow that fails syntax check
-    // When maestro CLI exits 1, emitter returns ok:false with MAESTRO_SYNTAX_ERROR
-    const result = { ok: false, flows: [] };
-    if (!result.ok) {
-      // biome-ignore lint/suspicious/noExplicitAny: testing diagnostic shape
-      const r = result as any;
-      if (r.diagnostics) {
-        expect(
-          // biome-ignore lint/suspicious/noExplicitAny: testing diagnostic shape
-          r.diagnostics.some((d: any) => d.code === "MAESTRO_SYNTAX_ERROR"),
-        ).toBe(true);
+  it("writes .ios.yaml and .android.yaml files per flow to ./flows/ next to spec", async () => {
+    const tmpDir = await mkdtemp(join(tmpdir(), "maestro-test-"));
+    try {
+      const specPath = join(tmpDir, "test.spec.md");
+      const spec = await loadFixture("habit-tracker");
+      const result = await runEmitMaestro(spec, specPath);
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      // habit-tracker has 3 test_flows — 6 files total (2 per flow)
+      const files = await readdir(join(tmpDir, "flows"));
+      expect(files.length).toBe(6);
+      for (const f of files) {
+        expect(f).toMatch(/\.(ios|android)\.yaml$/);
       }
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it("returns ok:true with message containing flow count on success", async () => {
+    const tmpDir = await mkdtemp(join(tmpdir(), "maestro-test-"));
+    try {
+      const specPath = join(tmpDir, "test.spec.md");
+      const spec = await loadFixture("habit-tracker");
+      const result = await runEmitMaestro(spec, specPath);
+      expect(result.ok).toBe(true);
+      expect(result.message).toContain("3");
+      expect(result.diagnostics).toHaveLength(0);
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true });
     }
   });
 });
