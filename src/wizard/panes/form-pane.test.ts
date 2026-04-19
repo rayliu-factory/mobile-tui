@@ -7,6 +7,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 import type { Store } from "../../editor/types.ts";
+import type { EntityName } from "../../primitives/ids.ts";
 import { createSeedSpec } from "../seed-spec.ts";
 import { FormPane } from "./form-pane.ts";
 
@@ -19,7 +20,9 @@ function makeTheme() {
 }
 
 /** Creates a mock Store where all apply calls return ok:true by default */
-function makeMockStore(applyImpl?: (command: string, args: unknown) => { ok: boolean; error?: string }) {
+function makeMockStore(
+  applyImpl?: (command: string, args: unknown) => { ok: boolean; error?: string },
+) {
   const applyCalls: Array<{ command: string; args: unknown }> = [];
   const store = {
     apply: vi.fn(async (command: string, args: unknown) => {
@@ -51,7 +54,10 @@ function makeFormPaneAtDataStep(
 
   // Build a spec with those entity names already in data.entities so setStep pre-populates
   const spec = createSeedSpec();
-  spec.data.entities = entityNames.map((name) => ({ name, fields: [{ name: "id", type: "string" }] }));
+  spec.data.entities = entityNames.map((name) => ({
+    name: name as EntityName,
+    fields: [{ name: "id", type: "string" as const }],
+  }));
   pane.setStep(5, spec);
   return pane;
 }
@@ -66,12 +72,18 @@ describe("FormPane — stepIndex 5 DataStep entity persistence (WIZARD-02, WIZAR
     pane.handleInput("\t");
 
     // Wait for the async tryAdvance to settle
-    await vi.waitFor(() => onAdvance.mock.calls.length > 0);
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     const entityCalls = applyCalls.filter((c) => c.command === "add-entity");
     expect(entityCalls).toHaveLength(2);
-    expect(entityCalls[0]?.args).toMatchObject({ name: "Habit", fields: [{ name: "id", type: "string" }] });
-    expect(entityCalls[1]?.args).toMatchObject({ name: "User", fields: [{ name: "id", type: "string" }] });
+    expect(entityCalls[0]?.args).toMatchObject({
+      name: "Habit",
+      fields: [{ name: "id", type: "string" }],
+    });
+    expect(entityCalls[1]?.args).toMatchObject({
+      name: "User",
+      fields: [{ name: "id", type: "string" }],
+    });
     expect(onAdvance).toHaveBeenCalledOnce();
   });
 
@@ -81,7 +93,7 @@ describe("FormPane — stepIndex 5 DataStep entity persistence (WIZARD-02, WIZAR
     const pane = makeFormPaneAtDataStep(store, [], onAdvance);
 
     pane.handleInput("\t");
-    await vi.waitFor(() => onAdvance.mock.calls.length > 0);
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     const entityCalls = applyCalls.filter((c) => c.command === "add-entity");
     expect(entityCalls).toHaveLength(0);
@@ -117,7 +129,7 @@ describe("FormPane — stepIndex 5 DataStep entity persistence (WIZARD-02, WIZAR
     const pane = makeFormPaneAtDataStep(store, ["Order"], onAdvance);
 
     pane.handleInput("\t");
-    await vi.waitFor(() => onAdvance.mock.calls.length > 0);
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     const entityCall = applyCalls.find((c) => c.command === "add-entity");
     expect(entityCall?.args).toMatchObject({

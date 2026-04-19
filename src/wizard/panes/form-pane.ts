@@ -8,9 +8,9 @@
 //     { kind: "advance", args } on Tab (finish step) — Pitfall 5 mitigation
 //   - DataStep: same pattern, Tab always advances (no min-1 validation)
 //
-// Step 5 (Data) advances without calling store.apply: wizard collects entity names
-// for display in spec preview; actual entity creation with field definitions
-// happens in canvas mode. This matches CONTEXT.md: "Name-only; no fields in wizard."
+// Step 5 (Data): DataStep collects entity names; on Tab-advance, each name is
+// persisted via store.apply("add-entity", { name, fields: [stub] }) so entities
+// land in spec.data.entities before graduation (WIZARD-02, WIZARD-03).
 //
 // Threat T-06-09: tryAdvance() validates non-empty inputValue before calling
 //   store.apply, so raw bytes don't reach spec mutations.
@@ -145,11 +145,23 @@ export class FormPane implements Component {
     }
 
     if (this.stepIndex === 5) {
-      // DataStep Tab always returns advance (no min-1).
-      // Entity names are collected for display; actual entity creation (with fields)
-      // happens in canvas mode — add-entity requires fields, wizard is name-only.
+      // DataStep Tab always returns advance (no min-1 validation).
       const action = this.dataStep.handleInput("\t");
       if (action.kind === "advance") {
+        // Persist each named entity to the spec via add-entity (WIZARD-02, WIZARD-03).
+        // Stub field satisfies addEntityArgs.fields min(1) constraint.
+        // Canvas mode will let the user add real fields once entities are seeded.
+        const entityNames = this.dataStep.getItems();
+        for (const name of entityNames) {
+          const result = await this.store.apply("add-entity", {
+            name,
+            fields: [{ name: "id", type: "string" }],
+          });
+          if (!result.ok) {
+            this.error = `Could not add entity "${name}": invalid name.`;
+            return;
+          }
+        }
         this.onAdvance(this.stepIndex, null);
       }
       return;
