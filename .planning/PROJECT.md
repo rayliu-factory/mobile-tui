@@ -101,4 +101,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-20 — Phase 7.1 complete: MAESTRO-01..05 traceability closed in REQUIREMENTS.md; WR-02/WR-03 fixes confirmed; no orphaned diagnostic codes; 968 pass / 1 skip / 0 fail
+*Last updated: 2026-04-20 — Phase 7.2 complete: retroactive Nyquist VALIDATION.md records created for phases 6.1 and 6.2; both files have nyquist_compliant: true, status: final, wave_0_complete: true; verification score 4/4
