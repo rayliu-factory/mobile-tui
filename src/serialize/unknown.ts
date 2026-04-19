@@ -35,7 +35,21 @@
 import type { Document } from "yaml";
 import { isMap, isScalar } from "yaml";
 
-export const KNOWN_TOP_LEVEL_KEYS = ["schema", "screens", "actions", "data", "navigation"] as const;
+export const KNOWN_TOP_LEVEL_KEYS = [
+  "schema",
+  "screens",
+  "actions",
+  "data",
+  "navigation",
+  // Phase-6 wizard meta fields — added to knownSubset so validateSpec() sees them.
+  // Matches WizardMetaSchema keys spread into SpecSchema (spec.ts).
+  "app_idea",
+  "primary_user",
+  "nav_pattern",
+  "auth",
+  "offline_sync",
+  "target_platforms",
+] as const;
 export type KnownTopLevelKey = (typeof KNOWN_TOP_LEVEL_KEYS)[number];
 
 const KNOWN_SET: ReadonlySet<string> = new Set(KNOWN_TOP_LEVEL_KEYS);
