@@ -23,7 +23,7 @@
 //        deeper path segments (array indices, nested refs) are not structurally
 //        validated in Phase 1.
 import type { Diagnostic } from "../primitives/diagnostic.ts";
-import { pathToJsonPointer } from "../primitives/path.ts";
+import { decodeSegment, pathToJsonPointer } from "../primitives/path.ts";
 import type { ComponentNode } from "./component.ts";
 import type { Spec } from "./spec.ts";
 
@@ -192,10 +192,13 @@ function registerActionRef(
  * our data model is a TYPE definition (Entity + named Fields), not a populated
  * object. Re-using `.get` would require synthesizing a fake instance, which
  * is both slower and semantically confusing.
+ *
+ * Entity and field segments are decoded from RFC 6901 before lookup
+ * (`decodeSegment` applied).
  */
-function resolveJsonPointerPrefix(spec: Spec, pointer: string): boolean {
+export function resolveJsonPointerPrefix(spec: Spec, pointer: string): boolean {
   if (!pointer.startsWith("/")) return false;
-  const parts = pointer.slice(1).split("/");
+  const parts = pointer.slice(1).split("/").map(decodeSegment);
   if (parts.length < 2) return false;
   const [entityName, fieldName] = parts;
   if (!entityName || !fieldName) return false;
@@ -227,8 +230,41 @@ function resolveWhenPath(
 export function crossReferencePass(spec: Spec): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
-  const declaredScreens = new Set(spec.screens.map((s) => s.id));
-  const declaredEntities = new Set(spec.data.entities.map((e) => e.name));
+  const seenScreenIds = new Map<string, number>(); // id → first-seen index
+  for (let i = 0; i < spec.screens.length; i++) {
+    const s = spec.screens[i];
+    if (!s) continue;
+    const prev = seenScreenIds.get(s.id);
+    if (prev !== undefined) {
+      diagnostics.push({
+        code: "SPEC_DUPLICATE_SCREEN_ID",
+        severity: "error",
+        path: pathToJsonPointer(["screens", i, "id"]),
+        message: `screen id "${s.id}" already declared at /screens/${prev}/id`,
+      });
+    } else {
+      seenScreenIds.set(s.id, i);
+    }
+  }
+  const declaredScreens = new Set(seenScreenIds.keys());
+
+  const seenEntityNames = new Map<string, number>(); // name → first-seen index
+  for (let i = 0; i < spec.data.entities.length; i++) {
+    const e = spec.data.entities[i];
+    if (!e) continue;
+    const prev = seenEntityNames.get(e.name);
+    if (prev !== undefined) {
+      diagnostics.push({
+        code: "SPEC_DUPLICATE_ENTITY_NAME",
+        severity: "error",
+        path: pathToJsonPointer(["data", "entities", i, "name"]),
+        message: `entity name "${e.name}" already declared at /data/entities/${prev}/name`,
+      });
+    } else {
+      seenEntityNames.set(e.name, i);
+    }
+  }
+  const declaredEntities = new Set(seenEntityNames.keys());
   const declaredActions = new Set(Object.keys(spec.actions));
   const testIDRegistry = new Map<string, string>();
 
@@ -305,13 +341,15 @@ export function crossReferencePass(spec: Spec): Diagnostic[] {
   }
 
   // --- Action intent cross-checks (D-13) ---
+  // Object.entries ordering: insertion order for string keys (ES2015+).
+  // Diagnostic order is deterministic for the same spec input.
   for (const [actionId, action] of Object.entries(spec.actions)) {
     if (!action) continue;
     switch (action.kind) {
       case "navigate":
         if (!declaredScreens.has(action.screen)) {
           diagnostics.push({
-            code: "SPEC_UNRESOLVED_ACTION",
+            code: "SPEC_UNRESOLVED_SCREEN",
             severity: "error",
             path: pathToJsonPointer(["actions", actionId, "screen"]),
             message: `navigate.screen "${action.screen}" not declared in screens`,
@@ -367,7 +405,7 @@ export function crossReferencePass(spec: Spec): Diagnostic[] {
   // --- Navigation root must exist ---
   if (!declaredScreens.has(spec.navigation.root)) {
     diagnostics.push({
-      code: "SPEC_UNRESOLVED_ACTION",
+      code: "SPEC_UNRESOLVED_SCREEN",
       severity: "error",
       path: pathToJsonPointer(["navigation", "root"]),
       message: `navigation.root "${spec.navigation.root}" not declared in screens`,
@@ -380,7 +418,7 @@ export function crossReferencePass(spec: Spec): Diagnostic[] {
     if (!edge) continue;
     if (!declaredScreens.has(edge.from)) {
       diagnostics.push({
-        code: "SPEC_UNRESOLVED_ACTION",
+        code: "SPEC_UNRESOLVED_SCREEN",
         severity: "error",
         path: pathToJsonPointer(["navigation", "edges", i, "from"]),
         message: `nav edge.from "${edge.from}" not declared in screens`,
@@ -388,7 +426,7 @@ export function crossReferencePass(spec: Spec): Diagnostic[] {
     }
     if (!declaredScreens.has(edge.to)) {
       diagnostics.push({
-        code: "SPEC_UNRESOLVED_ACTION",
+        code: "SPEC_UNRESOLVED_SCREEN",
         severity: "error",
         path: pathToJsonPointer(["navigation", "edges", i, "to"]),
         message: `nav edge.to "${edge.to}" not declared in screens`,

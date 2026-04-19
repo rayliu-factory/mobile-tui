@@ -15,7 +15,7 @@
 // Tests use SpecSchema.parse() to produce typed data first, then pass it to
 // crossReferencePass. Malformed-shape cases are covered by Stage A tests.
 import { describe, expect, it } from "vitest";
-import { crossReferencePass, walkComponentTree } from "./cross-reference.ts";
+import { crossReferencePass, resolveJsonPointerPrefix, walkComponentTree } from "./cross-reference.ts";
 import { SpecSchema } from "./spec.ts";
 import { SCHEMA_VERSION } from "./version.ts";
 
@@ -111,7 +111,7 @@ describe("SPEC_UNRESOLVED_ACTION — action intent cross-refs (D-13)", () => {
     if (actions.open_detail) actions.open_detail.screen = "ghost";
     const diags = crossReferencePass(parse(spec));
     expect(
-      diags.some((d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.path.includes("/screen")),
+      diags.some((d) => d.code === "SPEC_UNRESOLVED_SCREEN" && d.path.includes("/screen")),
     ).toBe(true);
   });
 
@@ -333,7 +333,7 @@ describe("navigation cross-refs", () => {
     const diags = crossReferencePass(parse(spec));
     expect(
       diags.some(
-        (d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.path === "/navigation/edges/0/from",
+        (d) => d.code === "SPEC_UNRESOLVED_SCREEN" && d.path === "/navigation/edges/0/from",
       ),
     ).toBe(true);
   });
@@ -348,7 +348,7 @@ describe("navigation cross-refs", () => {
     };
     const diags = crossReferencePass(parse(spec));
     expect(
-      diags.some((d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.path === "/navigation/edges/0/to"),
+      diags.some((d) => d.code === "SPEC_UNRESOLVED_SCREEN" && d.path === "/navigation/edges/0/to"),
     ).toBe(true);
   });
 
@@ -421,5 +421,130 @@ describe("diagnostic paths are valid JSON Pointers", () => {
     for (const d of diags) {
       expect(d.path === "" || d.path.startsWith("/")).toBe(true);
     }
+  });
+});
+
+describe("SPEC_DUPLICATE_SCREEN_ID — WR-01", () => {
+  it("two screens with the same id emit diagnostic at second occurrence path", () => {
+    const spec = buildSpec();
+    const screens = spec.screens as Array<Record<string, unknown>>;
+    screens.push({
+      id: "home", // duplicate of screens[0].id
+      title: "Home Dup",
+      kind: "regular",
+      back_behavior: "pop",
+      variants: { content: { kind: "content", tree: [] }, empty: null, loading: null, error: null },
+    });
+    const diags = crossReferencePass(parse(spec));
+    const dups = diags.filter((d) => d.code === "SPEC_DUPLICATE_SCREEN_ID");
+    expect(dups.length).toBe(1);
+    expect(dups[0]?.path).toBe("/screens/2/id");
+    expect(dups[0]?.severity).toBe("error");
+    expect(dups[0]?.message).toContain("home");
+  });
+
+  it("no diagnostic when all screen ids are unique", () => {
+    const diags = crossReferencePass(parse(buildSpec()));
+    expect(diags.filter((d) => d.code === "SPEC_DUPLICATE_SCREEN_ID")).toEqual([]);
+  });
+});
+
+describe("SPEC_DUPLICATE_ENTITY_NAME — WR-02", () => {
+  it("two entities with the same name emit diagnostic at second occurrence path", () => {
+    const spec = buildSpec();
+    const entities = (spec.data as Record<string, unknown>).entities as Array<Record<string, unknown>>;
+    entities.push({ name: "Habit", fields: [{ name: "count", type: "number" }] });
+    const diags = crossReferencePass(parse(spec));
+    const dups = diags.filter((d) => d.code === "SPEC_DUPLICATE_ENTITY_NAME");
+    expect(dups.length).toBe(1);
+    expect(dups[0]?.path).toBe("/data/entities/1/name");
+    expect(dups[0]?.severity).toBe("error");
+    expect(dups[0]?.message).toContain("Habit");
+  });
+
+  it("no diagnostic when all entity names are unique", () => {
+    const diags = crossReferencePass(parse(buildSpec()));
+    expect(diags.filter((d) => d.code === "SPEC_DUPLICATE_ENTITY_NAME")).toEqual([]);
+  });
+});
+
+describe("resolveJsonPointerPrefix RFC 6901 decode — WR-03", () => {
+  // Entity names in the Spec schema are PascalCase (/^[A-Z][A-Za-z0-9]*$/), so
+  // names with literal `/` or `~` cannot pass SpecSchema.parse(). We test
+  // resolveJsonPointerPrefix directly with a synthetic Spec-shaped object to
+  // verify that decodeSegment is applied before entity lookup.
+  function makeSpec(entityName: string, fieldName: string) {
+    return {
+      screens: [],
+      actions: {},
+      data: { entities: [{ name: entityName, fields: [{ name: fieldName }] }] },
+      navigation: { root: "", edges: [] },
+      test_flows: [],
+    } as unknown as import("./spec.ts").Spec;
+  }
+
+  it("entity name with encoded slash (~1) resolves correctly", () => {
+    // Pointer "/A~1B/x" → decodeSegment("A~1B") = "A/B", which matches entity "A/B"
+    const spec = makeSpec("A/B", "x");
+    expect(resolveJsonPointerPrefix(spec, "/A~1B/x")).toBe(true);
+  });
+
+  it("entity name with encoded tilde (~0) resolves correctly", () => {
+    // Pointer "/A~0B/y" → decodeSegment("A~0B") = "A~B", which matches entity "A~B"
+    const spec = makeSpec("A~B", "y");
+    expect(resolveJsonPointerPrefix(spec, "/A~0B/y")).toBe(true);
+  });
+
+  it("unencoded pointer with literal slash in entity segment still fails (no entity has slash in name via Zod)", () => {
+    // Without decodeSegment, "/A~1B/x" would try to find entity "A~1B" (not decoded)
+    // and fail. Verify the opposite: a pointer for a known entity without encoding resolves.
+    const spec = makeSpec("Habit", "title");
+    expect(resolveJsonPointerPrefix(spec, "/Habit/title")).toBe(true);
+    expect(resolveJsonPointerPrefix(spec, "/Ghost/title")).toBe(false);
+  });
+});
+
+describe("SPEC_UNRESOLVED_SCREEN — IN-04 (navigation screen refs use correct code)", () => {
+  it("navigation.root emits SPEC_UNRESOLVED_SCREEN (not SPEC_UNRESOLVED_ACTION)", () => {
+    const spec = buildSpec();
+    (spec.navigation as Record<string, unknown>).root = "ghost";
+    const diags = crossReferencePass(parse(spec));
+    expect(diags.some((d) => d.code === "SPEC_UNRESOLVED_SCREEN" && d.path === "/navigation/root")).toBe(true);
+    expect(diags.some((d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.path === "/navigation/root")).toBe(false);
+  });
+
+  it("nav edge.from emits SPEC_UNRESOLVED_SCREEN (not SPEC_UNRESOLVED_ACTION)", () => {
+    const spec = buildSpec();
+    const nav = spec.navigation as Record<string, unknown>;
+    (nav.edges as Array<Record<string, unknown>>)[0] = { from: "ghost", to: "detail", trigger: "open_detail" };
+    const diags = crossReferencePass(parse(spec));
+    expect(diags.some((d) => d.code === "SPEC_UNRESOLVED_SCREEN" && d.path === "/navigation/edges/0/from")).toBe(true);
+    expect(diags.some((d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.path === "/navigation/edges/0/from")).toBe(false);
+  });
+
+  it("nav edge.to emits SPEC_UNRESOLVED_SCREEN (not SPEC_UNRESOLVED_ACTION)", () => {
+    const spec = buildSpec();
+    const nav = spec.navigation as Record<string, unknown>;
+    (nav.edges as Array<Record<string, unknown>>)[0] = { from: "home", to: "ghost", trigger: "open_detail" };
+    const diags = crossReferencePass(parse(spec));
+    expect(diags.some((d) => d.code === "SPEC_UNRESOLVED_SCREEN" && d.path === "/navigation/edges/0/to")).toBe(true);
+    expect(diags.some((d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.path === "/navigation/edges/0/to")).toBe(false);
+  });
+
+  it("nav edge.trigger still emits SPEC_UNRESOLVED_ACTION (action ref, not screen ref)", () => {
+    const spec = buildSpec();
+    const nav = spec.navigation as Record<string, unknown>;
+    (nav.edges as Array<Record<string, unknown>>)[0] = { from: "home", to: "detail", trigger: "ghost_trigger" };
+    const diags = crossReferencePass(parse(spec));
+    expect(diags.some((d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.path === "/navigation/edges/0/trigger")).toBe(true);
+  });
+
+  it("navigate.screen emits SPEC_UNRESOLVED_SCREEN (not SPEC_UNRESOLVED_ACTION)", () => {
+    const spec = buildSpec();
+    const actions = spec.actions as Record<string, Record<string, unknown>>;
+    if (actions.open_detail) actions.open_detail.screen = "ghost";
+    const diags = crossReferencePass(parse(spec));
+    expect(diags.some((d) => d.code === "SPEC_UNRESOLVED_SCREEN" && d.path.includes("/screen"))).toBe(true);
+    expect(diags.some((d) => d.code === "SPEC_UNRESOLVED_ACTION" && d.path.includes("/screen"))).toBe(false);
   });
 });
