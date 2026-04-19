@@ -51,7 +51,14 @@ export {
   ScreenSchema,
   ScreenVariantsWithComponentsSchema,
 } from "./screen.ts";
-export { type Spec, SpecSchema } from "./spec.ts";
+export {
+  type Spec,
+  SpecSchema,
+  type TestFlow,
+  TestFlowSchema,
+  type TestFlowStep,
+  TestFlowStepSchema,
+} from "./spec.ts";
 export {
   type ContentVariant,
   ContentVariantSchema,
