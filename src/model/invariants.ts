@@ -35,6 +35,9 @@ export function validateSpec(input: unknown): { spec: Spec | null; diagnostics: 
   // `JSON.stringify` throws on cycles and BigInts.
   try {
     const serialized = JSON.stringify(input);
+    // NOTE: JSON.stringify(undefined/function/symbol) returns undefined, not a
+    // string. The typeof guard is intentional — such inputs skip the size cap
+    // and fall through to SpecSchema.safeParse, which emits a clean diagnostic.
     if (typeof serialized === "string" && serialized.length > MAX_INPUT_BYTES) {
       return {
         spec: null,
