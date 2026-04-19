@@ -62,9 +62,9 @@ import { promises as fs } from "node:fs";
 import { resolve } from "node:path";
 import type { Document } from "yaml";
 import YAML, { visit } from "yaml";
+import { runMigrations, type SpecVersion } from "../migrations/index.ts";
 import type { Spec } from "../model/index.ts";
 import { validateSpec } from "../model/index.ts";
-import { type SpecVersion, runMigrations } from "../migrations/index.ts";
 import type { JsonPointer } from "../primitives/path.ts";
 import type { AstHandle } from "./ast-handle.ts";
 import { detectOrphanTmp } from "./atomic.ts";
@@ -160,7 +160,8 @@ export async function parseSpecFile(path: string): Promise<ParseResult> {
   // If runMigrations throws (e.g., no v0→v1 entry in MIGRATIONS chain),
   // catch the error and emit a SPEC_SCHEMA_VERSION diagnostic instead of
   // crashing — graceful degradation for versions that pre-date the chain.
-  const schemaValue = typeof partition.knownSubset["schema"] === "string" ? partition.knownSubset["schema"] : null;
+  const schemaValue =
+    typeof partition.knownSubset.schema === "string" ? partition.knownSubset.schema : null;
   const versionMatch = schemaValue?.match(/^mobile-tui\/(\d+)$/);
   if (versionMatch) {
     const fromVersion = versionMatch[1] as SpecVersion;
@@ -178,7 +179,7 @@ export async function parseSpecFile(path: string): Promise<ParseResult> {
           code: "SPEC_SCHEMA_VERSION",
           message: `No migration path from schema version "${fromVersion}" to "1". Spec may be stale.`,
           severity: "warning",
-          path: "" as import("../primitives/path.ts").JsonPointer,
+          path: "" as JsonPointer,
         });
       }
     }
