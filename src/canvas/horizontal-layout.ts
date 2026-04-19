@@ -144,3 +144,18 @@ export class HorizontalLayout implements Component {
     }
   }
 }
+
+/**
+ * Compute [formWidth, previewWidth] for the wizard 2-pane layout.
+ *
+ * D-88: 50/50 split (right pane absorbs Math.floor rounding remainder).
+ * D-89: Preview collapses to 0 columns when total < 80.
+ *
+ * @param total - Total terminal width in columns
+ * @returns [formWidth, previewWidth]
+ */
+export function calcWizardPaneWidths(total: number): [number, number] {
+  if (total < 80) return [total, 0]; // D-89: collapse preview pane
+  const left = Math.floor(total / 2);
+  return [left, total - left]; // D-88: 50/50; right absorbs rounding
+}
