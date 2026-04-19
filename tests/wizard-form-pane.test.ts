@@ -25,6 +25,7 @@ function makeStubStore(spec?: Spec): Store {
         astHandle: {} as StoreState["astHandle"],
         diagnostics: [],
         dirty: false,
+        filePath: "/tmp/stub.spec.md",
       };
     },
     subscribe(_fn: (s: Snapshot) => void): () => void {

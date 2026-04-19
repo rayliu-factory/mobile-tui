@@ -204,7 +204,7 @@ export function createStore(
 
   const store: Store = {
     getState(): StoreState {
-      return { spec, astHandle, diagnostics, dirty };
+      return { spec, astHandle, diagnostics, dirty, filePath };
     },
 
     subscribe(fn: (s: Snapshot) => void): () => void {

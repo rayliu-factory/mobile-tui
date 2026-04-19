@@ -70,6 +70,7 @@ export interface StoreState {
   astHandle: AstHandle;
   diagnostics: Diagnostic[];
   dirty: boolean;
+  filePath: string; // Phase-7: spec file path for emit-maestro command (RESEARCH Pitfall 4)
 }
 
 /**

@@ -65,6 +65,7 @@ function makeStubStore(): Store & { _setDirty: (d: boolean) => void } {
     astHandle: {} as AstHandle,
     diagnostics: [],
     dirty,
+    filePath: "/tmp/stub.spec.md",
   };
 
   const store = {

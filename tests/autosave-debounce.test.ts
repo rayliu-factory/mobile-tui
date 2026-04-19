@@ -22,6 +22,7 @@ function makeStubStore(): Store & { _trigger: () => void } {
     astHandle: {} as AstHandle,
     diagnostics: [],
     dirty: false,
+    filePath: "/tmp/stub.spec.md",
   };
 
   const store = {

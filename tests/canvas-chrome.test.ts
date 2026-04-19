@@ -48,6 +48,7 @@ function makeStubStore(): Store {
     astHandle: {} as AstHandle,
     diagnostics: [],
     dirty: false,
+    filePath: "/tmp/stub.spec.md",
   };
 
   return {
