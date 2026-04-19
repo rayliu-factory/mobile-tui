@@ -242,6 +242,17 @@ export class RootCanvas implements Component {
   }
 
   /**
+   * Cancel the emitStatus auto-clear timer (WR-03).
+   * Called before onQuit so the timer cannot fire against a torn-down canvas.
+   */
+  private cleanup(): void {
+    if (this.emitStatusTimer !== null) {
+      clearTimeout(this.emitStatusTimer);
+      this.emitStatusTimer = null;
+    }
+  }
+
+  /**
    * Trigger Maestro emission as a side-effect action (D-113 / D-114).
    * NOT via store.apply — emit-maestro is not a spec-mutating Command<T>.
    * Writes flow files, shows status in header, auto-clears after 3s.
@@ -339,6 +350,7 @@ export class RootCanvas implements Component {
     }
     // Ctrl+Q — quit
     if (data === "\x11") {
+      this.cleanup();
       this.onQuit?.();
       return;
     }
