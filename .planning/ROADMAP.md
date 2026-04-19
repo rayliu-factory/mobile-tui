@@ -329,7 +329,11 @@ Plans:
   3. `runMigrations` never throws on valid input; on unknown version it returns a diagnostic rather than throwing — migration runner contract matches `validateSpec()` never-throw guarantee.
   4. Full test suite still passes (no regressions).
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 07.3-01-PLAN.md — cross-reference.ts WR-01/WR-02/WR-03/IN-01/IN-02/IN-03/IN-04/IN-06: duplicate-ID diagnostics, RFC 6901 decode, nav-code rename, zod mapping, comments
+- [ ] 07.3-02-PLAN.md — migrations/index.ts IN-05: never-throw runMigrations return type + parse.ts call-site update + full suite gate
 
 ### Phase 8: LLM Handoff Commands
 
@@ -380,7 +384,7 @@ Plans:
 | 7. Maestro Emitter | 5/5 | Complete | 2026-04-19 |
 | 7.1. Maestro Emitter Hardening & Traceability | 1/1 | Complete | 2026-04-20 |
 | 7.2. Nyquist Validation for Gap-Closure Phases | 0/? | Not started | — |
-| 7.3. Spec Model Diagnostic Completeness | 0/? | Not started | — |
+| 7.3. Spec Model Diagnostic Completeness | 0/2 | Not started | — |
 | 8. LLM Handoff Commands | 0/? | Not started | — |
 | 9. pi.dev Integration & Packaging | 0/? | Not started | — |
 
