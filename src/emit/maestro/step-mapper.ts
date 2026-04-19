@@ -35,8 +35,14 @@ export function findTestIDForAction(screen: Screen, actionId: string): string | 
 function walkForTestID(nodes: ComponentNode[], actionId: string): string | null {
   for (const node of nodes) {
     // Check interactable leaves with action + testID fields
-    if ("action" in node && "testID" in node && node.action === actionId) {
-      return node.testID as string;
+    if (
+      "action" in node &&
+      "testID" in node &&
+      node.action === actionId &&
+      typeof node.testID === "string" &&
+      node.testID.length > 0
+    ) {
+      return node.testID;
     }
 
     // TabBar special case: items are inline { label, action, testID } tuples,
