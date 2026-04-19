@@ -117,3 +117,49 @@ describe("parseSpecFile — orphan .tmp detection (D-30)", () => {
     ).toBe(true);
   });
 });
+
+describe("parseSpecFile — migration pipeline (SERDE-08)", () => {
+  it("Test 1: spec with schema: mobile-tui/0 does NOT throw and returns SPEC_SCHEMA_VERSION diagnostic", async () => {
+    // Write a spec with a v0 schema — no migration path exists for v0→v1.
+    // After the fix, parseSpecFile must NOT throw and must emit
+    // a SPEC_SCHEMA_VERSION diagnostic via the catch block.
+    const rawHabit = await fs.readFile(resolve("fixtures/habit-tracker.spec.md"), "utf8");
+    // Replace the schema field to use version 0
+    const v0Spec = rawHabit.replace(/^schema: mobile-tui\/\d+/m, "schema: mobile-tui/0");
+    const target = join(sandbox, "v0.spec.md");
+    await fs.writeFile(target, v0Spec, "utf8");
+
+    // Must not throw
+    const { diagnostics } = await parseSpecFile(target);
+    expect(
+      diagnostics.some((d) => d.code === "SPEC_SCHEMA_VERSION"),
+    ).toBe(true);
+  });
+
+  it("Test 2: spec with schema: mobile-tui/1 (current version) passes through as no-op — existing tests still pass", async () => {
+    // v1 spec: runMigrations(spec, "1", "1") is a no-op.
+    // The parse result should be identical to parsing without migration.
+    const { spec, diagnostics } = await parseSpecFile(resolve("fixtures/habit-tracker.spec.md"));
+    expect(spec).not.toBeNull();
+    expect(diagnostics.filter((d) => d.severity === "error")).toEqual([]);
+    // No SPEC_SCHEMA_VERSION diagnostic for current version specs
+    expect(diagnostics.some((d) => d.code === "SPEC_SCHEMA_VERSION")).toBe(false);
+  });
+
+  it("Test 3: spec with no schema field skips migration and lets validateSpec handle it", async () => {
+    // A spec without a schema field entirely — the migration block should be skipped.
+    // validateSpec will emit its own diagnostic about the missing schema.
+    const rawHabit = await fs.readFile(resolve("fixtures/habit-tracker.spec.md"), "utf8");
+    // Remove the schema line entirely
+    const noSchemaSpec = rawHabit.replace(/^schema: mobile-tui\/\d+\n/m, "");
+    const target = join(sandbox, "no-schema.spec.md");
+    await fs.writeFile(target, noSchemaSpec, "utf8");
+
+    // Should not throw, migration block is skipped
+    const { diagnostics } = await parseSpecFile(target);
+    // No SPEC_SCHEMA_VERSION from the migration block (only from validateSpec if at all)
+    // The key check: we didn't crash, and SPEC_SCHEMA_VERSION came from validateSpec only
+    // (migration block skips when schema field is absent)
+    expect(diagnostics.some((d) => d.code === "SPEC_SCHEMA_VERSION")).toBe(false);
+  });
+});
