@@ -35,7 +35,7 @@ around it.
 - [ ] Spec output in Markdown with YAML frontmatter
 - [ ] Spec file IS the state — tool reads an existing spec and lets the dev continue editing
 - [ ] Framework-agnostic spec representation that targets SwiftUI + Jetpack Compose as concrete consumers
-- [ ] Generate Maestro / Detox YAML E2E test flows from the spec
+- [x] Generate Maestro / Detox YAML E2E test flows from the spec — Validated in Phase 7: Maestro Emitter (2026-04-19)
 - [ ] Packaged and publishable as a pi.dev TypeScript extension (distributable via npm/git)
 
 ### Out of Scope
@@ -101,4 +101,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-19 — Phase 6.1 complete: migration pipeline wired, DataStep entity persistence fixed, autosave instantiated in both entry scripts*
+*Last updated: 2026-04-19 — Phase 7 complete: Maestro emitter ships pure emitMaestroFlows(), 6 golden YAML flow files, all 5 MAESTRO requirements satisfied
