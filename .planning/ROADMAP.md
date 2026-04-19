@@ -373,7 +373,13 @@ Plans:
   4. `package.json` declares `@mariozechner/pi-coding-agent` and `@mariozechner/pi-tui` as `peerDependencies` (never `dependencies`), exports ESM + dts via `tsup`, and the default export is a function receiving `ExtensionAPI` per pi-mono conventions.
   5. The published README documents install, `/spec` usage, every command surface, and the spec schema — a reader with no prior context can produce a working spec from README instructions alone.
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Wave 1: Install dev deps, tsup config, package.json peerDeps + exports, no-pi-bundle test scaffold (PI-02, PI-06)
+- [ ] 09-02-PLAN.md — Wave 1 (parallel): src/session.ts with path-traversal guard + proto-pollution defense + orphan-tmp cleanup + session tests (PI-03, PI-04)
+- [ ] 09-03-PLAN.md — Wave 2: Stub replacement in canvas/wizard roots, withMutationQueue in store, src/extension.ts pi entry point, npm run build (PI-01, PI-04, PI-05)
+- [ ] 09-04-PLAN.md — Wave 3: README + PI-07 manual two-version certification gate (PI-07, PI-08)
 
 ## Progress
 
