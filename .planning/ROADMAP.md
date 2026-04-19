@@ -293,7 +293,10 @@ Plans:
   3. Either `step-mapper.ts` emits `MAESTRO_UNRESOLVED_ACTION` for unresolved action refs (aligning with `crossReferencePass` naming), or `crossReferencePass` is updated to match; no orphaned diagnostic codes.
   4. REQUIREMENTS.md shows `[x]` for MAESTRO-01..05 and "Complete" in the traceability table; full test suite still passes.
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 07.1-01-PLAN.md — Confirm WR-02/WR-03 fixes, audit diagnostic naming, update REQUIREMENTS.md MAESTRO-01..05 to [x] + Complete, full test suite gate
 
 ### Phase 7.2: Nyquist Validation for Gap-Closure Phases
 
@@ -372,7 +375,7 @@ Plans:
 | 6.1. Functional Integration Fixes | 2/2 | Complete | 2026-04-19 |
 | 6.2. Documentation & Traceability Repair | 2/2 | Complete | 2026-04-19 |
 | 7. Maestro Emitter | 5/5 | Complete | 2026-04-19 |
-| 7.1. Maestro Emitter Hardening & Traceability | 0/? | Not started | — |
+| 7.1. Maestro Emitter Hardening & Traceability | 0/1 | Not started | — |
 | 7.2. Nyquist Validation for Gap-Closure Phases | 0/? | Not started | — |
 | 7.3. Spec Model Diagnostic Completeness | 0/? | Not started | — |
 | 8. LLM Handoff Commands | 0/? | Not started | — |
