@@ -43,15 +43,15 @@ All v1 requirements are hypotheses until shipped and validated.
 - [x] **EDITOR-01**: The editor exposes a reactive store over the Spec that both wizard and canvas subscribe to — a single source of truth with no per-shell copies
 - [x] **EDITOR-02**: Every state mutation is a named command with `apply(state) → newState` and `invert(state) → inverse` shape, one file per command, exhaustively tested
 - [x] **EDITOR-03**: An undo/redo stack of at least 200 steps, traversable via `u` / `Ctrl+r` in both shells
-- [ ] **EDITOR-04**: After every successful apply, the store debounces a write-through save via the serializer — there is no "save" button and no "unsaved" state
-- [ ] **EDITOR-05**: After every apply, invariants are re-validated and diagnostics are published to subscribers for inline display
+- [x] **EDITOR-04**: After every successful apply, the store debounces a write-through save via the serializer — there is no "save" button and no "unsaved" state
+- [x] **EDITOR-05**: After every apply, invariants are re-validated and diagnostics are published to subscribers for inline display
 - [x] **EDITOR-06**: A headless `cli-edit` script can apply any command against a spec file without the TUI, so commands are scriptable and test-harnessable
 
 ### Wizard mode (WIZARD)
 
 - [x] **WIZARD-01**: The wizard walks the user through 8 fixed linear steps: app idea → primary user → navigation pattern → screens → auth → data → offline/sync → target platforms (no branching in v1)
-- [ ] **WIZARD-02**: Every step saves its answers to the spec file immediately on advance; the user can quit at any step without losing work
-- [ ] **WIZARD-03**: From any step, the user can jump back to an earlier step (linear step list with position indicator) and can skip-to-canvas at any point
+- [x] **WIZARD-02**: Every step saves its answers to the spec file immediately on advance; the user can quit at any step without losing work
+- [x] **WIZARD-03**: From any step, the user can jump back to an earlier step (linear step list with position indicator) and can skip-to-canvas at any point
 - [x] **WIZARD-04**: When the wizard is re-entered against an existing spec, it edits in place rather than restarting — unfinished steps surface as `TODO` markers, finished steps show their saved answer
 - [x] **WIZARD-05**: Wizard uses the same keybinding table and command palette as canvas; moving from wizard to canvas is a mode flip with no reset
 
@@ -135,9 +135,9 @@ All v1 requirements are hypotheses until shipped and validated.
 | SERDE-03 | Phase 2 | Complete (Plan 02-04) |
 | SERDE-04 | Phase 2 | Complete (Plan 02-05) |
 | SERDE-05 | Phase 2 | Complete (Plan 02-05) |
-| SERDE-06 | Phase 6.1 | Pending (autosave wiring gap) |
+| SERDE-06 | Phase 6.1 | Complete (Plan 06.1-01) |
 | SERDE-07 | Phase 2 | Complete (Plan 02-04) |
-| SERDE-08 | Phase 6.1 | Pending |
+| SERDE-08 | Phase 6.1 | Complete (Plan 06.1-01) |
 | WIREFRAME-01 | Phase 3 | Complete |
 | WIREFRAME-02 | Phase 3 | Complete |
 | WIREFRAME-03 | Phase 3 | Complete |
@@ -147,12 +147,12 @@ All v1 requirements are hypotheses until shipped and validated.
 | EDITOR-01 | Phase 4 | Complete |
 | EDITOR-02 | Phase 4 | Complete |
 | EDITOR-03 | Phase 4 | Complete |
-| EDITOR-04 | Phase 6.1 | Pending (autosave wiring gap) |
-| EDITOR-05 | Phase 6.1 | Pending (autosave wiring gap) |
+| EDITOR-04 | Phase 6.1 | Complete (Plan 06.1-01) |
+| EDITOR-05 | Phase 6.1 | Complete (Plan 06.1-01) |
 | EDITOR-06 | Phase 4 | Complete |
 | WIZARD-01 | Phase 6 | Complete |
-| WIZARD-02 | Phase 6.1 | Pending (DataStep persistence gap) |
-| WIZARD-03 | Phase 6.1 | Pending (DataStep persistence gap) |
+| WIZARD-02 | Phase 6.1 | Complete (Plan 06.1-02) |
+| WIZARD-03 | Phase 6.1 | Complete (Plan 06.1-02) |
 | WIZARD-04 | Phase 6 | Complete |
 | WIZARD-05 | Phase 6 | Complete |
 | CANVAS-01 | Phase 5 | Complete |
