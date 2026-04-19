@@ -27,12 +27,12 @@
 // with the five top-level fields declared below. Biome's formatter wraps the
 // chain onto multiple lines; the semantic expression is unchanged.
 import { z } from "zod";
+import { ActionIdSchema, ScreenIdSchema } from "../primitives/ids.ts";
 import { ActionsRegistrySchema } from "./action.ts";
 import { DataModelSchema } from "./data.ts";
 import { NavigationGraphSchema } from "./navigation.ts";
 import { ScreenSchema } from "./screen.ts";
 import { SCHEMA_VERSION } from "./version.ts";
-import { ActionIdSchema, ScreenIdSchema } from "../primitives/ids.ts";
 
 // Phase-7: TestFlow schemas — optional so existing specs without test_flows
 // continue to parse without errors (D-107 backward compat).
