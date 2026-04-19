@@ -2,7 +2,7 @@
 // Covers: MAESTRO-01 (pure function, determinism), MAESTRO-02 (platform branching),
 //         MAESTRO-03 (missing testID loud failure), MAESTRO-04 (check-syntax gate),
 //         MAESTRO-05 SC5 (golden fixture output).
-import { mkdtemp, readdir, rm } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -300,26 +300,28 @@ describe("maestro check-syntax gate (MAESTRO-04)", () => {
 });
 
 describe("golden fixtures (MAESTRO-05 SC5)", () => {
-  it.skip("habit-tracker flow output matches snapshot", async () => {
+  it("habit-tracker flow output matches committed golden files", async () => {
     const spec = await loadFixture("habit-tracker");
     const result = emitMaestroFlows(spec);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    // Each flow's ios and android YAML must match stored snapshot
     for (const flow of result.flows) {
-      expect(flow.ios).toMatchSnapshot(`habit-tracker/${flow.name}.ios.yaml`);
-      expect(flow.android).toMatchSnapshot(`habit-tracker/${flow.name}.android.yaml`);
+      const goldenIos = await readFile(resolve(`flows/${flow.name}.ios.yaml`), "utf8");
+      const goldenAndroid = await readFile(resolve(`flows/${flow.name}.android.yaml`), "utf8");
+      expect(flow.ios).toBe(goldenIos);
+      expect(flow.android).toBe(goldenAndroid);
     }
   });
 
-  it.skip("todo flow output matches snapshot", async () => {
-    const spec = await loadFixture("todo");
+  it("ios_permission_flow ios and android outputs differ", async () => {
+    const spec = await loadFixture("habit-tracker");
     const result = emitMaestroFlows(spec);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    for (const flow of result.flows) {
-      expect(flow.ios).toMatchSnapshot(`todo/${flow.name}.ios.yaml`);
-      expect(flow.android).toMatchSnapshot(`todo/${flow.name}.android.yaml`);
-    }
+    const permissionFlow = result.flows.find((f) => f.name === "ios_permission_flow");
+    expect(permissionFlow).toBeDefined();
+    if (!permissionFlow) return;
+    // The files should differ (platform divergence MAESTRO-02 SC3)
+    expect(permissionFlow.ios).not.toBe(permissionFlow.android);
   });
 });
