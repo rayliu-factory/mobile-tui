@@ -19,29 +19,7 @@ import { FormPane } from "./panes/form-pane.ts";
 import { SpecPreviewPane } from "./panes/spec-preview.ts";
 import { renderWizardHelpLine } from "./help-line.ts";
 import { firstUnansweredStep, STEP_DEFINITIONS } from "./steps/index.ts";
-
-/**
- * Minimal TuiAPI interface for showOverlay — structural type alias to avoid
- * importing @mariozechner/pi-tui directly (not installed in devDependencies).
- * Phase 9 will use the real TuiAPI from pi.
- */
-interface TuiAPI {
-  showOverlay(
-    component: unknown,
-    opts: { anchor: string; width: string; maxHeight: string },
-  ): { hide(): void };
-  requestRender(): void;
-}
-
-/**
- * Minimal Component interface (mirrors @mariozechner/pi-tui).
- * Used as a local type alias so stubs compile without importing pi-tui.
- */
-interface Component {
-  render(width: number): string[];
-  handleInput?(data: string): void;
-  invalidate(): void;
-}
+import type { TUI, Component } from "@mariozechner/pi-tui";
 
 /**
  * Root wizard component.
@@ -78,7 +56,7 @@ export class WizardRoot implements Component {
   private readonly layout: HorizontalLayout;
 
   // tui and theme
-  private readonly tui: TuiAPI | undefined;
+  private readonly tui: TUI | undefined;
   private readonly theme: MinimalTheme;
 
   /** Active palette overlay handle, or null when closed. */
@@ -89,7 +67,7 @@ export class WizardRoot implements Component {
 
   constructor(
     private readonly store: Store,
-    opts: { tui?: TuiAPI; theme: MinimalTheme },
+    opts: { tui?: TUI; theme: MinimalTheme },
   ) {
     this.tui = opts.tui;
     this.theme = opts.theme;
