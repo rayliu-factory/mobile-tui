@@ -350,7 +350,13 @@ Plans:
   4. The emitted prompts reference styling and layout via semantic tokens (`variant: primary`, `gap: md`) and never pixel values or framework-specific idioms — verified by a tokenizer test that rejects `#FF…`, `dp`, `pt`, `px`, etc.
   5. A prompt emitted for a fixture screen round-trips through the author's own LLM to produce a SwiftUI or Compose snippet that renders without structural edits — dogfood spot-check on at least 2 screens.
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Wave 1: Install gpt-tokenizer + clipboardy runtime deps; scaffold 5 test stubs in tests/handoff/
+- [ ] 08-02-PLAN.md — Wave 1 (parallel): src/emit/handoff/ — semantic-tokens, token-budget, assembler, barrel (pure functions)
+- [ ] 08-03-PLAN.md — Wave 2: Three command runners (yank-wireframe, prompt-screen, extract-screen) + unskip all 4 handoff tests
+- [ ] 08-04-PLAN.md — Wave 3: Canvas wiring (root.ts trigger methods + Ctrl+W binding + palette discoverability for D-208)
 
 ### Phase 9: pi.dev Integration & Packaging
 
@@ -385,7 +391,7 @@ Plans:
 | 7.1. Maestro Emitter Hardening & Traceability | 1/1 | Complete | 2026-04-20 |
 | 7.2. Nyquist Validation for Gap-Closure Phases | 0/? | Not started | — |
 | 7.3. Spec Model Diagnostic Completeness | 2/2 | Complete | 2026-04-20 |
-| 8. LLM Handoff Commands | 0/? | Not started | — |
+| 8. LLM Handoff Commands | 0/4 | Not started | — |
 | 9. pi.dev Integration & Packaging | 0/? | Not started | — |
 
 ## Out of Scope for this Roadmap
