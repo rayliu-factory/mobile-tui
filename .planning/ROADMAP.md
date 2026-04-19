@@ -46,6 +46,9 @@ Phase 1 (Model L1/L2)
 - [x] **Phase 6.1: Functional Integration Fixes** — Wire runMigrations into parseSpecFile, persist DataStep entities via store.apply, instantiate createAutosave in both entry scripts. ✓ 2026-04-19
 - [x] **Phase 6.2: Documentation & Traceability Repair** — Produce Phase 3 VERIFICATION.md (audit blocker), update stale REQUIREMENTS.md checkboxes for Phases 4–6, finalize draft VALIDATION files. ✓ 2026-04-19
 - [x] **Phase 7: Maestro Emitter** — Pure emitter from `TestFlow` + nav graph to `<flow>.ios.yaml` / `<flow>.android.yaml`, sigil-gated with no coordinate fallbacks, wired to `:emit maestro`. ✓ 2026-04-19
+- [ ] **Phase 7.1: Maestro Emitter Hardening & Traceability** — Fix execFileSync timeout risk, testID unsafe cast, MAESTRO_UNRESOLVED_ACTION diagnostic naming, and update REQUIREMENTS.md MAESTRO-01..05 checkboxes.
+- [ ] **Phase 7.2: Nyquist Validation for Gap-Closure Phases** — Produce VALIDATION.md for Phases 6.1 and 6.2 (gap-closure phases that shipped without formal Nyquist compliance records).
+- [ ] **Phase 7.3: Spec Model Diagnostic Completeness** — Add missing diagnostics from Phase 1 advisory review: duplicate screen-id, duplicate entity-name, RFC-6901 escape handling in resolveJsonPointerPrefix, migration runner contract alignment.
 - [ ] **Phase 8: LLM Handoff Commands** — `:yank wireframe`, `:prompt screen …`, `:extract --screen`, with semantic-token-based prompt scaffolds under 2k tokens.
 - [ ] **Phase 9: pi.dev Integration & Packaging** — Thin L7 glue: `/spec` command, shortcuts, session lifecycle, file-mutation queue, `tsup` ESM+dts build, README, `pi install npm:mobile-tui` verified on two pi versions.
 
@@ -276,6 +279,52 @@ Plans:
 - [x] 07-04-PLAN.md — Wave 3: canvas wiring (StoreState.filePath, emit-maestro.ts, RootCanvas)
 - [x] 07-05-PLAN.md — Wave 4: golden flow files + CI gate + VALIDATION.md finalization
 
+### Phase 7.1: Maestro Emitter Hardening & Traceability
+
+**Goal**: Eliminate the two code-quality warnings from Phase 7's review and bring REQUIREMENTS.md into sync with the verified implementation state.
+
+**Depends on**: Phase 7 (fixes within the maestro emitter subsystem).
+
+**Gap Closure**: Closes WR-02, WR-03 from 07-REVIEW.md; resolves MAESTRO_UNRESOLVED_ACTION diagnostic naming gap; updates stale REQUIREMENTS.md checkboxes.
+
+**Success Criteria** (what must be TRUE):
+  1. `execFileSync` in `emit-maestro.ts` has a `timeout` option (≥10s) — event loop cannot block indefinitely if maestro JVM hangs.
+  2. `step-mapper.ts` replaces `node.testID as string` with an explicit `undefined` guard that returns `MAESTRO_MISSING_TESTID` before the cast.
+  3. Either `step-mapper.ts` emits `MAESTRO_UNRESOLVED_ACTION` for unresolved action refs (aligning with `crossReferencePass` naming), or `crossReferencePass` is updated to match; no orphaned diagnostic codes.
+  4. REQUIREMENTS.md shows `[x]` for MAESTRO-01..05 and "Complete" in the traceability table; full test suite still passes.
+
+**Plans**: TBD
+
+### Phase 7.2: Nyquist Validation for Gap-Closure Phases
+
+**Goal**: Produce formal Nyquist VALIDATION.md records for Phases 6.1 and 6.2, which shipped without them.
+
+**Depends on**: Phases 6.1 and 6.2 (validates their test coverage).
+
+**Gap Closure**: Closes Nyquist compliance gaps for 06.1 and 06.2.
+
+**Success Criteria** (what must be TRUE):
+  1. `.planning/phases/06.1-functional-integration-fixes/06.1-VALIDATION.md` exists with `nyquist_compliant: true` and `status: final`.
+  2. `.planning/phases/06.2-documentation-traceability-repair/06.2-VALIDATION.md` exists with `nyquist_compliant: true` and `status: final`.
+
+**Plans**: TBD
+
+### Phase 7.3: Spec Model Diagnostic Completeness
+
+**Goal**: Fill the diagnostic gaps flagged as advisory in Phase 1's code review — duplicate IDs, JSON-Pointer escape handling, migration contract alignment.
+
+**Depends on**: Phase 1 (extends `crossReferencePass` and `runMigrations`).
+
+**Gap Closure**: Closes Phase 1 advisory items from 01-REVIEW.md (WR-01, WR-02, WR-03, IN-01..IN-06).
+
+**Success Criteria** (what must be TRUE):
+  1. `crossReferencePass` emits `SPEC_DUPLICATE_SCREEN_ID` when two screens share the same id, and `SPEC_DUPLICATE_ENTITY_NAME` when two entities share the same name — tested by a new malformed fixture.
+  2. `resolveJsonPointerPrefix` correctly handles RFC-6901 escaped tokens (`~0` → `~`, `~1` → `/`) — tested with a fixture containing escaped path segments.
+  3. `runMigrations` never throws on valid input; on unknown version it returns a diagnostic rather than throwing — migration runner contract matches `validateSpec()` never-throw guarantee.
+  4. Full test suite still passes (no regressions).
+
+**Plans**: TBD
+
 ### Phase 8: LLM Handoff Commands
 
 **Goal**: A developer can extract a screen, its wireframe, or a framework-targeted prompt from any spec and paste it straight into an LLM of their choice — the handoff the product exists to enable.
@@ -323,6 +372,9 @@ Plans:
 | 6.1. Functional Integration Fixes | 2/2 | Complete | 2026-04-19 |
 | 6.2. Documentation & Traceability Repair | 2/2 | Complete | 2026-04-19 |
 | 7. Maestro Emitter | 5/5 | Complete | 2026-04-19 |
+| 7.1. Maestro Emitter Hardening & Traceability | 0/? | Not started | — |
+| 7.2. Nyquist Validation for Gap-Closure Phases | 0/? | Not started | — |
+| 7.3. Spec Model Diagnostic Completeness | 0/? | Not started | — |
 | 8. LLM Handoff Commands | 0/? | Not started | — |
 | 9. pi.dev Integration & Packaging | 0/? | Not started | — |
 
