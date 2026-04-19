@@ -36,6 +36,9 @@
 //   8. YAML-1.1 gotcha lint pass: scan scalars with value matching
 //      /^(yes|no|on|off|y|n|true|false)$/i that are PLAIN (unquoted) →
 //      emit SERDE_YAML11_GOTCHA info (non-blocking)
+//   8.5. runMigrations(knownSubset, fromVersion, toVersion) — SERDE-08:
+//        migrate older schema versions before validateSpec rejects them.
+//        On unknown-version throw: push SPEC_SCHEMA_VERSION diagnostic, continue.
 //   9. validateSpec(knownSubset) — Phase-1 contract
 //  10. Return { spec, astHandle, diagnostics, body: bodyBytes }
 //
@@ -61,6 +64,7 @@ import type { Document } from "yaml";
 import YAML, { visit } from "yaml";
 import type { Spec } from "../model/index.ts";
 import { validateSpec } from "../model/index.ts";
+import { type SpecVersion, runMigrations } from "../migrations/index.ts";
 import type { JsonPointer } from "../primitives/path.ts";
 import type { AstHandle } from "./ast-handle.ts";
 import { detectOrphanTmp } from "./atomic.ts";
@@ -133,7 +137,7 @@ export async function parseSpecFile(path: string): Promise<ParseResult> {
   normalizeSigilsOnDoc(parsed.doc, sigilOrigins);
 
   // Step 7 — Partition + adversarial-key flag.
-  const partition = partitionTopLevel(parsed.doc);
+  let partition = partitionTopLevel(parsed.doc);
   for (const key of partition.unknownKeys) {
     if (ADVERSARIAL_KEYS.has(key)) {
       diagnostics.push(
@@ -148,6 +152,37 @@ export async function parseSpecFile(path: string): Promise<ParseResult> {
 
   // Step 8 — YAML-1.1 gotcha lint (info, non-blocking).
   diagnostics.push(...yaml11GotchaLint(parsed.doc));
+
+  // Step 8.5 — Run migrations before validation (SERDE-08).
+  // Extract version suffix from schema value: "mobile-tui/1" → "1".
+  // If schema is absent or not in "mobile-tui/N" format, skip migration
+  // (validateSpec will produce the SPEC_SCHEMA_VERSION diagnostic).
+  // If runMigrations throws (e.g., no v0→v1 entry in MIGRATIONS chain),
+  // catch the error and emit a SPEC_SCHEMA_VERSION diagnostic instead of
+  // crashing — graceful degradation for versions that pre-date the chain.
+  const schemaValue = typeof partition.knownSubset["schema"] === "string" ? partition.knownSubset["schema"] : null;
+  const versionMatch = schemaValue?.match(/^mobile-tui\/(\d+)$/);
+  if (versionMatch) {
+    const fromVersion = versionMatch[1] as SpecVersion;
+    const toVersion: SpecVersion = "1";
+    if (fromVersion !== toVersion) {
+      try {
+        const migrated = runMigrations(partition.knownSubset, fromVersion, toVersion);
+        partition = { ...partition, knownSubset: migrated as Record<string, unknown> };
+      } catch {
+        // No migration path for this version (e.g., v0 pre-dates the chain).
+        // Emit a diagnostic so the caller knows the spec may be stale,
+        // but do NOT block — validateSpec may still succeed if the structure
+        // happens to be compatible, or will emit its own structural diagnostics.
+        diagnostics.push({
+          code: "SPEC_SCHEMA_VERSION",
+          message: `No migration path from schema version "${fromVersion}" to "1". Spec may be stale.`,
+          severity: "warning",
+          path: "" as import("../primitives/path.ts").JsonPointer,
+        });
+      }
+    }
+  }
 
   // Step 9 — validateSpec on known subset.
   const { spec, diagnostics: validationDiagnostics } = validateSpec(partition.knownSubset);
