@@ -8,9 +8,13 @@
     "node": ">=20"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./dist/index.js"
+  },
+  "pi": {
+    "extensions": ["./src/extension.ts"]
   },
   "scripts": {
+    "build": "tsup",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -29,11 +33,18 @@
     "yaml": "^2.8.3",
     "zod": "^4.3.6"
   },
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "*",
+    "@mariozechner/pi-tui": "*"
+  },
   "devDependencies": {
     "@biomejs/biome": "^2.4.12",
+    "@mariozechner/pi-coding-agent": "^0.67.68",
+    "@mariozechner/pi-tui": "^0.67.68",
     "@types/jsonpointer": "^4.0.2",
     "@types/node": "^20.11.0",
     "@vitest/coverage-v8": "^4.1.4",
+    "tsup": "^8.5.1",
     "typescript": "^5.6.0",
     "vitest": "^4.1.4"
   }
