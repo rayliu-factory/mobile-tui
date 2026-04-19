@@ -45,7 +45,7 @@ Phase 1 (Model L1/L2)
 - [x] **Phase 6: Wizard & Graduation** — 8 linear steps layered on the canvas store; re-entry edits in place; mode-flip to canvas with no reset. ✓ 2026-04-19
 - [x] **Phase 6.1: Functional Integration Fixes** — Wire runMigrations into parseSpecFile, persist DataStep entities via store.apply, instantiate createAutosave in both entry scripts. ✓ 2026-04-19
 - [x] **Phase 6.2: Documentation & Traceability Repair** — Produce Phase 3 VERIFICATION.md (audit blocker), update stale REQUIREMENTS.md checkboxes for Phases 4–6, finalize draft VALIDATION files. ✓ 2026-04-19
-- [ ] **Phase 7: Maestro Emitter** — Pure emitter from `TestFlow` + nav graph to `<flow>.ios.yaml` / `<flow>.android.yaml`, sigil-gated with no coordinate fallbacks, wired to `:emit maestro`.
+- [x] **Phase 7: Maestro Emitter** — Pure emitter from `TestFlow` + nav graph to `<flow>.ios.yaml` / `<flow>.android.yaml`, sigil-gated with no coordinate fallbacks, wired to `:emit maestro`. ✓ 2026-04-19
 - [ ] **Phase 8: LLM Handoff Commands** — `:yank wireframe`, `:prompt screen …`, `:extract --screen`, with semantic-token-based prompt scaffolds under 2k tokens.
 - [ ] **Phase 9: pi.dev Integration & Packaging** — Thin L7 glue: `/spec` command, shortcuts, session lifecycle, file-mutation queue, `tsup` ESM+dts build, README, `pi install npm:mobile-tui` verified on two pi versions.
 
@@ -270,11 +270,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — Wave 0: test scaffold + fixture test_flows blocks + flows/.gitkeep
-- [ ] 07-02-PLAN.md — Wave 1: TestFlowSchema + SpecSchema extension + crossReferencePass validation
-- [ ] 07-03-PLAN.md — Wave 2: pure emitter core (platform-filter, step-mapper, emitter, barrel)
-- [ ] 07-04-PLAN.md — Wave 3: canvas wiring (StoreState.filePath, emit-maestro.ts, RootCanvas)
-- [ ] 07-05-PLAN.md — Wave 4: golden flow files + CI gate + VALIDATION.md finalization
+- [x] 07-01-PLAN.md — Wave 0: test scaffold + fixture test_flows blocks + flows/.gitkeep
+- [x] 07-02-PLAN.md — Wave 1: TestFlowSchema + SpecSchema extension + crossReferencePass validation
+- [x] 07-03-PLAN.md — Wave 2: pure emitter core (platform-filter, step-mapper, emitter, barrel)
+- [x] 07-04-PLAN.md — Wave 3: canvas wiring (StoreState.filePath, emit-maestro.ts, RootCanvas)
+- [x] 07-05-PLAN.md — Wave 4: golden flow files + CI gate + VALIDATION.md finalization
 
 ### Phase 8: LLM Handoff Commands
 
@@ -322,7 +322,7 @@ Plans:
 | 6. Wizard & Graduation | 6/6 | Complete | 2026-04-19 |
 | 6.1. Functional Integration Fixes | 2/2 | Complete | 2026-04-19 |
 | 6.2. Documentation & Traceability Repair | 2/2 | Complete | 2026-04-19 |
-| 7. Maestro Emitter | 0/5 | In Progress | — |
+| 7. Maestro Emitter | 5/5 | Complete | 2026-04-19 |
 | 8. LLM Handoff Commands | 0/? | Not started | — |
 | 9. pi.dev Integration & Packaging | 0/? | Not started | — |
 
