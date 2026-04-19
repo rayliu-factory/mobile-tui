@@ -96,7 +96,9 @@ export class FormPane implements Component {
 
     // Tab: attempt to advance
     if (data === "\t") {
-      void this.tryAdvance();
+      void this.tryAdvance().catch((err: unknown) => {
+        this.error = err instanceof Error ? err.message : "Unexpected error.";
+      });
       return;
     }
 
