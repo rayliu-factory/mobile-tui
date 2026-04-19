@@ -157,9 +157,9 @@ export async function parseSpecFile(path: string): Promise<ParseResult> {
   // Extract version suffix from schema value: "mobile-tui/1" → "1".
   // If schema is absent or not in "mobile-tui/N" format, skip migration
   // (validateSpec will produce the SPEC_SCHEMA_VERSION diagnostic).
-  // If runMigrations throws (e.g., no v0→v1 entry in MIGRATIONS chain),
-  // catch the error and emit a SPEC_SCHEMA_VERSION diagnostic instead of
-  // crashing — graceful degradation for versions that pre-date the chain.
+  // If the migration chain has no path for this version, runMigrations
+  // returns a diagnostic (never throws). Downgraded to warning for
+  // parse-time — validateSpec below provides structural errors.
   const schemaValue =
     typeof partition.knownSubset.schema === "string" ? partition.knownSubset.schema : null;
   const versionMatch = schemaValue?.match(/^mobile-tui\/(\d+)$/);
@@ -167,20 +167,21 @@ export async function parseSpecFile(path: string): Promise<ParseResult> {
     const fromVersion = versionMatch[1] as SpecVersion;
     const toVersion: SpecVersion = "1";
     if (fromVersion !== toVersion) {
-      try {
-        const migrated = runMigrations(partition.knownSubset, fromVersion, toVersion);
-        partition = { ...partition, knownSubset: migrated as Record<string, unknown> };
-      } catch {
-        // No migration path for this version (e.g., v0 pre-dates the chain).
-        // Emit a diagnostic so the caller knows the spec may be stale,
-        // but do NOT block — validateSpec may still succeed if the structure
-        // happens to be compatible, or will emit its own structural diagnostics.
+      const { result: migrated, diagnostic: migrationDiag } = runMigrations(
+        partition.knownSubset,
+        fromVersion,
+        toVersion,
+      );
+      if (migrationDiag) {
         diagnostics.push({
-          code: "SPEC_SCHEMA_VERSION",
-          message: `No migration path from schema version "${fromVersion}" to "1". Spec may be stale.`,
+          ...migrationDiag,
+          // Downgrade to warning for parse-time — structural errors surfaced
+          // by validateSpec below are more actionable.
           severity: "warning",
           path: "" as JsonPointer,
         });
+      } else {
+        partition = { ...partition, knownSubset: migrated as Record<string, unknown> };
       }
     }
   }

@@ -94,7 +94,7 @@ describe("validateSpec — cross-ref errors do not null the spec", () => {
     };
     const result = validateSpec(spec);
     expect(result.spec).not.toBeNull();
-    expect(result.diagnostics.some((d) => d.code === "SPEC_UNRESOLVED_ACTION")).toBe(true);
+    expect(result.diagnostics.some((d) => d.code === "SPEC_UNRESOLVED_SCREEN")).toBe(true);
   });
 });
 

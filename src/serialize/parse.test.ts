@@ -119,10 +119,10 @@ describe("parseSpecFile — orphan .tmp detection (D-30)", () => {
 });
 
 describe("parseSpecFile — migration pipeline (SERDE-08)", () => {
-  it("Test 1: spec with schema: mobile-tui/0 does NOT throw and returns SPEC_SCHEMA_VERSION diagnostic", async () => {
+  it("Test 1: spec with schema: mobile-tui/0 does NOT throw and returns SPEC_UNSUPPORTED_VERSION diagnostic", async () => {
     // Write a spec with a v0 schema — no migration path exists for v0→v1.
-    // After the fix, parseSpecFile must NOT throw and must emit
-    // a SPEC_SCHEMA_VERSION diagnostic via the catch block.
+    // runMigrations never throws — it returns { result: spec, diagnostic: { code: "SPEC_UNSUPPORTED_VERSION" } }.
+    // parse.ts spreads the diagnostic (downgraded to warning severity) into the diagnostics array.
     const rawHabit = await fs.readFile(resolve("fixtures/habit-tracker.spec.md"), "utf8");
     // Replace the schema field to use version 0
     const v0Spec = rawHabit.replace(/^schema: mobile-tui\/\d+/m, "schema: mobile-tui/0");
@@ -132,7 +132,7 @@ describe("parseSpecFile — migration pipeline (SERDE-08)", () => {
     // Must not throw
     const { diagnostics } = await parseSpecFile(target);
     expect(
-      diagnostics.some((d) => d.code === "SPEC_SCHEMA_VERSION"),
+      diagnostics.some((d) => d.code === "SPEC_UNSUPPORTED_VERSION"),
     ).toBe(true);
   });
 
