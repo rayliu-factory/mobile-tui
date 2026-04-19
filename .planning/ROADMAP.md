@@ -44,7 +44,7 @@ Phase 1 (Model L1/L2)
 - [x] **Phase 5: Canvas TUI Shell** — 3-pane keyboard-driven canvas with focus FSM, command palette, persistent help line, save indicator, and `ctx.ui.custom()`-scoped rendering. ✓ 2026-04-19
 - [x] **Phase 6: Wizard & Graduation** — 8 linear steps layered on the canvas store; re-entry edits in place; mode-flip to canvas with no reset. ✓ 2026-04-19
 - [x] **Phase 6.1: Functional Integration Fixes** — Wire runMigrations into parseSpecFile, persist DataStep entities via store.apply, instantiate createAutosave in both entry scripts. ✓ 2026-04-19
-- [ ] **Phase 6.2: Documentation & Traceability Repair** — Produce Phase 3 VERIFICATION.md (audit blocker), update stale REQUIREMENTS.md checkboxes for Phases 4–6, finalize draft VALIDATION files.
+- [x] **Phase 6.2: Documentation & Traceability Repair** — Produce Phase 3 VERIFICATION.md (audit blocker), update stale REQUIREMENTS.md checkboxes for Phases 4–6, finalize draft VALIDATION files. ✓ 2026-04-19
 - [ ] **Phase 7: Maestro Emitter** — Pure emitter from `TestFlow` + nav graph to `<flow>.ios.yaml` / `<flow>.android.yaml`, sigil-gated with no coordinate fallbacks, wired to `:emit maestro`.
 - [ ] **Phase 8: LLM Handoff Commands** — `:yank wireframe`, `:prompt screen …`, `:extract --screen`, with semantic-token-based prompt scaffolds under 2k tokens.
 - [ ] **Phase 9: pi.dev Integration & Packaging** — Thin L7 glue: `/spec` command, shortcuts, session lifecycle, file-mutation queue, `tsup` ESM+dts build, README, `pi install npm:mobile-tui` verified on two pi versions.
@@ -249,8 +249,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 06.2-01-PLAN.md — Create 03-VERIFICATION.md synthesizing Phase 3 UAT + VALIDATION evidence for WIREFRAME-01..06
-- [ ] 06.2-02-PLAN.md — Update REQUIREMENTS.md checkboxes (EDITOR-04, EDITOR-05, WIZARD-02, WIZARD-03) and finalize 02-VALIDATION.md + 05-VALIDATION.md
+- [x] 06.2-01-PLAN.md — Create 03-VERIFICATION.md synthesizing Phase 3 UAT + VALIDATION evidence for WIREFRAME-01..06
+- [x] 06.2-02-PLAN.md — Update REQUIREMENTS.md checkboxes (EDITOR-04, EDITOR-05, WIZARD-02, WIZARD-03) and finalize 02-VALIDATION.md + 05-VALIDATION.md
 
 ### Phase 7: Maestro Emitter
 
@@ -311,10 +311,10 @@ Plans:
 | 2. Serialization & Round-Trip | 5/5 | Complete | 2026-04-17 |
 | 3. Wireframe Renderer & Dogfood Gate | 9/9 | Complete | 2026-04-18 |
 | 4. Editor Store, Commands & Undo | 7/7 | Complete | 2026-04-18 |
-| 5. Canvas TUI Shell | 0/6 | Planned | — |
+| 5. Canvas TUI Shell | 6/6 | Complete | 2026-04-19 |
 | 6. Wizard & Graduation | 6/6 | Complete | 2026-04-19 |
 | 6.1. Functional Integration Fixes | 2/2 | Complete | 2026-04-19 |
-| 6.2. Documentation & Traceability Repair | 0/? | Not started | — |
+| 6.2. Documentation & Traceability Repair | 2/2 | Complete | 2026-04-19 |
 | 7. Maestro Emitter | 0/? | Not started | — |
 | 8. LLM Handoff Commands | 0/? | Not started | — |
 | 9. pi.dev Integration & Packaging | 0/? | Not started | — |

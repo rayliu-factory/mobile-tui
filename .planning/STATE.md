@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 6.1 COMPLETE — Functional Integration Fixes shipped (2026-04-19)
-last_updated: "2026-04-19T21:10:00.000Z"
+status: Phase 6.2 COMPLETE — Documentation & Traceability Repair shipped (2026-04-19)
+last_updated: "2026-04-19T21:25:00.000Z"
 progress:
   total_phases: 9
-  completed_phases: 7
-  total_plans: 37
-  completed_plans: 37
+  completed_phases: 8
+  total_plans: 39
+  completed_plans: 39
   percent: 100
 ---
 
@@ -25,10 +25,10 @@ Project memory. Updated at every phase transition and plan completion.
 
 ## Current Position
 
-Phase: 06.2 (documentation-traceability-repair) — READY TO EXECUTE
-Plan: 2 plans planned (2026-04-19)
+Phase: 06.2 (documentation-traceability-repair) — COMPLETE (2026-04-19)
+Plan: 2/2 plans complete
 **Milestone**: v1
-**Phase**: 6.2 — Documentation & Traceability Repair — READY TO EXECUTE
+**Phase**: 6.2 — Documentation & Traceability Repair — COMPLETE (2026-04-19). Next: Phase 7 — Maestro Emitter
 **Plan**: Plans 03-01 through 03-08 COMPLETE — full 18-kind emitter catalog + variants.render() top-level composer shipping. End-to-end renderable: `npx tsx scripts/render-wireframe.ts fixtures/habit-tracker.spec.md home` exits 0 with 23-line 4-variant wireframe. Plan 03-09 (dogfood gate — 20-file `.wf.txt` corpus + SHARED.md sidecar) remains.
 **Plan 03-08 status**: CLOSED. `src/emit/wireframe/variants.ts` replaces the Wave-0 NYI stub with a 5-step render() pipeline (~200 LOC): (1) locate screen in spec.screens by id → throws Error on miss (CLI-caller error per Phase-1 01-06), (2) screenIsRoot = (back_behavior === undefined) for D-37, (3) renderVariantBlock × 4 in fixed order content → empty → loading → error (D-39; null variants emit 1-line `+-- screen: X  variant: K  (N/A) --+` marker via dedicated `buildNullMarker` helper parallel to `buildVariantHeader` — chose a separate function over hack-through-existing-API because `(N/A)` is semantically orthogonal to `when`; same 3-stage overflow cascade), (4) acceptance footer via `renderAcceptance + wrapBullet` greedy word-wrap, under content block only per D-45 (plain text, no frame — cleanest paste-into-PR shape), (5) join with `\n\n` + trailing `\n`. `extractWhenExpr` extracts kind-specific trigger (`collection|async|field_error <pointer>`) for D-41 header-only placement. NavBar root-trim (D-37) CENTRALIZED here — emitter stays pure `(node, width) => string[]`; first `| < ` line in-place rewritten to `|   ` (column-preserving — NOT drop+right-pad, which would shift the closing `|` from col 59 → col 57 and break rectangular contract; inline refinement during Task 2 before GREEN commit). `opts.diagnostics` pass-through reserved; `[BROKEN LINK]` inline markers v1-deferred (documented in docblock; Plan 03-09 or follow-up). Tests landed: `variants.test.ts` 15 it()s across 6 describe blocks (D-39/D-40/D-41/D-45/D-37/determinism/throw-on-unknown/ASCII-baseline × 3 canonicals) + 1 golden snapshot for habit-tracker/home; `index.test.ts` pins the public barrel contract (PHONE_WIDTH === 60, render identity barrel === direct-variants.ts); `tests/wireframe-catalog.test.ts` unskipped the 03-01 placeholder (live 18-kind fingerprint-coverage via render() with structural containers Column/Row/ListItem/Spacer marked null + skipped); `tests/wireframe-ascii-baseline.test.ts` second describe block exercising render() × 3 canonicals × every screen. Full gate: 592 pass / 2 skip (baseline 568/3 → +24 active, -1 skip — placeholder went live); `npx tsc --noEmit` 0 errors; `npx biome check .` 1 info (pre-existing Phase-2 `write.ts:254` in deferred-items.md — unchanged). End-to-end CLI smoke test GREEN. No Rule-1/2/3/4 deviations from plan — executed exactly as written. One inline refinement of the trim mechanism (drop+pad → in-place replace) caught during snapshot review, fixed before GREEN commit landed. Commits: 1fd0c15 (test RED variants) → e6af655 (feat GREEN render() + helpers) → 41dfe2b (test unskip catalog + extend ASCII + barrel).
 **Plan 03-07 status**: CLOSED. See 03-07-SUMMARY.md — 4 chrome+overlay emitters (renderNavBar/renderTabBar/renderModal/renderSheet) replaced final Wave-0 NYI stubs; shared `renderOverlayBox` helper for Modal+Sheet DRY; 548→568 passing (+20 assertions); NavBar leading `< ` always-on; TabBar D-42 action+testID hidden; 18/18 catalog kinds now real.
