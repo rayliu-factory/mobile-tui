@@ -92,6 +92,7 @@ async function main(): Promise<void> {
   const lines = wizardRoot.render(80);
   if (lines.length === 0) {
     process.stderr.write("error: wizard render produced empty output\n");
+    autosave.dispose();
     process.exitCode = 1;
     return;
   }
