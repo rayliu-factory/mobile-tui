@@ -267,7 +267,14 @@ Plans:
   4. The emitter is a pure function — passing the same `TestFlow` + nav graph twice produces byte-identical output; no hidden IO, no timestamps, no randomness.
   5. Running the emitter against all fixture flows and diffing the output directory against the committed golden `flows/` tree shows zero drift in CI.
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Wave 0: test scaffold + fixture test_flows blocks + flows/.gitkeep
+- [ ] 07-02-PLAN.md — Wave 1: TestFlowSchema + SpecSchema extension + crossReferencePass validation
+- [ ] 07-03-PLAN.md — Wave 2: pure emitter core (platform-filter, step-mapper, emitter, barrel)
+- [ ] 07-04-PLAN.md — Wave 3: canvas wiring (StoreState.filePath, emit-maestro.ts, RootCanvas)
+- [ ] 07-05-PLAN.md — Wave 4: golden flow files + CI gate + VALIDATION.md finalization
 
 ### Phase 8: LLM Handoff Commands
 
@@ -315,7 +322,7 @@ Plans:
 | 6. Wizard & Graduation | 6/6 | Complete | 2026-04-19 |
 | 6.1. Functional Integration Fixes | 2/2 | Complete | 2026-04-19 |
 | 6.2. Documentation & Traceability Repair | 2/2 | Complete | 2026-04-19 |
-| 7. Maestro Emitter | 0/? | Not started | — |
+| 7. Maestro Emitter | 0/5 | In Progress | — |
 | 8. LLM Handoff Commands | 0/? | Not started | — |
 | 9. pi.dev Integration & Packaging | 0/? | Not started | — |
 
