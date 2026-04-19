@@ -22,6 +22,7 @@
     "canvas": "npx tsx scripts/canvas.ts"
   },
   "dependencies": {
+    "clipboardy": "^5.3.1",
     "gpt-tokenizer": "^3.4.0",
     "gray-matter": "^4.0.3",
     "jsonpointer": "^5.0.1",
