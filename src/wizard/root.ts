@@ -291,8 +291,8 @@ export class WizardRoot implements Component {
       ...(rightW > 0 ? [{ component: this.specPreview as Component, width: rightW }] : []),
     ];
 
-    // Update layout with current pane specs (same mutation pattern as RootCanvas)
-    (this.layout as unknown as { panes: typeof paneSpecs }).panes = paneSpecs;
+    // Update layout with current pane specs via public API (WR-02: remove private-field bypass)
+    this.layout.setPanes(paneSpecs);
 
     // Row 0: header line
     const header = this.buildHeader(width);

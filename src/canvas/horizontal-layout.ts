@@ -96,9 +96,17 @@ export function drawBorderedPane(
  */
 export class HorizontalLayout implements Component {
   constructor(
-    private readonly panes: PaneSpec[],
+    private panes: PaneSpec[],
     private readonly theme: MinimalTheme,
   ) {}
+
+  /**
+   * Replace the current pane specs. Called by WizardRoot.render() each tick
+   * so callers don't need to bypass encapsulation via `as unknown as` casts.
+   */
+  setPanes(panes: PaneSpec[]): void {
+    this.panes = panes;
+  }
 
   /**
    * Render panes side-by-side.
