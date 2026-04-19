@@ -12,10 +12,10 @@
 //   - YAML output for a seed spec includes "schema:", "screens:", "actions:", "data:", "navigation:"
 
 import { describe, expect, it } from "vitest";
-import { SpecPreviewPane } from "./spec-preview.ts";
-import { createSeedSpec } from "../seed-spec.ts";
 import type { Snapshot } from "../../editor/types.ts";
 import type { Diagnostic } from "../../primitives/diagnostic.ts";
+import { createSeedSpec } from "../seed-spec.ts";
+import { SpecPreviewPane } from "./spec-preview.ts";
 
 function makeSnapshot(): Snapshot {
   return {
