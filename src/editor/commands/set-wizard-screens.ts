@@ -39,10 +39,17 @@ interface SetWizardScreensInverse {
  * T-06-02: strips non-alnum chars to prevent injection into YAML ids.
  */
 function nameToId(name: string): ScreenId {
-  return name
+  const slug = name
     .toLowerCase()
     .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "") as ScreenId;
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/^-+|-+$/g, ""); // trim leading/trailing dashes
+
+  // Fall back to a hash-based id if slug is empty (e.g. all-symbol input "!!!") (WR-04)
+  if (slug.length === 0) {
+    return `screen-${Math.abs(name.split("").reduce((a, c) => a * 31 + c.charCodeAt(0), 0)) % 9999}` as ScreenId;
+  }
+  return slug as ScreenId;
 }
 
 /**
