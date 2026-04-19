@@ -5,8 +5,7 @@
 
 import { truncateToWidth } from "../canvas/tui-utils.ts";
 
-export const HELP_STEP_1 =
-  "[tab] next  [ctrl+g] canvas  [ctrl+z] undo  [ctrl+q] quit";
+export const HELP_STEP_1 = "[tab] next  [ctrl+g] canvas  [ctrl+z] undo  [ctrl+q] quit";
 export const HELP_STEPS_2_8 =
   "[tab] next  [esc] back  [ctrl+g] canvas  [ctrl+z] undo  [ctrl+q] quit";
 
