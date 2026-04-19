@@ -6,13 +6,20 @@ import YAML, { isMap } from "yaml";
 import { ADVERSARIAL_KEYS, KNOWN_TOP_LEVEL_KEYS, partitionTopLevel } from "./unknown.ts";
 
 describe("unknown.ts — KNOWN_TOP_LEVEL_KEYS registry", () => {
-  it("exposes the 5 SpecSchema root keys (D-27 scope)", () => {
+  it("exposes the 5 core SpecSchema root keys + 6 Phase-6 wizard meta keys (D-27 scope)", () => {
     expect([...KNOWN_TOP_LEVEL_KEYS]).toEqual([
       "schema",
       "screens",
       "actions",
       "data",
       "navigation",
+      // Phase-6 wizard meta fields (WizardMetaSchema spread into SpecSchema)
+      "app_idea",
+      "primary_user",
+      "nav_pattern",
+      "auth",
+      "offline_sync",
+      "target_platforms",
     ]);
   });
 });
