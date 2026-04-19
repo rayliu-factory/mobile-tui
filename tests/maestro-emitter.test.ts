@@ -4,15 +4,10 @@
 //         MAESTRO-05 SC5 (golden fixture output).
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { emitMaestroFlows } from "../src/emit/maestro/index.ts";
 import type { Spec } from "../src/model/index.ts";
+import type { ActionId, ScreenId } from "../src/primitives/ids.ts";
 import { parseSpecFile } from "../src/serialize/index.ts";
-
-// TODO: replace with real import after Plan 03
-// import { emitMaestroFlows } from "../src/emit/maestro/index.ts";
-const emitMaestroFlows = (_spec: unknown) => ({
-  ok: true,
-  flows: [] as Array<{ name: string; ios: string; android: string }>,
-});
 
 async function loadFixture(name: string): Promise<Spec> {
   const r = await parseSpecFile(resolve(`fixtures/${name}.spec.md`));
@@ -21,7 +16,7 @@ async function loadFixture(name: string): Promise<Spec> {
 }
 
 describe("emitMaestroFlows — pure function (MAESTRO-01)", () => {
-  it.skip("returns same output on two calls with same input (determinism)", async () => {
+  it("returns same output on two calls with same input (determinism)", async () => {
     const spec = await loadFixture("habit-tracker");
     const a = emitMaestroFlows(spec);
     const b = emitMaestroFlows(spec);
@@ -29,132 +24,189 @@ describe("emitMaestroFlows — pure function (MAESTRO-01)", () => {
     expect(a).toStrictEqual(b);
   });
 
-  it.skip("returns ok:true with empty flows array when spec has no test_flows", async () => {
+  it("returns ok:true with empty flows array when spec has no test_flows", async () => {
     const spec = await loadFixture("habit-tracker");
     // Strip test_flows from the spec
     const specWithoutFlows = { ...spec, test_flows: undefined };
     const result = emitMaestroFlows(specWithoutFlows);
     expect(result.ok).toBe(true);
-    expect(result.flows).toHaveLength(0);
+    if (result.ok) {
+      expect(result.flows).toHaveLength(0);
+    }
   });
 
-  it.skip("YAML output contains appId header and --- separator", async () => {
+  it("YAML output contains appId header and --- separator", async () => {
     const spec = await loadFixture("habit-tracker");
     const result = emitMaestroFlows(spec);
     expect(result.ok).toBe(true);
+    if (!result.ok) return;
     for (const flow of result.flows) {
       expect(flow.ios).toContain("appId:");
       expect(flow.ios).toContain("---");
     }
   });
 
-  it.skip("launchApp is first step in every emitted flow", async () => {
+  it("launchApp is first step in every emitted flow", async () => {
     const spec = await loadFixture("habit-tracker");
     const result = emitMaestroFlows(spec);
     expect(result.ok).toBe(true);
+    if (!result.ok) return;
     for (const flow of result.flows) {
       expect(flow.ios).toMatch(/launchApp/);
       // launchApp must appear before any other step
       const lines = flow.ios.split("\n");
-      const stepLines = lines.filter((l) => l.trim().startsWith("-"));
+      // Filter YAML list items (- item) but not the --- document separator
+      const stepLines = lines.filter((l) => /^- \S/.test(l.trim()) || l.trim() === "- launchApp");
       expect(stepLines[0]).toContain("launchApp");
+    }
+  });
+
+  it("returns ok:true with flows array matching test_flows count", async () => {
+    const spec = await loadFixture("habit-tracker");
+    const result = emitMaestroFlows(spec);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    // habit-tracker fixture has 3 test_flows
+    expect(result.flows).toHaveLength(3);
+    for (const flow of result.flows) {
+      expect(typeof flow.ios).toBe("string");
+      expect(typeof flow.android).toBe("string");
     }
   });
 });
 
 describe("platform branching (MAESTRO-02)", () => {
-  it.skip("ios-only step appears in .ios.yaml but not .android.yaml", async () => {
+  it("ios-only step appears in .ios output but not .android output", async () => {
     const spec = await loadFixture("habit-tracker");
     const result = emitMaestroFlows(spec);
     expect(result.ok).toBe(true);
-    // ios_permission_flow has platform: ios step (add_habit)
+    if (!result.ok) return;
+    // ios_permission_flow has platform: ios step (add_habit → add_habit_btn)
     const permFlow = result.flows.find((f) => f.name === "ios_permission_flow");
     expect(permFlow).toBeDefined();
     if (!permFlow) return;
-    // add_habit step appears in ios but not android
+    // add_habit_btn step appears in ios but not android
     expect(permFlow.ios).toContain("add_habit_btn");
     expect(permFlow.android).not.toContain("add_habit_btn");
   });
 
-  it.skip("android-only step appears in .android.yaml but not .ios.yaml", async () => {
+  it("android-only step appears in .android output but not .ios output", async () => {
     const spec = await loadFixture("habit-tracker");
     const result = emitMaestroFlows(spec);
     expect(result.ok).toBe(true);
-    // ios_permission_flow has platform: android step (toggle_done)
+    if (!result.ok) return;
+    // ios_permission_flow has platform: android step (toggle_done → done_toggle)
     const permFlow = result.flows.find((f) => f.name === "ios_permission_flow");
     expect(permFlow).toBeDefined();
     if (!permFlow) return;
-    // toggle_done step appears in android but not ios
+    // done_toggle step appears in android but not ios
     expect(permFlow.android).toContain("done_toggle");
     expect(permFlow.ios).not.toContain("done_toggle");
   });
 
-  it.skip("both-platform step appears byte-identically in both files", async () => {
+  it("both-platform step appears byte-identically in both files", async () => {
     const spec = await loadFixture("habit-tracker");
     const result = emitMaestroFlows(spec);
     expect(result.ok).toBe(true);
-    // add_habit_flow has platform: both steps — should appear in both files
+    if (!result.ok) return;
+    // add_habit_flow has platform: both steps — add_habit_btn should appear in both
     const addFlow = result.flows.find((f) => f.name === "add_habit_flow");
     expect(addFlow).toBeDefined();
     if (!addFlow) return;
     // Both files contain the same testIDs for both-platform steps
     expect(addFlow.ios).toContain("add_habit_btn");
     expect(addFlow.android).toContain("add_habit_btn");
+    // The ios and android outputs are byte-identical when all steps are "both"
+    expect(addFlow.ios).toBe(addFlow.android);
   });
 });
 
 describe("missing testID — loud failure (MAESTRO-03)", () => {
-  it.skip("returns ok:false with MAESTRO_MISSING_TESTID diagnostic when action has no testID", async () => {
+  it("returns ok:false with MAESTRO_MISSING_TESTID diagnostic when action has no testID", async () => {
     const spec = await loadFixture("habit-tracker");
-    // Mutate spec to include a test_flows step whose action references a component with no testID
-    const specWithBadFlow = {
+    // Inject a test_flow step that references a nonexistent action (not in spec.actions)
+    // This simulates the case where crossReferencePass hasn't caught the issue yet
+    // OR where the action exists but the component has no testID.
+    // Simplest approach: reference an action that has no component wired up.
+    // We use a known action "add_habit" but point it at a screen where it doesn't appear
+    // (on_title_change is wired to new_habit, not home) — this means no testID on home.
+    const specWithBadFlow: Spec = {
       ...spec,
       test_flows: [
         {
           name: "bad_flow",
-          steps: [{ screen: "home", action: "add_habit", platform: "both" as const }],
+          steps: [
+            // on_title_change action only appears on new_habit screen, not on home
+            {
+              screen: "home" as ScreenId,
+              action: "on_title_change" as ActionId,
+              platform: "both" as const,
+            },
+          ],
         },
       ],
     };
-    // Strip testID from add_habit's triggering component to simulate missing testID
     const result = emitMaestroFlows(specWithBadFlow);
-    // In a real scenario with missing testID, result.ok should be false
-    // The diagnostic must include MAESTRO_MISSING_TESTID code
-    if (!result.ok) {
-      // biome-ignore lint/suspicious/noExplicitAny: testing diagnostic shape
-      const r = result as any;
-      expect(r.diagnostics).toBeDefined();
-      expect(
-        // biome-ignore lint/suspicious/noExplicitAny: testing diagnostic shape
-        r.diagnostics.some((d: any) => d.code === "MAESTRO_MISSING_TESTID"),
-      ).toBe(true);
-    }
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.diagnostics).toBeDefined();
+    expect(result.diagnostics.length).toBeGreaterThan(0);
+    expect(result.diagnostics.some((d) => d.code === "MAESTRO_MISSING_TESTID")).toBe(true);
   });
 
-  it.skip("writes zero files when any step has missing testID (all-or-nothing)", async () => {
+  it("writes zero flows when any step has missing testID (all-or-nothing)", async () => {
     const spec = await loadFixture("habit-tracker");
-    // When any step fails with missing testID, no files must be written
-    const result = emitMaestroFlows(spec);
-    if (!result.ok) {
+    // Reference an action that won't resolve on the given screen
+    const specWithBadFlow: Spec = {
+      ...spec,
+      test_flows: [
+        {
+          name: "bad_flow",
+          steps: [
+            {
+              screen: "home" as ScreenId,
+              action: "on_title_change" as ActionId,
+              platform: "both" as const,
+            },
+          ],
+        },
+      ],
+    };
+    const result = emitMaestroFlows(specWithBadFlow);
+    // ok:false result has no flows property at all
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      // Should not reach here
       expect(result.flows).toHaveLength(0);
     }
   });
 
-  it.skip("diagnostic message names the missing action and screen", async () => {
+  it("diagnostic message names the missing action and screen", async () => {
     const spec = await loadFixture("habit-tracker");
-    const result = emitMaestroFlows(spec);
-    if (!result.ok) {
-      // biome-ignore lint/suspicious/noExplicitAny: testing diagnostic shape
-      const r = result as any;
-      const diag =
-        // biome-ignore lint/suspicious/noExplicitAny: testing diagnostic shape
-        r.diagnostics?.find((d: any) => d.code === "MAESTRO_MISSING_TESTID");
-      if (diag) {
-        // Diagnostic message should name the action and screen
-        expect(diag.message).toMatch(/action/i);
-        expect(diag.message).toMatch(/screen/i);
-      }
-    }
+    const specWithBadFlow: Spec = {
+      ...spec,
+      test_flows: [
+        {
+          name: "bad_flow",
+          steps: [
+            {
+              screen: "home" as ScreenId,
+              action: "on_title_change" as ActionId,
+              platform: "both" as const,
+            },
+          ],
+        },
+      ],
+    };
+    const result = emitMaestroFlows(specWithBadFlow);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    const diag = result.diagnostics.find((d) => d.code === "MAESTRO_MISSING_TESTID");
+    expect(diag).toBeDefined();
+    if (!diag) return;
+    // Diagnostic message should name the action and screen
+    expect(diag.message).toMatch(/action/i);
+    expect(diag.message).toMatch(/screen/i);
   });
 });
 
@@ -191,6 +243,7 @@ describe("golden fixtures (MAESTRO-05 SC5)", () => {
     const spec = await loadFixture("habit-tracker");
     const result = emitMaestroFlows(spec);
     expect(result.ok).toBe(true);
+    if (!result.ok) return;
     // Each flow's ios and android YAML must match stored snapshot
     for (const flow of result.flows) {
       expect(flow.ios).toMatchSnapshot(`habit-tracker/${flow.name}.ios.yaml`);
@@ -202,6 +255,7 @@ describe("golden fixtures (MAESTRO-05 SC5)", () => {
     const spec = await loadFixture("todo");
     const result = emitMaestroFlows(spec);
     expect(result.ok).toBe(true);
+    if (!result.ok) return;
     for (const flow of result.flows) {
       expect(flow.ios).toMatchSnapshot(`todo/${flow.name}.ios.yaml`);
       expect(flow.android).toMatchSnapshot(`todo/${flow.name}.android.yaml`);

@@ -6,7 +6,7 @@ import YAML, { isMap } from "yaml";
 import { ADVERSARIAL_KEYS, KNOWN_TOP_LEVEL_KEYS, partitionTopLevel } from "./unknown.ts";
 
 describe("unknown.ts — KNOWN_TOP_LEVEL_KEYS registry", () => {
-  it("exposes the 5 core SpecSchema root keys + 6 Phase-6 wizard meta keys (D-27 scope)", () => {
+  it("exposes the 5 core SpecSchema root keys + 6 Phase-6 wizard meta keys + test_flows (D-27 scope)", () => {
     expect([...KNOWN_TOP_LEVEL_KEYS]).toEqual([
       "schema",
       "screens",
@@ -20,6 +20,8 @@ describe("unknown.ts — KNOWN_TOP_LEVEL_KEYS registry", () => {
       "auth",
       "offline_sync",
       "target_platforms",
+      // Phase-7: test_flows field (TestFlowSchema added to SpecSchema in Plan 02)
+      "test_flows",
     ]);
   });
 });
@@ -86,7 +88,7 @@ describe("unknown.ts — partitionTopLevel", () => {
     );
   });
 
-  it("partitions a real Phase-1 fixture with 5 known + test_flows as unknown (Phase-7 field pending schema)", () => {
+  it("partitions a real Phase-7 fixture with 6 known keys including test_flows", () => {
     const raw = readFileSync(resolve("fixtures/habit-tracker.spec.md"), "utf8");
     // Grab just the frontmatter slice (between ---s)
     const match = raw.match(/^---\n([\s\S]*?)\n---/);
@@ -99,15 +101,16 @@ describe("unknown.ts — partitionTopLevel", () => {
       keepSourceTokens: true,
     });
     const { knownSubset, unknownKeys } = partitionTopLevel(doc);
+    // test_flows added to KNOWN_TOP_LEVEL_KEYS in Phase-7 Plan 03 (emitter core)
+    // so partitionTopLevel passes it to validateSpec() which uses TestFlowSchema.
     expect(Object.keys(knownSubset).sort()).toEqual([
       "actions",
       "data",
       "navigation",
       "schema",
       "screens",
+      "test_flows",
     ]);
-    // test_flows is added to fixtures in Phase-7 Wave 0 but added to KNOWN_TOP_LEVEL_KEYS
-    // in Phase-7 Plan 02 (schema extension). Until then it is an unknown passthrough key.
-    expect(unknownKeys).toEqual(["test_flows"]);
+    expect(unknownKeys).toEqual([]);
   });
 });

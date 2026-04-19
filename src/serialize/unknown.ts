@@ -49,6 +49,11 @@ export const KNOWN_TOP_LEVEL_KEYS = [
   "auth",
   "offline_sync",
   "target_platforms",
+  // Phase-7: test_flows — optional array of Maestro test flow definitions (D-107).
+  // Added here so partitionTopLevel passes it to validateSpec() which uses
+  // TestFlowSchema (added to SpecSchema in Plan 02). Without this entry the
+  // key is classified as unknown and the emitter never sees the flows.
+  "test_flows",
 ] as const;
 export type KnownTopLevelKey = (typeof KNOWN_TOP_LEVEL_KEYS)[number];
 

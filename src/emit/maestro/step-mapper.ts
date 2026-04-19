@@ -10,8 +10,8 @@
 //   - Only walks screen.variants.content.tree (D-106 — content variant is
 //     the interactive happy path; empty/loading/error are non-interactive).
 import type { ComponentNode } from "../../model/component.ts";
-import type { Screen } from "../../model/screen.ts";
 import type { Spec } from "../../model/index.ts";
+import type { Screen } from "../../model/screen.ts";
 import type { TestFlowStep } from "../../model/spec.ts";
 import type { Diagnostic } from "../../primitives/diagnostic.ts";
 import { pathToJsonPointer } from "../../primitives/path.ts";
@@ -26,10 +26,7 @@ export type StepMapResult =
  *
  * Returns null when actionId not found — the caller creates the diagnostic.
  */
-export function findTestIDForAction(
-  screen: Screen,
-  actionId: string,
-): string | null {
+export function findTestIDForAction(screen: Screen, actionId: string): string | null {
   // D-106: walk content variant only (not empty/loading/error)
   const tree = screen.variants.content?.tree ?? [];
   return walkForTestID(tree as ComponentNode[], actionId);
