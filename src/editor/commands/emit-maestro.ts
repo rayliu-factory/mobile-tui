@@ -32,6 +32,7 @@ function runSyntaxCheck(filePath: string): Diagnostic | null {
   try {
     execFileSync("maestro", ["check-syntax", filePath], {
       stdio: ["ignore", "pipe", "pipe"],
+      timeout: 10_000, // 10 s — JVM cold start is typically ~3-5 s
     });
     return null; // exit 0 = valid
   } catch (err: unknown) {
