@@ -1,0 +1,6 @@
+# Replace com.example.app with your bundle identifier
+appId: com.example.app
+---
+- launchApp
+- tapOn:
+    id: add_habit_btn
