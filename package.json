@@ -4,6 +4,10 @@
   "type": "module",
   "description": "pi.dev TypeScript extension: terminal-native wizard+canvas TUI for authoring LLM-consumable mobile app specs.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rayliu-factory/mobile-tui"
+  },
   "engines": {
     "node": ">=20"
   },
