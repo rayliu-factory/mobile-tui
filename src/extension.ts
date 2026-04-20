@@ -117,15 +117,6 @@ export default function (pi: ExtensionAPI) {
           withFileMutationQueue(path, () => writeSpecFile(path, spec, ast)),
       });
 
-      // Helper: build session state snapshot for writeSession.
-      const sessionState = (mode: "wizard" | "canvas"): Parameters<typeof writeSession>[1] => ({
-        specPath: "./SPEC.md",
-        mode,
-        wizardStep: session?.wizardStep ?? 0,
-        focusedScreenIndex: session?.focusedScreenIndex ?? 0,
-        focusedPane: (session?.focusedPane ?? "screens") as "screens" | "inspector" | "preview",
-      });
-
       // Wizard-or-canvas routing loop.
       // Re-calls ctx.ui.custom with a FRESH component instance on graduation (T-09-03-02).
       let mode = startMode;
@@ -134,14 +125,31 @@ export default function (pi: ExtensionAPI) {
           const graduated = await ctx.ui.custom<boolean>((tui, theme, _kb, done) => {
             // theme is pi's Theme; cast to MinimalTheme (structurally compatible at runtime).
             const root = new WizardRoot(store, { tui, theme: theme as { fg: (token: string, str: string) => string } });
-            root.onGraduate = () => {
-              // Graduate: close wizard session; loop will open canvas next iteration.
+            root.onGraduate = async () => {
+              // Graduate: flush → persist canvas session with live step → open canvas.
+              // T-09-03-01: done() called AFTER flush and writeSession complete.
+              const liveStep = root.getStepCursor();
+              await autosave.flush();
+              await writeSession(ctx.cwd, {
+                specPath: "./SPEC.md",
+                mode: "canvas",
+                wizardStep: liveStep,
+                focusedScreenIndex: session?.focusedScreenIndex ?? 0,
+                focusedPane: (session?.focusedPane ?? "screens") as "screens" | "inspector" | "preview",
+              });
               done(true);
             };
             root.onQuit = async () => {
               // Shutdown sequence (T-09-03-01): flush → write session → done.
+              // Use live stepCursor — not stale session value.
               await autosave.flush();
-              await writeSession(ctx.cwd, sessionState("wizard"));
+              await writeSession(ctx.cwd, {
+                specPath: "./SPEC.md",
+                mode: "wizard",
+                wizardStep: root.getStepCursor(),
+                focusedScreenIndex: session?.focusedScreenIndex ?? 0,
+                focusedPane: (session?.focusedPane ?? "screens") as "screens" | "inspector" | "preview",
+              });
               done(false);
             };
             return root;
@@ -158,7 +166,13 @@ export default function (pi: ExtensionAPI) {
             root.onQuit = async () => {
               // Shutdown sequence (T-09-03-01): flush → write session → done.
               await autosave.flush();
-              await writeSession(ctx.cwd, sessionState("canvas"));
+              await writeSession(ctx.cwd, {
+                specPath: "./SPEC.md",
+                mode: "canvas",
+                wizardStep: session?.wizardStep ?? 0,
+                focusedScreenIndex: session?.focusedScreenIndex ?? 0,
+                focusedPane: (session?.focusedPane ?? "screens") as "screens" | "inspector" | "preview",
+              });
               done(undefined);
             };
             return root;
