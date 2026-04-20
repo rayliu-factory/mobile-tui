@@ -103,11 +103,15 @@ export default function (pi: ExtensionAPI) {
         return;
       }
 
-      const store = createStore({
-        spec: parseResult.spec,
-        astHandle: parseResult.astHandle,
-        filePath: absSpecPath,
-      });
+      const store = createStore(
+        {
+          spec: parseResult.spec,
+          astHandle: parseResult.astHandle,
+          filePath: absSpecPath,
+        },
+        undefined, // use default COMMANDS registry
+        { withMutationQueue: (absPath, fn) => withFileMutationQueue(absPath, fn) },
+      );
 
       // Inject withFileMutationQueue into autosave (D-307/D-308).
       // This is the autosave write site that needs queue coordination.
