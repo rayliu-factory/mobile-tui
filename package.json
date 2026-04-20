@@ -1,5 +1,5 @@
 {
-  "name": "mobile-tui",
+  "name": "@rayliu/mobile-tui",
   "version": "0.0.0",
   "type": "module",
   "description": "pi.dev TypeScript extension: terminal-native wizard+canvas TUI for authoring LLM-consumable mobile app specs.",
@@ -11,10 +11,15 @@
     ".": "./dist/index.js"
   },
   "pi": {
-    "extensions": ["./src/extension.ts"]
+    "extensions": ["./dist/extension.js"]
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run build && npm run typecheck",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
