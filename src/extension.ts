@@ -19,7 +19,7 @@
 // RELATED: src/session.ts, src/canvas/root.ts, src/wizard/root.ts, src/editor/store.ts
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { withFileMutationQueue } from "@mariozechner/pi-coding-agent";
-import { stat } from "node:fs/promises";
+import { stat, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { RootCanvas } from "./canvas/root.ts";
 import { createAutosave } from "./editor/autosave.ts";
@@ -70,16 +70,29 @@ export default function (pi: ExtensionAPI) {
       }
 
       // Load the spec file.
-      // parseSpecFile throws on ENOENT; we catch and notify the user.
+      // On ENOENT in wizard mode, write a seed file first then re-parse.
+      // On ENOENT in canvas mode or any other error, notify the user.
       let parseResult: Awaited<ReturnType<typeof parseSpecFile>> | null = null;
       try {
         parseResult = await parseSpecFile(absSpecPath);
-      } catch {
-        ctx.ui.notify(
-          `Cannot open spec at ${absSpecPath}. Create a SPEC.md file in your project root first.`,
-          "error",
-        );
-        return;
+      } catch (err) {
+        if (
+          err instanceof Error &&
+          (err as NodeJS.ErrnoException).code === "ENOENT" &&
+          startMode === "wizard"
+        ) {
+          // New project: write minimal seed SPEC.md, then re-parse.
+          const seedContent =
+            "---\nschema: mobile-tui/1\n\nscreens:\n  - id: placeholder\n    title: TODO\n    kind: regular\n    variants:\n      content:\n        kind: content\n        tree: []\n      empty: null\n      loading: null\n      error: null\n\nactions: {}\n\ndata:\n  entities: []\n\nnavigation:\n  root: placeholder\n  edges: []\n---\n";
+          await writeFile(absSpecPath, seedContent, "utf8");
+          parseResult = await parseSpecFile(absSpecPath);
+        } else {
+          ctx.ui.notify(
+            `Cannot open spec at ${absSpecPath}. Create a SPEC.md file in your project root first.`,
+            "error",
+          );
+          return;
+        }
       }
 
       if (!parseResult.spec || !parseResult.astHandle) {
