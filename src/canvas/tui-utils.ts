@@ -1,38 +1,64 @@
 // src/canvas/tui-utils.ts
-// Local shims for @mariozechner/pi-tui utilities needed by canvas components.
+// Shared ANSI-aware TUI utilities for canvas components.
 //
-// At runtime inside pi, these functions are provided by @mariozechner/pi-tui
-// (a peer dependency resolved by the pi host process). In tests and local
-// development, pi-tui is not installed — these shims provide compatible
-// implementations for plain strings (no ANSI escape codes in test output).
+// These implementations handle ANSI SGR escape sequences correctly:
+// - truncateToWidth measures visible width by stripping escape codes
+// - visibleWidth strips escape codes before measuring
 //
-// IMPORTANT: These shims do NOT handle ANSI escape codes. When real pi-tui is
-// available at runtime, import directly from "@mariozechner/pi-tui" instead.
-// These shims are for use ONLY in canvas modules that run headlessly in tests.
+// Compatible with @mariozechner/pi-tui's API surface so components can
+// import from here during tests (pi-tui is a peer dep, not installed).
+
+// Regex strips SGR ANSI color codes (ESC [ ... m). RegExp constructor used
+// to avoid the biome noControlCharactersInRegex lint rule on regex literals.
+// biome-ignore lint/complexity/useRegexLiterals: must use constructor to avoid noControlCharactersInRegex
+const ANSI_SGR = new RegExp("\x1b\\[[0-9;]*m", "g");
 
 /**
- * Truncate a string to at most `width` visible characters.
- * If `pad` is true, also pads with spaces to exact `width`.
+ * Truncate a string to at most `width` visible characters (ANSI-aware).
+ * If `pad` is true, pads with spaces to exact `width` visible columns.
  *
- * Shim: assumes no ANSI escape codes. Real pi-tui version is ANSI-aware.
+ * ANSI SGR escape sequences are counted as zero-width and are preserved
+ * intact in the output — they are never sliced mid-sequence.
  */
 export function truncateToWidth(str: string, width: number, _ellipsis = "", pad = false): string {
   if (width <= 0) return "";
-  // Trim to width
-  const trimmed = str.length > width ? str.slice(0, width) : str;
-  // Pad to exact width if requested
-  if (pad && trimmed.length < width) {
-    return trimmed + " ".repeat(width - trimmed.length);
+  const stripped = str.replace(ANSI_SGR, "");
+  if (stripped.length <= width) {
+    if (pad && stripped.length < width) {
+      return str + " ".repeat(width - stripped.length);
+    }
+    return str;
   }
-  return trimmed;
+  // Walk character-by-character, copying ANSI sequences wholesale without counting them
+  let visibleCount = 0;
+  let result = "";
+  let i = 0;
+  while (i < str.length && visibleCount < width) {
+    if (str[i] === "\x1b") {
+      const start = i;
+      i++; // skip ESC
+      if (i < str.length && str[i] === "[") {
+        i++; // skip [
+        while (i < str.length && !/[A-Za-z]/.test(str[i] ?? "")) i++;
+        if (i < str.length) i++; // skip terminator
+      }
+      result += str.slice(start, i);
+    } else {
+      result += str[i];
+      visibleCount++;
+      i++;
+    }
+  }
+  if (pad && visibleCount < width) {
+    result += " ".repeat(width - visibleCount);
+  }
+  return result;
 }
 
 /**
  * Return the visible width of a string (number of terminal columns).
- *
- * Shim: assumes no ANSI escape codes, returns str.length.
- * Real pi-tui version strips ANSI sequences before measuring.
+ * Strips ANSI SGR sequences before measuring.
  */
 export function visibleWidth(str: string): number {
-  return str.length;
+  return str.replace(ANSI_SGR, "").length;
 }
