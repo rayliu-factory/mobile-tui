@@ -1,5 +1,5 @@
 {
-  "name": "@rayliu/mobile-tui",
+  "name": "@appfiex-rayliu/mobile-tui",
   "version": "0.1.0",
   "type": "module",
   "description": "pi.dev TypeScript extension: terminal-native wizard+canvas TUI for authoring LLM-consumable mobile app specs.",
