@@ -1,6 +1,6 @@
 {
   "name": "@rayliu/mobile-tui",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "description": "pi.dev TypeScript extension: terminal-native wizard+canvas TUI for authoring LLM-consumable mobile app specs.",
   "license": "MIT",
@@ -11,7 +11,9 @@
     ".": "./dist/index.js"
   },
   "pi": {
-    "extensions": ["./dist/extension.js"]
+    "extensions": [
+      "./dist/extension.js"
+    ]
   },
   "files": [
     "dist"
