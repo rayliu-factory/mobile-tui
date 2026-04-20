@@ -19,7 +19,7 @@
 // RELATED: src/session.ts, src/canvas/root.ts, src/wizard/root.ts, src/editor/store.ts
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { withFileMutationQueue } from "@mariozechner/pi-coding-agent";
-import { stat } from "node:fs/promises";
+import { stat, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { RootCanvas } from "./canvas/root.ts";
 import { createAutosave } from "./editor/autosave.ts";
@@ -70,16 +70,29 @@ export default function (pi: ExtensionAPI) {
       }
 
       // Load the spec file.
-      // parseSpecFile throws on ENOENT; we catch and notify the user.
+      // On ENOENT in wizard mode, write a seed file first then re-parse.
+      // On ENOENT in canvas mode or any other error, notify the user.
       let parseResult: Awaited<ReturnType<typeof parseSpecFile>> | null = null;
       try {
         parseResult = await parseSpecFile(absSpecPath);
-      } catch {
-        ctx.ui.notify(
-          `Cannot open spec at ${absSpecPath}. Create a SPEC.md file in your project root first.`,
-          "error",
-        );
-        return;
+      } catch (err) {
+        if (
+          err instanceof Error &&
+          (err as NodeJS.ErrnoException).code === "ENOENT" &&
+          startMode === "wizard"
+        ) {
+          // New project: write minimal seed SPEC.md, then re-parse.
+          const seedContent =
+            "---\nschema: mobile-tui/1\n\nscreens:\n  - id: placeholder\n    title: TODO\n    kind: regular\n    variants:\n      content:\n        kind: content\n        tree: []\n      empty: null\n      loading: null\n      error: null\n\nactions: {}\n\ndata:\n  entities: []\n\nnavigation:\n  root: placeholder\n  edges: []\n---\n";
+          await writeFile(absSpecPath, seedContent, "utf8");
+          parseResult = await parseSpecFile(absSpecPath);
+        } else {
+          ctx.ui.notify(
+            `Cannot open spec at ${absSpecPath}. Create a SPEC.md file in your project root first.`,
+            "error",
+          );
+          return;
+        }
       }
 
       if (!parseResult.spec || !parseResult.astHandle) {
@@ -90,11 +103,15 @@ export default function (pi: ExtensionAPI) {
         return;
       }
 
-      const store = createStore({
-        spec: parseResult.spec,
-        astHandle: parseResult.astHandle,
-        filePath: absSpecPath,
-      });
+      const store = createStore(
+        {
+          spec: parseResult.spec,
+          astHandle: parseResult.astHandle,
+          filePath: absSpecPath,
+        },
+        undefined, // use default COMMANDS registry
+        { withMutationQueue: (absPath, fn) => withFileMutationQueue(absPath, fn) },
+      );
 
       // Inject withFileMutationQueue into autosave (D-307/D-308).
       // This is the autosave write site that needs queue coordination.
@@ -102,15 +119,6 @@ export default function (pi: ExtensionAPI) {
       const autosave = createAutosave(store, absSpecPath, 500, {
         write: (path, spec, ast) =>
           withFileMutationQueue(path, () => writeSpecFile(path, spec, ast)),
-      });
-
-      // Helper: build session state snapshot for writeSession.
-      const sessionState = (mode: "wizard" | "canvas"): Parameters<typeof writeSession>[1] => ({
-        specPath: "./SPEC.md",
-        mode,
-        wizardStep: session?.wizardStep ?? 0,
-        focusedScreenIndex: session?.focusedScreenIndex ?? 0,
-        focusedPane: (session?.focusedPane ?? "screens") as "screens" | "inspector" | "preview",
       });
 
       // Wizard-or-canvas routing loop.
@@ -121,14 +129,31 @@ export default function (pi: ExtensionAPI) {
           const graduated = await ctx.ui.custom<boolean>((tui, theme, _kb, done) => {
             // theme is pi's Theme; cast to MinimalTheme (structurally compatible at runtime).
             const root = new WizardRoot(store, { tui, theme: theme as { fg: (token: string, str: string) => string } });
-            root.onGraduate = () => {
-              // Graduate: close wizard session; loop will open canvas next iteration.
+            root.onGraduate = async () => {
+              // Graduate: flush → persist canvas session with live step → open canvas.
+              // T-09-03-01: done() called AFTER flush and writeSession complete.
+              const liveStep = root.getStepCursor();
+              await autosave.flush();
+              await writeSession(ctx.cwd, {
+                specPath: "./SPEC.md",
+                mode: "canvas",
+                wizardStep: liveStep,
+                focusedScreenIndex: session?.focusedScreenIndex ?? 0,
+                focusedPane: (session?.focusedPane ?? "screens") as "screens" | "inspector" | "preview",
+              });
               done(true);
             };
             root.onQuit = async () => {
               // Shutdown sequence (T-09-03-01): flush → write session → done.
+              // Use live stepCursor — not stale session value.
               await autosave.flush();
-              await writeSession(ctx.cwd, sessionState("wizard"));
+              await writeSession(ctx.cwd, {
+                specPath: "./SPEC.md",
+                mode: "wizard",
+                wizardStep: root.getStepCursor(),
+                focusedScreenIndex: session?.focusedScreenIndex ?? 0,
+                focusedPane: (session?.focusedPane ?? "screens") as "screens" | "inspector" | "preview",
+              });
               done(false);
             };
             return root;
@@ -145,7 +170,13 @@ export default function (pi: ExtensionAPI) {
             root.onQuit = async () => {
               // Shutdown sequence (T-09-03-01): flush → write session → done.
               await autosave.flush();
-              await writeSession(ctx.cwd, sessionState("canvas"));
+              await writeSession(ctx.cwd, {
+                specPath: "./SPEC.md",
+                mode: "canvas",
+                wizardStep: session?.wizardStep ?? 0,
+                focusedScreenIndex: session?.focusedScreenIndex ?? 0,
+                focusedPane: (session?.focusedPane ?? "screens") as "screens" | "inspector" | "preview",
+              });
               done(undefined);
             };
             return root;
